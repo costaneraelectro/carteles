@@ -1,15 +1,12 @@
 /* ==========================================================================
    Tipografía de la cartelería — Brandon Grotesque
    --------------------------------------------------------------------------
-   Brandon Grotesque es una fuente de pago. Sube los archivos a esta carpeta
-   /fonts/ con EXACTAMENTE estos nombres y se cargarán solas:
+   Fuentes instaladas en esta carpeta:
+     BrandonGrotesque-Regular  -> peso 400
+     BrandonGrotesque-Medium   -> peso 500
+     BrandonGrotesque-Bold     -> peso 700  (usado también en precios)
 
-     BrandonGrotesque-Bold.otf      (o .ttf / .woff2)
-     BrandonGrotesque-Regular.otf   (o .ttf / .woff2)
-     BrandonGrotesque-Black.otf     (opcional, para precios grandes)
-
-   Si el archivo no está, cae automáticamente a Montserrat (Google Fonts),
-   que es la alternativa gratuita más parecida.
+   Si algún archivo falta, cae a Montserrat (Google Fonts).
    ========================================================================== */
 
 @font-face {
@@ -18,8 +15,16 @@
   font-style: normal;
   font-display: swap;
   src: url("BrandonGrotesque-Regular.woff2") format("woff2"),
-       url("BrandonGrotesque-Regular.otf") format("opentype"),
-       url("BrandonGrotesque-Regular.ttf") format("truetype");
+       url("BrandonGrotesque-Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Brandon Grotesque";
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url("BrandonGrotesque-Medium.woff2") format("woff2"),
+       url("BrandonGrotesque-Medium.otf") format("opentype");
 }
 
 @font-face {
@@ -28,16 +33,15 @@
   font-style: normal;
   font-display: swap;
   src: url("BrandonGrotesque-Bold.woff2") format("woff2"),
-       url("BrandonGrotesque-Bold.otf") format("opentype"),
-       url("BrandonGrotesque-Bold.ttf") format("truetype");
+       url("BrandonGrotesque-Bold.otf") format("opentype");
 }
 
+/* Sin peso Black disponible: los 900 reutilizan el Bold */
 @font-face {
   font-family: "Brandon Grotesque";
   font-weight: 900;
   font-style: normal;
   font-display: swap;
-  src: url("BrandonGrotesque-Black.woff2") format("woff2"),
-       url("BrandonGrotesque-Black.otf") format("opentype"),
-       url("BrandonGrotesque-Black.ttf") format("truetype");
+  src: url("BrandonGrotesque-Bold.woff2") format("woff2"),
+       url("BrandonGrotesque-Bold.otf") format("opentype");
 }
