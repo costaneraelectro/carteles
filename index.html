@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Generador de Carteles · Falabella</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= FORMULARIO ================= -->
+  <section class="panel" id="form">
+    <h1>Generador de Carteles</h1>
+    <p class="sub">Completa los datos. El cartel de la derecha se arma solo y detecta el tipo de evento, oferta y CMR.</p>
+
+    <fieldset>
+      <legend>Evento</legend>
+      <div class="field">
+        <label>Banner de evento</label>
+        <select id="evento">
+          <option value="">Ninguno</option>
+          <option value="cyber">CyberDay</option>
+          <option value="sneaker">Sneaker Corner</option>
+          <option value="exclusivo">Exclusivo falabella.com</option>
+        </select>
+        <div class="hint">Se agrega la franja superior solo si eliges un evento.</div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Producto</legend>
+      <div class="field">
+        <label>Imagen del producto</label>
+        <input type="file" id="imagen" accept="image/*" />
+      </div>
+      <div class="field">
+        <label>Departamento</label>
+        <select id="depto">
+          <option value="otros">Otros</option>
+          <option value="electro">Electro (muestra cuotas y CAE)</option>
+        </select>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Marca</label><input type="text" id="marca" placeholder="NIKE" /></div>
+        <div class="field"><label>SKU</label><input type="text" id="sku" placeholder="80681809" /></div>
+      </div>
+      <div class="field"><label>Categoría</label><input type="text" id="categoria" placeholder="ZAPATILLA MUJER" /></div>
+      <div class="field"><label>Modelo</label><input type="text" id="modelo" placeholder="Air Max Invigor" /></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Precios</legend>
+      <div class="field">
+        <label>Precio (oferta / actual)</label>
+        <input type="number" id="precio" placeholder="379990" />
+      </div>
+      <div class="field">
+        <label>Precio normal <span class="badge-auto">si es mayor = OFERTA</span></label>
+        <input type="number" id="precioNormal" placeholder="489990 (opcional)" />
+        <div class="hint">Déjalo vacío para un cartel de PRECIO NORMAL.</div>
+      </div>
+      <div class="field">
+        <label>Precio otro medio de pago</label>
+        <input type="number" id="precioMedio" placeholder="399990 (opcional)" />
+      </div>
+      <div class="field">
+        <label>Vigencia oferta</label>
+        <input type="text" id="vigencia" placeholder="VÁLIDA DESDE 08/07 HASTA 30/09/2025" />
+      </div>
+    </fieldset>
+
+    <fieldset id="fsCmr">
+      <legend>Oportunidad única CMR</legend>
+      <div class="field check"><input type="checkbox" id="cmr" /><label for="cmr" style="margin:0">Activar sello CMR</label></div>
+      <div class="field"><label>Texto principal del sello</label><input type="text" id="cmrMonto" placeholder="$0" /></div>
+      <div class="field"><label>Condición</label><input type="text" id="cmrCond" placeholder="CONTRATANDO PLAN CLARO DE $17.990 / MES" /></div>
+    </fieldset>
+
+    <fieldset id="fsElectro" class="hidden">
+      <legend>Electro · Cuotas y CAE</legend>
+      <div class="row2">
+        <div class="field"><label>N° cuotas</label><input type="number" id="nCuotas" placeholder="12" /></div>
+        <div class="field"><label>Valor cuota</label><input type="number" id="valorCuota" placeholder="auto" /></div>
+      </div>
+      <div class="hint" style="margin:-8px 0 12px">Si dejas el valor cuota vacío se calcula solo (precio ÷ n° cuotas).</div>
+      <div class="row2">
+        <div class="field"><label>CAE %</label><input type="text" id="cae" placeholder="39,93%" /></div>
+        <div class="field"><label>CTC</label><input type="number" id="ctc" placeholder="464890" /></div>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button class="btn png" id="btnPng">Descargar PNG</button>
+      <button class="btn pdf" id="btnPdf">Descargar PDF</button>
+    </div>
+  </section>
+
+  <!-- ================= PREVIEW ================= -->
+  <section class="stage">
+    <div class="stage-scale" id="stageScale">
+      <!-- CARTEL -->
+      <article class="cartel" id="cartel">
+
+        <div class="cartel__evento hidden" id="evtBar"><img id="evtImg" alt="" /></div>
+
+        <div class="cartel__media">
+          <div class="cartel__unica hidden" id="unicaBox">
+            <div class="u"><b id="uMonto">$0</b><span>ÚNICA</span></div>
+            <div class="cmr"><img src="assets/logos/cmr-puntos.png" alt="CMR" /></div>
+          </div>
+          <div class="ph" id="mediaPh">Sube la imagen del producto</div>
+          <img id="mediaImg" class="hidden" alt="" />
+        </div>
+
+        <div class="cartel__sellos hidden" id="sellos">
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+            Protege tu producto
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+            Garantía extendida
+          </span>
+        </div>
+
+        <div class="cartel__info">
+          <div class="cartel__marca" id="oMarca"></div>
+          <div class="cartel__cat" id="oCat"></div>
+          <div class="cartel__modelo" id="oModelo"></div>
+          <div class="cartel__sku" id="oSku"></div>
+        </div>
+
+        <div class="cartel__precio" id="precioBox">
+          <span class="precio__tag" id="pTag">PRECIO NORMAL</span>
+          <div class="precio__row">
+            <span class="precio__main" id="pMain">$0</span>
+            <span class="precio__normal hidden" id="pNormalWrap"><s id="pNormal"></s><small>PRECIO NORMAL</small></span>
+          </div>
+          <span class="precio__medio hidden" id="pMedio"></span>
+
+          <div class="precio__electro hidden" id="pElectro">
+            <div class="precio__cuotas" id="pCuotas"></div>
+            <div class="precio__cae" id="pCae"></div>
+            <div class="precio__cmrline hidden" id="pMedioElectro"></div>
+          </div>
+
+          <div class="cartel__vigencia hidden" id="pVigencia"></div>
+        </div>
+
+        <div class="cartel__pie" id="pie">
+          <span id="cmrCondFoot"></span>
+          <span>falabella.com</span>
+        </div>
+
+      </article>
+    </div>
+  </section>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

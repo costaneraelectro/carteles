@@ -1,0 +1,43 @@
+/* ==========================================================================
+   Tipografía de la cartelería — Brandon Grotesque
+   --------------------------------------------------------------------------
+   Brandon Grotesque es una fuente de pago. Sube los archivos a esta carpeta
+   /fonts/ con EXACTAMENTE estos nombres y se cargarán solas:
+
+     BrandonGrotesque-Bold.otf      (o .ttf / .woff2)
+     BrandonGrotesque-Regular.otf   (o .ttf / .woff2)
+     BrandonGrotesque-Black.otf     (opcional, para precios grandes)
+
+   Si el archivo no está, cae automáticamente a Montserrat (Google Fonts),
+   que es la alternativa gratuita más parecida.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Brandon Grotesque";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("BrandonGrotesque-Regular.woff2") format("woff2"),
+       url("BrandonGrotesque-Regular.otf") format("opentype"),
+       url("BrandonGrotesque-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Brandon Grotesque";
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url("BrandonGrotesque-Bold.woff2") format("woff2"),
+       url("BrandonGrotesque-Bold.otf") format("opentype"),
+       url("BrandonGrotesque-Bold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Brandon Grotesque";
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+  src: url("BrandonGrotesque-Black.woff2") format("woff2"),
+       url("BrandonGrotesque-Black.otf") format("opentype"),
+       url("BrandonGrotesque-Black.ttf") format("truetype");
+}
