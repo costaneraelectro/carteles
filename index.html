@@ -9,11 +9,11 @@
 <body>
 <div class="app">
 
-  <!-- ================= PANEL IZQUIERDO ================= -->
+  <!-- ================= PANEL ================= -->
   <section class="panel">
     <div class="panel__head">
       <h1>Generador de Carteles</h1>
-      <p class="sub">Arma el cartel con la estructura de tienda. Detecta oferta, CMR y electro.</p>
+      <p class="sub">Elige el tipo, escribe el SKU y ajusta. El cartel se arma con la estructura de tienda.</p>
     </div>
 
     <div class="tabs">
@@ -25,62 +25,60 @@
     <div class="tabpane" id="pane-cartel">
 
       <fieldset>
-        <legend>Tipo de cartel</legend>
+        <legend>Tipo y banner</legend>
         <div class="field">
-          <label>Tipo</label>
+          <label>Tipo de cartel</label>
           <select id="tipo">
-            <option value="normal">Precio normal</option>
-            <option value="oferta">Oferta todo medio de pago</option>
-            <option value="cmr">CMR · Oportunidad única</option>
+            <option value="normal_cae">Normal electro · CAE</option>
+            <option value="normal_sincae">Normal electro · SIN CAE</option>
+            <option value="oferta_cae">Oferta · CAE</option>
+            <option value="oferta_sincae">Oferta · SIN CAE</option>
+            <option value="ou_cae">Oportunidad única · CAE</option>
+            <option value="ou_sincae">Oportunidad única · SIN CAE</option>
           </select>
         </div>
         <div class="field">
-          <label>Banner de evento</label>
-          <select id="evento"><option value="">Ninguno (header online)</option></select>
+          <label>Banner</label>
+          <select id="evento"></select>
         </div>
+        <div class="field check" id="ouTmpWrap"><input type="checkbox" id="ouTmp" checked /><label for="ouTmp" style="margin:0">Mostrar Oferta TMP en Oportunidad única</label></div>
       </fieldset>
 
       <fieldset>
         <legend>Producto</legend>
+        <div class="field">
+          <label>SKU</label>
+          <div class="inline-btn">
+            <input type="text" id="sku" placeholder="17123831" />
+            <button class="btn sku" id="btnSku" style="flex:0 0 auto;padding:9px 12px">Buscar</button>
+          </div>
+          <div class="hint" id="skuHint">Al buscar, rellena marca y precios desde Falabella.com. Confirma siempre (pueden variar).</div>
+        </div>
         <div class="row2">
-          <div class="field"><label>Marca</label><input type="text" id="marca" placeholder="SONY" /></div>
-          <div class="field"><label>SKU</label><input type="text" id="sku" placeholder="80648266" /></div>
+          <div class="field"><label>Marca</label><input type="text" id="marca" placeholder="NINJA" /></div>
+          <div class="field"><label>Categoría</label><input type="text" id="categoria" placeholder="ELECTRO HOGAR" /></div>
         </div>
-        <div class="field"><label>Categoría</label><input type="text" id="categoria" placeholder="CONSOLA" /></div>
-        <div class="field"><label>Modelo</label><input type="text" id="modelo" placeholder="PS5 DIG" /></div>
-        <div class="field check"><input type="checkbox" id="showImg" /><label for="showImg" style="margin:0">Mostrar imagen del producto (se baja del SKU)</label></div>
-        <div class="field hidden" id="imgManualWrap">
-          <label>Imagen manual (si el SKU no trae)</label>
-          <input type="file" id="imagen" accept="image/*" />
-        </div>
-        <div class="field check"><input type="checkbox" id="showQr" /><label for="showQr" style="margin:0">Mostrar QR (esquina)</label></div>
-        <div class="field hidden" id="qrWrap"><label>Imagen QR</label><input type="file" id="qr" accept="image/*" /></div>
+        <div class="field"><label>Modelo <span class="badge-auto">opcional</span></label><input type="text" id="modelo" placeholder="NC300EU" /></div>
+        <div class="field check"><input type="checkbox" id="showImg" /><label for="showImg" style="margin:0">Mostrar imagen del producto (del SKU)</label></div>
+        <div class="field hidden" id="imgManualWrap"><label>Imagen manual</label><input type="file" id="imagen" accept="image/*" /></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>QR</legend>
+        <div class="field check"><input type="checkbox" id="showQr" /><label for="showQr" style="margin:0">Agregar QR en la esquina</label></div>
+        <div class="field hidden" id="qrWrap"><label>Link de Falabella.com</label><input type="text" id="qrLink" placeholder="https://www.falabella.com/falabella-cl/product/17123831" /></div>
       </fieldset>
 
       <fieldset>
         <legend>Precios</legend>
-        <div class="field" id="fCmr">
-          <label>Precio CMR <span class="badge-auto">rojo</span></label>
-          <input type="number" id="precioCmr" placeholder="689990" />
-        </div>
-        <div class="field">
-          <label id="lblPrecio">Precio</label>
-          <input type="number" id="precio" placeholder="759990" />
-        </div>
-        <div class="field" id="fMedio">
-          <label>Otro medio de pago <span class="badge-auto">opcional</span></label>
-          <input type="number" id="precioMedio" placeholder="79990 (opcional)" />
-        </div>
-        <div class="field" id="fNormal">
-          <label>Precio normal</label>
-          <input type="number" id="precioNormal" placeholder="759990" />
-        </div>
+        <div class="field" id="fOU"><label>Precio Oportunidad única <span class="badge-auto">rojo</span></label><input type="number" id="precioOU" placeholder="76990" /></div>
+        <div class="field" id="fOferta"><label>Precio oferta (TMP) <span class="badge-auto">rojo</span></label><input type="number" id="precioOferta" placeholder="189990" /></div>
+        <div class="field" id="fPrecio"><label>Precio</label><input type="number" id="precio" placeholder="249990" /></div>
+        <div class="field" id="fNormal"><label>Precio normal</label><input type="number" id="precioNormal" placeholder="249990" /></div>
       </fieldset>
 
       <fieldset id="fsElectro">
-        <legend>Electro · cuotas y CAE</legend>
-        <div class="field check"><input type="checkbox" id="electro" /><label for="electro" style="margin:0">Es electro</label></div>
-        <div class="hint" style="margin:-6px 0 10px">En oferta, las cuotas salen solo si el precio supera $100.000. En CMR siempre salen.</div>
+        <legend>Cuotas y CAE</legend>
         <div class="row2">
           <div class="field"><label>N° cuotas</label><input type="number" id="nCuotas" value="12" /></div>
           <div class="field"><label>CAE %</label><input type="text" id="cae" value="39,93%" /></div>
@@ -89,16 +87,15 @@
           <div class="field"><label>Valor cuota <span class="badge-auto">auto</span></label><input type="number" id="valorCuota" placeholder="auto" /></div>
           <div class="field"><label>CTC <span class="badge-auto">auto</span></label><input type="number" id="ctc" placeholder="auto" /></div>
         </div>
-        <div class="hint" style="margin-top:-4px">Auto usa los factores de la tabla 12 cuotas @ 39,93%. Verifica con tu sistema si el CAE cambia.</div>
+        <div class="hint" style="margin-top:-4px">Auto = 12 cuotas @ 39,93%. Verifica con tu sistema si cambia.</div>
       </fieldset>
 
       <fieldset>
         <legend>Vigencia</legend>
         <div class="row2">
-          <div class="field"><label>Desde</label><input type="text" id="vigDesde" placeholder="24/12/2025" /></div>
-          <div class="field"><label>Hasta</label><input type="text" id="vigHasta" placeholder="30/12/2026" /></div>
+          <div class="field"><label>Desde</label><input type="text" id="vigDesde" placeholder="11/09/2026" /></div>
+          <div class="field"><label>Hasta</label><input type="text" id="vigHasta" placeholder="17/09/2026" /></div>
         </div>
-        <div class="field"><label>Código página</label><input type="text" id="pagina" placeholder="P-118" /></div>
       </fieldset>
 
       <div class="actions">
@@ -110,12 +107,10 @@
     <!-- ---------- TAB CONFIG ---------- -->
     <div class="tabpane hidden" id="pane-config">
       <fieldset>
-        <legend>Banners de evento</legend>
-        <p class="hint" style="margin-top:0">Sube o edita los banners que aparecen en el selector del cartel. Se guardan en este navegador.</p>
+        <legend>Banners</legend>
+        <p class="hint" style="margin-top:0">Sube, edita o borra banners. Marca "franja" para que ocupe todo el ancho; sin marcar va como header (arriba-izquierda). Se guardan en este navegador.</p>
         <div class="bannerlist" id="bannerlist"></div>
-        <div class="actions" style="margin-top:12px">
-          <button class="btn ghost" id="addBanner">+ Agregar banner</button>
-        </div>
+        <div class="actions" style="margin-top:12px"><button class="btn ghost" id="addBanner">+ Agregar banner</button></div>
       </fieldset>
 
       <fieldset>
@@ -124,15 +119,14 @@
       </fieldset>
 
       <fieldset>
+        <legend>Búsqueda por SKU</legend>
+        <div class="field"><label>Proxy CORS (para leer Falabella.com)</label><input type="text" id="cfgProxy" /></div>
+        <div class="hint" style="margin-top:-6px">La página no puede leer Falabella.com directo (CORS). Se usa un proxy. Por defecto allorigins; puedes cambiarlo.</div>
+      </fieldset>
+
+      <fieldset>
         <legend>Texto legal del pie</legend>
-        <div class="field">
-          <label>Header "online"</label>
-          <input type="text" id="cfgHeader" />
-        </div>
-        <div class="field">
-          <label>Legal CMR / CMF</label>
-          <textarea id="cfgLegal"></textarea>
-        </div>
+        <div class="field"><textarea id="cfgLegal"></textarea></div>
         <div class="actions"><button class="btn ghost" id="resetCfg">Restaurar valores por defecto</button></div>
       </fieldset>
     </div>
@@ -143,37 +137,34 @@
     <div class="stage-scale" id="stageScale">
       <article class="cartel" id="cartel">
 
-        <div class="c-evento hidden" id="evtBar"><img id="evtImg" alt="" /></div>
+        <div class="c-franja hidden" id="franja"><img id="franjaImg" alt="" /></div>
 
-        <header class="c-header" id="header">
-          <div class="c-header__txt" id="headerTxt"></div>
-          <img class="c-header__qr hidden" id="qrImg" alt="QR" />
-        </header>
-
-        <div class="c-media hidden" id="media">
-          <img id="mediaImg" alt="" />
-          <div class="ph hidden" id="mediaPh">Imagen del producto</div>
+        <div class="c-top" id="top">
+          <div class="c-top__banner" id="topBanner"><img id="topBannerImg" alt="" /></div>
+          <div class="c-qr hidden" id="qrBox"></div>
         </div>
 
-        <div class="c-info">
-          <div class="c-marca" id="oMarca"></div>
-          <div class="c-cat" id="oCat"></div>
-          <div class="c-modelo" id="oModelo"></div>
+        <div class="c-body" id="body">
+          <div class="c-media hidden" id="media"><img id="mediaImg" alt="" /></div>
+
+          <div class="c-info">
+            <div class="c-marca" id="oMarca"></div>
+            <div class="c-cat" id="oCat"></div>
+            <div class="c-modelo hidden" id="oModelo"></div>
+            <div class="c-sku hidden" id="oSku"></div>
+          </div>
+
+          <div class="c-badge hidden" id="badge"></div>
+
+          <div class="c-precios" id="precios"></div>
         </div>
-
-        <div class="c-badge hidden" id="badge"></div>
-
-        <div class="c-precios" id="precios"></div>
 
         <footer class="c-footer" id="footer">
           <div class="c-footer__legal">
             <div class="vig" id="fVig"></div>
             <div id="fLegal"></div>
           </div>
-          <div class="c-footer__right">
-            <img id="fCmrLogo" alt="CMR puntos" />
-            <div class="c-footer__pag" id="fPag"></div>
-          </div>
+          <div class="c-footer__right"><img id="fLogo" alt="" /></div>
         </footer>
 
       </article>
@@ -182,6 +173,7 @@
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="js/app.js"></script>

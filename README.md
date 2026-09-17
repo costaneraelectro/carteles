@@ -9,35 +9,37 @@ sin servidor — y funciona en GitHub Pages.
 Reproduce la estructura exacta de la cartelería de tienda:
 
 - **Tipografía** — **Brandon Grotesque** (la misma de los carteles).
-- **3 tipos de cartel**:
-  - **Precio normal** — un precio + PRECIO NORMAL.
-  - **Oferta todo medio de pago** — "OFERTA TODO MEDIO DE PAGO" (rojo, grande) y
-    abajo el precio normal. Si es electro y el precio supera **$100.000**, agrega
-    cuotas + CAE/CTC.
-  - **CMR · Oportunidad única** — sello Oportunidad única + CMR, precio CMR
-    (rojo), cuotas + CAE/CTC, otro medio de pago (opcional) y precio normal.
-- **Imagen por SKU** — al escribir el SKU baja la foto de
-  `https://media.falabella.com/falabellaCL/{sku}/public` (con opción de subir una
-  manual si el SKU no la trae). El QR es opcional.
-- **CAE / cuotas automáticos** — para 12 cuotas @ 39,93% calcula el valor cuota
-  (≈ precio × 0,101296) y el CTC (≈ precio × 1,22347), derivados de los carteles
-  reales. Ambos quedan **editables** por si el CAE cambia.
-- **Header y footer legal** — "TENEMOS MÁS DE LO QUE PODEMOS MOSTRAR ONLINE",
-  vigencia, texto CMF, logo CMR puntos y código de página.
-- **Exporta** — **PNG** y **PDF** tamaño carta vertical.
+- **6 tipos** (filtro): Normal electro CAE · Normal electro SIN CAE · Oferta CAE ·
+  Oferta SIN CAE · Oportunidad única CAE · Oportunidad única SIN CAE.
+  - **Oferta** — "TODO MEDIO DE PAGO" (rojo) y debajo "PRECIO NORMAL".
+  - **Oportunidad única** — sello + precio OU, **Oferta TMP (se puede desactivar)**
+    y precio normal, los tres del mismo tamaño.
+  - Las variantes **CAE** agregan cuotas + CAE/CTC.
+- **Buscar por SKU** — botón *Buscar* lee Falabella.com (vía proxy CORS) y rellena
+  marca y precios (oferta / normal / CMR). **Confirma siempre**, pueden variar.
+- **Imagen por SKU** — `media.falabella.com/falabellaCL/{sku}/public`, con upload
+  manual de respaldo. Sin imagen, el contenido va **centrado**.
+- **QR** — pega el link de Falabella.com y genera el QR en la esquina.
+- **CAE / cuotas automáticos** — 12 cuotas @ 39,93%: cuota ≈ precio × 0,101296,
+  CTC ≈ precio × 1,22347 (de los carteles reales). Editables.
+- **Datos en el cartel** — MARCA, CATEGORÍA, `MODELO:` (si va) y `SKU:`.
+- **Pie** — vigencia, legal y logo **Fpuntos**.
+- **Exporta** — **PNG** y **PDF** carta vertical.
 
 ## Pestaña Configuración
 
-- Sube / edita / borra los **banners de evento** que aparecen en el selector
-  (Exclusivo falabella.com, CyberDay, Sneaker Corner, o los que agregues).
-- Sube los **sellos y logos** (Oportunidad única + CMR, logo CMR puntos del pie).
-  Mientras no subas el sello CMR, se muestra un marcador de posición.
-- Edita el **texto del header** y el **legal del pie**.
-- Todo se guarda en el navegador (localStorage). "Restaurar" vuelve a los valores
-  por defecto.
+- **Banners** — sube / edita / borra. Casilla *franja* = ancho completo; sin
+  marcar = header (arriba-izquierda, como "Tenemos más online", el por defecto).
+  El banner va sobre fondo blanco igual que el cartel.
+- **Sellos y logos** — sube el sello *Oportunidad única + CMR*, la *mini tarjeta
+  CMR* (junto a las cuotas) y el logo *Fpuntos* del pie. Mientras no subas el
+  sello, sale un marcador de posición.
+- **Proxy CORS** para la búsqueda por SKU (por defecto allorigins; editable).
+- **Legal** del pie editable. "Restaurar" vuelve a los valores por defecto.
+- Todo se guarda en el navegador (localStorage).
 
-> Los logos oficiales (Oportunidad única, CMR, Fpuntos, CyberDay) no vienen en el
-> repo — súbelos una vez desde la pestaña Configuración.
+> El sello oficial *Oportunidad única + CMR* y la *mini tarjeta CMR* no vienen en
+> el repo — súbelos una vez desde Configuración.
 
 ## Uso
 

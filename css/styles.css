@@ -1,7 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap");
 @import url("../fonts/fonts.css");
 
-/* ===== Tokens ===== */
 :root {
   --verde: #a6ce39;
   --verde-osc: #7ea82b;
@@ -20,13 +19,11 @@ html, body { margin: 0; font-family: "Montserrat", Arial, sans-serif; background
 /* ===== Shell ===== */
 .app { display: grid; grid-template-columns: 400px 1fr; gap: 24px; max-width: 1440px; margin: 0 auto; padding: 20px; }
 @media (max-width: 940px) { .app { grid-template-columns: 1fr; } }
-
-.panel { background: #fff; border: 1px solid var(--gris-cl); border-radius: 14px; padding: 0; overflow: hidden; }
+.panel { background: #fff; border: 1px solid var(--gris-cl); border-radius: 14px; overflow: hidden; }
 .panel__head { padding: 16px 18px 0; }
 .panel h1 { font-size: 20px; margin: 0 0 2px; }
 .panel .sub { color: var(--gris); font-size: 13px; margin: 0 0 12px; }
 
-/* Tabs */
 .tabs { display: flex; gap: 4px; padding: 0 18px; border-bottom: 1px solid var(--gris-cl); }
 .tab { border: 0; background: none; padding: 10px 14px; font-weight: 800; font-size: 14px; color: var(--gris); cursor: pointer; border-bottom: 3px solid transparent; }
 .tab.active { color: var(--negro); border-bottom-color: var(--verde); }
@@ -38,7 +35,7 @@ html, body { margin: 0; font-family: "Montserrat", Arial, sans-serif; background
 .field input[type=text], .field input[type=number], .field select, .field textarea {
   width: 100%; padding: 9px 11px; border: 1px solid var(--gris-cl); border-radius: 9px; font-size: 14px; font-family: inherit; background: #fff;
 }
-.field textarea { resize: vertical; min-height: 70px; }
+.field textarea { resize: vertical; min-height: 66px; }
 .field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--verde); border-color: var(--verde); }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .hint { font-size: 11px; color: var(--gris); margin-top: 4px; }
@@ -48,18 +45,20 @@ fieldset { border: 1px dashed var(--gris-cl); border-radius: 10px; padding: 12px
 fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); text-transform: uppercase; padding: 0 6px; }
 .hidden { display: none !important; }
 .badge-auto { display: inline-block; background: #eef7d6; color: var(--verde-osc); font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 20px; margin-left: 6px; }
+.inline-btn { display: inline-flex; gap: 8px; }
 
 .actions { display: flex; gap: 10px; margin-top: 6px; }
 .btn { flex: 1; border: 0; border-radius: 10px; padding: 12px; font-weight: 800; font-size: 14px; cursor: pointer; }
 .btn.png { background: var(--negro); color: #fff; }
 .btn.pdf { background: var(--rojo); color: #fff; }
 .btn.ghost { background: #f2f3f5; color: #333; border: 1px solid var(--gris-cl); }
+.btn.sku { background: var(--verde); color: #10240a; }
 .btn:active { transform: translateY(1px); }
 
-/* Config: lista de banners */
+/* Config banners */
 .bannerlist { display: flex; flex-direction: column; gap: 10px; }
 .banneritem { display: flex; align-items: center; gap: 10px; border: 1px solid var(--gris-cl); border-radius: 10px; padding: 8px; }
-.banneritem .thumb { width: 90px; height: 46px; border-radius: 6px; background: #f2f3f5 repeating-linear-gradient(45deg,#eee,#eee 6px,#f6f6f6 6px,#f6f6f6 12px); display: flex; align-items: center; justify-content: center; overflow: hidden; flex: 0 0 auto; }
+.banneritem .thumb { width: 90px; height: 46px; border-radius: 6px; background: #fafafa; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; overflow: hidden; flex: 0 0 auto; }
 .banneritem .thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .banneritem .meta { flex: 1; min-width: 0; }
 .banneritem .meta input { width: 100%; border: 0; font-weight: 700; font-size: 13px; padding: 2px 0; }
@@ -67,9 +66,10 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .banneritem .ops { display: flex; flex-direction: column; gap: 4px; }
 .banneritem .ops button { font-size: 11px; border: 1px solid var(--gris-cl); background: #fff; border-radius: 6px; padding: 3px 6px; cursor: pointer; }
 .banneritem .ops button.del { color: var(--rojo); border-color: #f3c2c5; }
+.banneritem .ops label.chk { font-size: 10px; color: #555; display: flex; align-items: center; gap: 3px; }
 
 /* ========================================================================
-   CARTEL — estructura de tienda
+   CARTEL
    ======================================================================== */
 .stage { display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .stage-scale { transform-origin: top center; }
@@ -80,61 +80,61 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
   position: relative; display: flex; flex-direction: column; padding: 34px 46px 0; overflow: hidden;
 }
 
-/* Header */
-.c-header { display: flex; align-items: flex-start; justify-content: space-between; min-height: 60px; }
-.c-header__txt { font-weight: 700; font-size: 18px; letter-spacing: .01em; color: #222; max-width: 62%; line-height: 1.1; text-transform: uppercase; }
-.c-header__txt b { color: var(--verde-osc); }
-.c-header__qr { width: 128px; height: 128px; object-fit: contain; }
-.c-header__qr.hidden { display: none; }
+/* Header row: banner (header-mode) + QR */
+.c-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; min-height: 40px; }
+.c-top__banner { flex: 1; min-width: 0; }
+.c-top__banner img { max-height: 46px; max-width: 100%; object-fit: contain; object-position: left center; }
+.c-qr { width: 130px; height: 130px; flex: 0 0 auto; }
+.c-qr canvas, .c-qr img { width: 100% !important; height: 100% !important; }
+.c-qr.hidden { display: none; }
 
-/* Banner de evento (reemplaza header) */
-.c-evento { margin: -34px -46px 0; height: 120px; background: #0d0d0d; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.c-evento img { max-width: 100%; max-height: 100%; object-fit: contain; }
+/* Franja (banner full width, fondo blanco como el cartel) */
+.c-franja { margin: -34px -46px 0; padding: 0; background: var(--papel); display: flex; align-items: center; justify-content: center; }
+.c-franja img { width: 100%; max-height: 150px; object-fit: contain; }
+.c-franja.hidden { display: none; }
+
+/* Cuerpo centrable */
+.c-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: flex-start; }
+.c-body.center { justify-content: center; }
 
 /* Imagen producto */
-.c-media { display: flex; align-items: center; justify-content: center; padding: 8px 0; flex: 0 0 auto; }
-.c-media img { max-width: 78%; max-height: 250px; object-fit: contain; }
-.c-media .ph { color: #c4c4c4; font-size: 15px; font-weight: 700; text-align: center; border: 2px dashed #e0e0e0; border-radius: 14px; padding: 40px; }
+.c-media { display: flex; align-items: center; justify-content: center; padding: 6px 0; }
+.c-media img { max-width: 74%; max-height: 240px; object-fit: contain; }
 .c-media.hidden { display: none; }
 
-/* Info producto (centrado) */
+/* Info */
 .c-info { text-align: center; margin-top: 6px; }
 .c-marca { font-weight: 700; font-size: 62px; line-height: .95; letter-spacing: -0.01em; text-transform: uppercase; }
-.c-cat { font-weight: 500; font-size: 34px; line-height: 1; margin-top: 2px; }
-.c-modelo { font-weight: 500; font-size: 22px; color: #222; margin-top: 6px; }
-.c-modelo b { font-weight: 700; }
+.c-cat { font-weight: 500; font-size: 34px; line-height: 1; margin-top: 2px; text-transform: uppercase; }
+.c-modelo { font-weight: 500; font-size: 21px; color: #222; margin-top: 8px; text-transform: uppercase; }
+.c-sku { font-weight: 500; font-size: 21px; color: #222; margin-top: 1px; text-transform: uppercase; }
 
-/* Badge Oportunidad única + CMR */
+/* Badge Oportunidad única */
 .c-badge { display: flex; justify-content: center; margin: 16px 0 4px; }
-.c-badge img { height: 96px; object-fit: contain; }
+.c-badge img { height: 100px; object-fit: contain; }
 .c-badge.hidden { display: none; }
-/* Fallback CSS del sello si no hay imagen subida */
-.c-badge .fallback { display: inline-flex; align-items: stretch; gap: 8px; }
-.c-badge .fb-unica { background: var(--rojo); color: #fff; font-weight: 700; border-radius: 16px; padding: 14px 22px; text-align: center; line-height: 1; }
-.c-badge .fb-unica small { display: block; font-size: 15px; font-weight: 500; }
-.c-badge .fb-unica b { display: block; font-size: 26px; }
-.c-badge .fb-cmr { background: #6aa84f; color: #fff; font-weight: 700; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; font-size: 22px; }
+.c-badge .ph { border: 2px dashed #ddd; color: #b3b3b3; font-family: "Montserrat",sans-serif; font-size: 12px; font-weight: 700; border-radius: 12px; padding: 14px 20px; text-align: center; }
 
-/* Bloque precios */
-.c-precios { text-align: center; margin-top: 8px; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: flex-start; }
-.p-line { margin: 4px 0; }
-.p-tag { font-weight: 700; font-size: 26px; letter-spacing: .01em; text-transform: uppercase; line-height: 1; }
-.p-val { font-weight: 700; letter-spacing: -0.01em; line-height: .92; }
-.p-val.xl { font-size: 118px; }
-.p-val.lg { font-size: 92px; }
-.p-val.md { font-size: 72px; }
+/* Precios */
+.c-precios { text-align: center; margin-top: 10px; }
+.p-block { margin: 6px 0; }
+.p-tag { font-weight: 700; font-size: 30px; letter-spacing: .01em; text-transform: uppercase; line-height: 1; }
+.p-val { font-weight: 700; letter-spacing: -0.01em; line-height: .9; }
+.p-val.xl { font-size: 120px; }
+.p-val.lg { font-size: 88px; }
+.p-val.md { font-size: 70px; }
 .p-rojo { color: var(--rojo); }
 .p-negro { color: var(--negro); }
-.p-cuotas { font-weight: 700; font-size: 42px; line-height: 1; margin-top: 2px; }
-.p-cae { font-weight: 500; font-size: 26px; color: #222; margin-top: 0; }
-.p-sub { font-weight: 500; font-size: 30px; text-transform: uppercase; line-height: 1; margin-top: 2px; }
-.p-normal-tachado { font-weight: 500; font-size: 40px; color: #444; }
-.p-normal-tachado s { text-decoration-thickness: 3px; }
+/* cuotas con mini tarjeta CMR */
+.p-cuotas-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 6px; }
+.p-cuotas-wrap img { height: 74px; object-fit: contain; }
+.p-cuotas-txt { text-align: left; }
+.p-cuotas { font-weight: 700; font-size: 40px; line-height: 1; }
+.p-cae { font-weight: 500; font-size: 25px; color: #222; }
 
-/* Footer legal */
+/* Footer */
 .c-footer { margin: 0 -46px; padding: 12px 46px 16px; display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; }
 .c-footer__legal { font-size: 10px; line-height: 1.25; color: #444; font-family: "Montserrat", Arial, sans-serif; text-align: left; }
 .c-footer__legal .vig { font-weight: 700; text-transform: uppercase; }
-.c-footer__right { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 0 0 auto; }
-.c-footer__right img { height: 66px; object-fit: contain; }
-.c-footer__pag { font-size: 11px; color: #666; font-weight: 600; }
+.c-footer__right { flex: 0 0 auto; }
+.c-footer__right img { height: 74px; object-fit: contain; }
