@@ -116,14 +116,15 @@
     const horiz = size.layout === "h";
     $("cartel").classList.toggle("hidden", horiz);
     $("cartelH").classList.toggle("hidden", !horiz);
-    // dims — horizontal usa alto de diseño fijo (mismo ratio) para que la tipografía calce
+    // dims de diseño: ancho fijo (fuentes como carta), alto según proporción del tamaño
     if (horiz) {
       const HDES = 230, el = $("cartelH");
       el.style.height = HDES + "px";
       el.style.width = Math.round(HDES * (size.w / size.h)) + "px";
     } else {
-      $("cartel").style.width = (size.w * PXCM) + "px";
-      $("cartel").style.height = (size.h * PXCM) + "px";
+      const DW = 750; // ancho de diseño constante
+      $("cartel").style.width = DW + "px";
+      $("cartel").style.height = Math.round(DW * (size.h / size.w)) + "px";
     }
     // imagen manual solo carta
     $("imgManualWrap").classList.toggle("hidden", !(size.img && $("showImg").checked));
@@ -145,7 +146,7 @@
     if (header) $("topBannerImg").src = ev.src;
 
     const qrOn = size.chrome && $("showQr").checked && $("qrLink").value.trim();
-    $("franja").classList.toggle("has-qr", !!(franja && qrOn));
+    $("qrBox").classList.toggle("bajo", !!franja); // bajo la franja para no pisarla
     $("qrBox").classList.toggle("hidden", !qrOn);
     if (qrOn) { if ($("qrBox").dataset.link !== $("qrLink").value.trim()) { $("qrBox").dataset.link = $("qrLink").value.trim(); drawQR($("qrLink").value.trim()); } }
     else { $("qrBox").innerHTML = ""; $("qrBox").dataset.link = ""; }
@@ -170,16 +171,22 @@
     $("ouTmpWrap").classList.toggle("hidden", !t.ou);
     $("fsElectro").classList.toggle("hidden", !t.cae);
 
-    const line = (tag, val, cls, sz) => '<div class="p-block">' + (tag ? '<div class="p-tag ' + (cls || '') + '">' + tag + '</div>' : '') + '<div class="p-val ' + sz + ' ' + (cls || 'p-negro') + '">' + (val || '$0') + '</div></div>';
+    const line = (tag, val, cls, sz) => '<div class="p-block">' + (tag ? '<div class="p-tag ' + sz + ' ' + (cls || '') + '">' + tag + '</div>' : '') + '<div class="p-val ' + sz + ' ' + (cls || 'p-negro') + '">' + (val || '$0') + '</div></div>';
+    // Jerarquía: en tamaños chicos el precio principal (OU/oferta) va más grande que el resto
+    const small = !size.img;               // carta es el único con img=true
+    const PRIN = small ? "lg" : "xl";       // principal oferta/normal
+    const OUsz = small ? "lg" : "lg";       // OU principal
+    const SEC  = small ? "sm" : "md";       // secundarios (normal, otro medio)
     let html = "";
     if (t.ou) {
-      html += line("", clp(c.precioOU), "p-rojo", "lg") + cuotasHTML(c);
-      if ($("ouTmp").checked && !isNaN(c.precioOferta)) html += line("TODO MEDIO DE PAGO", clp(c.precioOferta), "p-negro", "lg");
-      if (!isNaN(c.precioNormal)) html += line("PRECIO NORMAL", clp(c.precioNormal), "p-negro", "lg");
+      html += line("", clp(c.precioOU), "p-rojo", OUsz) + cuotasHTML(c);
+      const ouSec = small ? "sm" : "lg";    // en carta los 3 van igual (lg); en chicos, más chicos
+      if ($("ouTmp").checked && !isNaN(c.precioOferta)) html += line("TODO MEDIO DE PAGO", clp(c.precioOferta), "p-negro", ouSec);
+      if (!isNaN(c.precioNormal)) html += line("PRECIO NORMAL", clp(c.precioNormal), "p-negro", ouSec);
     } else if (t.oferta) {
-      html += line("TODO MEDIO DE PAGO", clp(c.precioOferta), "p-rojo", "xl") + cuotasHTML(c);
-      if (!isNaN(c.precioNormal)) html += line("PRECIO NORMAL", clp(c.precioNormal), "p-negro", "md");
-    } else { html += line("", clp(c.precio), "p-negro", "xl") + cuotasHTML(c); }
+      html += line("TODO MEDIO DE PAGO", clp(c.precioOferta), "p-rojo", PRIN) + cuotasHTML(c);
+      if (!isNaN(c.precioNormal)) html += line("PRECIO NORMAL", clp(c.precioNormal), "p-negro", SEC);
+    } else { html += line("", clp(c.precio), "p-negro", PRIN) + cuotasHTML(c); }
     $("precios").innerHTML = html;
 
     const d = $("vigDesde").value.trim(), h = $("vigHasta").value.trim();
@@ -210,7 +217,10 @@
 
     const primario = t.ou ? c.precioOU : t.oferta ? c.precioOferta : c.precio;
     let html = '<div class="pv p-rojo">' + (clp(primario) || "$0") + '</div>';
-    if (!isNaN(c.precioNormal) && (t.ou || t.oferta)) html += '<div class="lbl">PRECIO NORMAL</div><div class="pv p-negro">' + clp(c.precioNormal) + '</div>';
+    if (t.ou && $("ouTmp").checked && !isNaN(c.precioOferta))
+      html += '<div class="lbl">TODO MEDIO DE PAGO</div><div class="pv sec p-negro">' + clp(c.precioOferta) + '</div>';
+    if (!isNaN(c.precioNormal) && (t.ou || t.oferta))
+      html += '<div class="lbl">PRECIO NORMAL</div><div class="pv sec p-negro">' + clp(c.precioNormal) + '</div>';
     $("hPrices").innerHTML = html;
   }
 
@@ -280,14 +290,12 @@
   $("bordeTipo").addEventListener("change", renderSheet);
   $("btnClearQueue").addEventListener("click", () => { QUEUE = QUEUE.filter((q) => q.sizeKey !== $("tamano").value); renderSheet(); });
 
-  // modelo de imposición para el tamaño actual
+  // modelo de imposición: pieza SIN rotar; solo elegimos orientación de la hoja
   function sheetModel() {
     const s = curSize();
     const combos = [
-      { sw: LETTER.w, sh: LETTER.h, cw: s.w, ch: s.h, rot: false },
-      { sw: LETTER.w, sh: LETTER.h, cw: s.h, ch: s.w, rot: true },
-      { sw: LETTER.h, sh: LETTER.w, cw: s.w, ch: s.h, rot: false },
-      { sw: LETTER.h, sh: LETTER.w, cw: s.h, ch: s.w, rot: true },
+      { sw: LETTER.w, sh: LETTER.h, cw: s.w, ch: s.h }, // hoja vertical
+      { sw: LETTER.h, sh: LETTER.w, cw: s.w, ch: s.h }, // hoja horizontal
     ].map((o) => { o.cols = Math.floor(o.sw / o.cw); o.rows = Math.floor(o.sh / o.ch); o.n = o.cols * o.rows; return o; });
     return combos.reduce((a, b) => b.n > a.n ? b : a);
   }
@@ -298,7 +306,7 @@
     const m = sheetModel();
     $("sheetInfo").innerHTML =
       '<span class="pill">' + s.label + ' cm</span>' +
-      '<span class="pill">' + m.n + ' por hoja (' + m.cols + '×' + m.rows + (m.rot ? ', rotado' : '') + ')</span>' +
+      '<span class="pill">' + m.n + ' por hoja (' + m.cols + '×' + m.rows + ')</span>' +
       '<span class="pill">hoja ' + (m.sw > m.sh ? 'horizontal' : 'vertical') + '</span>' +
       '<span class="pill">' + items.length + ' pieza(s) grabada(s)</span>';
 
@@ -326,20 +334,21 @@
       if (items.length) {
         const it = items[k % items.length]; k++;
         const img = document.createElement("img"); img.src = it.url;
-        if (m.rot) { img.style.transform = "rotate(90deg)"; img.style.width = (m.ch * SP) + "px"; img.style.height = (m.cw * SP) + "px"; }
         cell.appendChild(img);
       }
       sheet.appendChild(cell);
       if (borde && tipo === "marcas") addCropMarks(sheet, (offX + col * m.cw) * SP, (offY + r * m.ch) * SP, m.cw * SP, m.ch * SP);
     }
   }
+  // marcas en las 4 esquinas de la celda (líneas hacia afuera)
   function addCropMarks(sheet, x, y, w, h) {
-    [[0,0,0,0],[1,0,180,0],[0,1,0,0],[1,1,0,0]].forEach(([cx, cy]) => {
-      const el = document.createElement("div"); el.className = "crop";
-      el.style.left = (x + cx * w - (cx ? 14 : 0)) + "px";
-      el.style.top = (y + cy * h - (cy ? 14 : 0)) + "px";
-      sheet.appendChild(el);
-    });
+    const L = 12;
+    const mark = (mx, my, dx, dy) => {
+      const hl = document.createElement("div"); hl.style.cssText = "position:absolute;background:#333;height:1px;width:" + L + "px;top:" + my + "px;left:" + (dx < 0 ? mx - L : mx) + "px;";
+      const vl = document.createElement("div"); vl.style.cssText = "position:absolute;background:#333;width:1px;height:" + L + "px;left:" + mx + "px;top:" + (dy < 0 ? my - L : my) + "px;";
+      sheet.appendChild(hl); sheet.appendChild(vl);
+    };
+    mark(x, y, -1, -1); mark(x + w, y, 1, -1); mark(x, y + h, -1, 1); mark(x + w, y + h, 1, 1);
   }
 
   // Export hoja a canvas de alta resolución (150 dpi)
@@ -359,10 +368,7 @@
     for (let r = 0; r < m.rows; r++) for (let col = 0; col < m.cols; col++) {
       const x = (offX + col * m.cw) * PPCM, y = (offY + r * m.ch) * PPCM, w = m.cw * PPCM, h = m.ch * PPCM;
       const im = imgs[k % imgs.length]; k++;
-      ctx.save(); ctx.translate(x + w / 2, y + h / 2);
-      if (m.rot) { ctx.rotate(Math.PI / 2); ctx.drawImage(im, -h / 2, -w / 2, h, w); }
-      else ctx.drawImage(im, -w / 2, -h / 2, w, h);
-      ctx.restore();
+      ctx.drawImage(im, x, y, w, h);
       if (borde && tipo === "linea") { ctx.strokeStyle = "#999"; ctx.lineWidth = 1; ctx.strokeRect(x, y, w, h); }
       if (borde && tipo === "marcas") cropCanvas(ctx, x, y, w, h);
     }
@@ -422,7 +428,7 @@
     const s = $("stageScale"); const el = activeEl();
     const w = parseFloat(el.style.width) || 750, h = parseFloat(el.style.height) || 1000;
     const availW = s.parentElement.clientWidth;
-    const sc = Math.min(availW / w, 900 / h, w < 500 ? 2.2 : 1); // agranda tamaños chicos
+    const sc = Math.min(availW / w, 760 / h); // encaja en el panel
     s.style.transform = "scale(" + sc + ")"; s.style.height = (h * sc) + "px";
   }
   window.addEventListener("resize", fitStage);
