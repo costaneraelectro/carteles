@@ -289,8 +289,10 @@
     OPERADORES.forEach((op) => ["on", "eq", "plan", "gb", "man"].forEach((f) => {
       const el = $("t_" + op.key + "_" + f); el.addEventListener("input", render); el.addEventListener("change", render);
     }));
+    $("telcoBorde").addEventListener("change", render);
   }
   function renderTelco() {
+    $("cartelP").classList.toggle("borde", $("telcoBorde").checked);
     $("tpEquipo").textContent = [$("marca").value.toUpperCase(), $("modelo").value.toUpperCase()].filter(Boolean).join(" ");
     $("tpFecha").textContent = fmtFecha($("vigDesde").value);
     const badge = CFG.slots.badgeUnica.src;
@@ -474,7 +476,7 @@
   const errExport = () => alert("No se pudo exportar. Si la imagen viene del SKU puede bloquear la descarga (CORS): sube la imagen manual.");
 
   $("btnPng").addEventListener("click", async () => { try { const c = await snap(activeEl()); const a = document.createElement("a"); a.href = c.toDataURL("image/png"); a.download = nombre() + ".png"; a.click(); } catch (e) { errExport(); } });
-  $("btnPdf").addEventListener("click", async () => { try { const s = curSize(); const el = activeEl(); const c = await snap(el); const asp = el.offsetHeight / el.offsetWidth; const wcm = s.w, hcm = s.w * asp; const { jsPDF } = window.jspdf; const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: hcm >= wcm ? "portrait" : "landscape" }); const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(); const x = (pw - wcm) / 2, y = (ph - hcm) / 2; pdf.addImage(c.toDataURL("image/png"), "PNG", x, y, wcm, hcm); pdf.save(nombre() + ".pdf"); } catch (e) { errExport(); } });
+  $("btnPdf").addEventListener("click", async () => { try { const s = curSize(); const el = activeEl(); const c = await snap(el); const asp = el.offsetHeight / el.offsetWidth; const wcm = s.w, hcm = s.w * asp; const { jsPDF } = window.jspdf; const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: hcm >= wcm ? "portrait" : "landscape" }); const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(); const topLeft = s.layout === "telco"; const x = topLeft ? 0.3 : (pw - wcm) / 2, y = topLeft ? 0.3 : (ph - hcm) / 2; pdf.addImage(c.toDataURL("image/png"), "PNG", x, y, wcm, hcm); pdf.save(nombre() + ".pdf"); } catch (e) { errExport(); } });
 
   $("btnGrabar").addEventListener("click", async () => {
     try { const c = await snap(activeEl()); const item = { sizeKey: $("tamano").value, url: c.toDataURL("image/jpeg", 0.9), qty: 1 }; QUEUE.push(item); flashGrabar(); await fbSave(item); renderSheet(); }

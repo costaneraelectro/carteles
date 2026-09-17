@@ -172,10 +172,11 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .cartelP .tp-title { font-weight: 700; font-size: 34px; color: #555; text-transform: uppercase; letter-spacing: .01em; line-height: 1; }
 .cartelP .tp-title b { color: var(--verde); }
 .cartelP .tp-equipo { font-weight: 700; font-size: 28px; text-transform: uppercase; margin-top: 4px; }
-.cartelP .tp-rows { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
-.cartelP .tp-row { border: 2px solid #c4c4c4; border-radius: 16px; padding: 12px 16px 12px 20px; display: grid; grid-template-columns: 84px 1fr 1.25fr; align-items: center; gap: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-.cartelP .tp-logo { display: flex; align-items: center; justify-content: center; padding-left: 4px; }
-.cartelP .tp-logo img { max-width: 72px; max-height: 60px; object-fit: contain; }
+.cartelP .tp-rows { display: flex; flex-direction: column; gap: 13px; margin-top: 14px; }
+.cartelP .tp-row { position: relative; border: 2.5px solid #a0a0a0; border-radius: 16px; padding: 12px 16px 12px 92px; display: grid; grid-template-columns: 1fr 1.25fr; align-items: center; gap: 14px; }
+/* logo sobre el borde izquierdo (como el original) */
+.cartelP .tp-logo { position: absolute; left: -4px; top: 50%; transform: translateY(-50%); width: 88px; height: 90%; display: flex; align-items: center; justify-content: center; }
+.cartelP .tp-logo img { max-width: 84px; max-height: 66px; object-fit: contain; }
 .cartelP .tp-mid { border-right: 1px solid #ddd; padding-right: 10px; }
 .cartelP .tp-lbl { font-weight: 500; font-size: 15px; color: #222; line-height: 1; }
 .cartelP .tp-eq { display: flex; align-items: center; gap: 8px; }
@@ -202,6 +203,7 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .cartelP .tp-fala { height: 96px; object-fit: contain; flex: 0 0 auto; }
 .cartelP .tp-fala.hidden { display: none; }
 .cartelP.hidden { display: none; }
+.cartelP.borde { outline: 1px solid #999; outline-offset: -1px; }
 
 /* Footer */
 .c-footer { margin: 0 -46px; padding: 12px 46px 16px; display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; }
