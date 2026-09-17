@@ -6,27 +6,43 @@ sin servidor — y funciona en GitHub Pages.
 
 ## Qué hace
 
-- **Tipografía** — usa **Brandon Grotesque** (la misma de los carteles). Ver
-  [Fuentes](#fuentes).
-- **Detecta el tipo de evento** — eliges CyberDay / Sneaker Corner / Exclusivo
-  falabella.com y agrega la franja superior. Si eliges *Ninguno*, no hay banner.
-- **Detecta oferta** — si el *precio normal* es mayor que el *precio*, el cartel
-  cambia solo a **PRECIO OFERTA** (fondo rojo, precio normal tachado, "TODO MEDIO
-  DE PAGO" y vigencia). Si no, queda como **PRECIO NORMAL**.
-- **Oportunidad única CMR** — activa el sello rojo con el logo CMR puntos y la
-  condición del plan (ej. "$0 contratando plan Claro").
-- **Imagen del producto** — se sube y se centra en el cartel.
-- **Electro** — al elegir departamento *Electro* aparecen y se muestran las
-  **cuotas**, el **CAE / CTC** y los sellos de garantía. El valor de la cuota se
-  calcula solo si lo dejas vacío (precio ÷ n° cuotas).
-- **Exporta** — botón **PNG** (imagen lista para publicar/imprimir) y **PDF**
-  tamaño carta vertical para impresión.
+Reproduce la estructura exacta de la cartelería de tienda:
+
+- **Tipografía** — **Brandon Grotesque** (la misma de los carteles).
+- **3 tipos de cartel**:
+  - **Precio normal** — un precio + PRECIO NORMAL.
+  - **Oferta todo medio de pago** — "OFERTA TODO MEDIO DE PAGO" (rojo, grande) y
+    abajo el precio normal. Si es electro y el precio supera **$100.000**, agrega
+    cuotas + CAE/CTC.
+  - **CMR · Oportunidad única** — sello Oportunidad única + CMR, precio CMR
+    (rojo), cuotas + CAE/CTC, otro medio de pago (opcional) y precio normal.
+- **Imagen por SKU** — al escribir el SKU baja la foto de
+  `https://media.falabella.com/falabellaCL/{sku}/public` (con opción de subir una
+  manual si el SKU no la trae). El QR es opcional.
+- **CAE / cuotas automáticos** — para 12 cuotas @ 39,93% calcula el valor cuota
+  (≈ precio × 0,101296) y el CTC (≈ precio × 1,22347), derivados de los carteles
+  reales. Ambos quedan **editables** por si el CAE cambia.
+- **Header y footer legal** — "TENEMOS MÁS DE LO QUE PODEMOS MOSTRAR ONLINE",
+  vigencia, texto CMF, logo CMR puntos y código de página.
+- **Exporta** — **PNG** y **PDF** tamaño carta vertical.
+
+## Pestaña Configuración
+
+- Sube / edita / borra los **banners de evento** que aparecen en el selector
+  (Exclusivo falabella.com, CyberDay, Sneaker Corner, o los que agregues).
+- Sube los **sellos y logos** (Oportunidad única + CMR, logo CMR puntos del pie).
+  Mientras no subas el sello CMR, se muestra un marcador de posición.
+- Edita el **texto del header** y el **legal del pie**.
+- Todo se guarda en el navegador (localStorage). "Restaurar" vuelve a los valores
+  por defecto.
+
+> Los logos oficiales (Oportunidad única, CMR, Fpuntos, CyberDay) no vienen en el
+> repo — súbelos una vez desde la pestaña Configuración.
 
 ## Uso
 
-Abre `index.html` en el navegador (o publica el repo en GitHub Pages y entra a la
-URL). Completa el formulario de la izquierda; el cartel de la derecha se arma en
-vivo. Al final, **Descargar PNG** o **Descargar PDF**.
+Abre `index.html` (o publica en GitHub Pages). Elige el tipo, completa los datos;
+el cartel se arma en vivo. **Descargar PNG** o **Descargar PDF**.
 
 ## Fuentes
 
