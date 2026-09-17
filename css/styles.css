@@ -37,6 +37,10 @@ html, body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #
   width: 100%; padding: 9px 11px; border: 1px solid var(--gris-cl); border-radius: 9px; font-size: 14px; font-family: inherit; background: #fff;
 }
 .field textarea { resize: vertical; min-height: 66px; }
+/* sin flechas (spinner) en los montos */
+.field input[type=number]::-webkit-inner-spin-button,
+.field input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.field input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 .field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--verde); border-color: var(--verde); }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .hint { font-size: 11px; color: var(--gris); margin-top: 4px; }

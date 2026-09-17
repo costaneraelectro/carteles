@@ -64,12 +64,17 @@
       <fieldset>
         <legend>Producto</legend>
         <div class="field">
-          <label>SKU / link del producto</label>
+          <label>SKU (manual)</label>
+          <input type="text" id="sku" placeholder="17123831" />
+          <div class="hint">Se usa para la imagen y se muestra en el cartel.</div>
+        </div>
+        <div class="field">
+          <label>Link Falabella.com (autocompletar)</label>
           <div class="inline-btn">
-            <input type="text" id="sku" placeholder="17123831 o pega el link" />
+            <input type="text" id="link" placeholder="Pega el link del producto" />
             <button class="btn sku" id="btnSku" style="flex:0 0 auto;padding:9px 12px">Buscar</button>
           </div>
-          <div class="hint" id="skuHint">Trae marca y precios desde falabella.com. Confirma siempre (pueden variar).</div>
+          <div class="hint" id="skuHint">Detecta el tipo (OU / oferta / normal), rellena todo y reemplaza lo escrito.</div>
         </div>
         <div class="row2">
           <div class="field"><label>Marca</label><input type="text" id="marca" placeholder="NINJA" /></div>
@@ -110,8 +115,8 @@
       <fieldset>
         <legend>Vigencia</legend>
         <div class="row2">
-          <div class="field"><label>Desde</label><input type="text" id="vigDesde" placeholder="11/09/2026" /></div>
-          <div class="field"><label>Hasta</label><input type="text" id="vigHasta" placeholder="17/09/2026" /></div>
+          <div class="field"><label>Desde</label><input type="date" id="vigDesde" /></div>
+          <div class="field"><label>Hasta</label><input type="date" id="vigHasta" /></div>
         </div>
       </fieldset>
 

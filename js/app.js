@@ -68,6 +68,7 @@
 
   /* ---------- Utils ---------- */
   const clp = (n) => (n === "" || n == null || isNaN(n)) ? "" : "$" + Math.round(Number(n)).toLocaleString("es-CL");
+  const fmtFecha = (v) => { if (!v) return ""; const m = v.match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? m[3] + "/" + m[2] + "/" + m[1] : v; };
   const num = (id) => { const v = parseFloat($(id).value); return isNaN(v) ? NaN : v; };
   const F_CUOTA = 0.101296, F_CTC = 1.22347;
   const curSize = () => SIZES[$("tamano").value];
@@ -210,7 +211,7 @@
     } else { html += line("", clp(c.precio), "p-negro", PRIN) + cuotasHTML(c); }
     $("precios").innerHTML = html;
 
-    const d = $("vigDesde").value.trim(), h = $("vigHasta").value.trim();
+    const d = fmtFecha($("vigDesde").value), h = fmtFecha($("vigHasta").value);
     $("fVig").textContent = (d || h) ? ("VIGENCIA: " + d + (h ? "  AL  " + h : "")) : "";
     $("fLegal").textContent = CFG.legal;
     const logo = CFG.slots.fpuntos.src; $("fLogo").style.display = logo ? "" : "none"; if (logo) $("fLogo").src = logo;
@@ -222,7 +223,7 @@
     $("hCat").textContent = $("categoria").value.toUpperCase();
     const modelo = $("modelo").value.trim(), sku = $("sku").value.trim();
     $("hSku").textContent = [modelo ? modelo.toUpperCase() : "", sku ? "SKU: " + sku : ""].filter(Boolean).join("  /  ");
-    const d = $("vigDesde").value.trim(), h = $("vigHasta").value.trim();
+    const d = fmtFecha($("vigDesde").value), h = fmtFecha($("vigHasta").value);
     $("hVig").textContent = (d || h) ? ("VIGENCIA: " + d + (h ? " AL " + h : "")) : "";
 
     // mismos campos visibles que portrait
@@ -272,10 +273,9 @@
     return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(id));
   }
   async function buscarSku() {
-    let sku = $("sku").value.trim();
-    const mlink = sku.match(/(\d{6,})/); if (mlink) sku = mlink[1];   // acepta link pegado
+    let raw = ($("link").value.trim() || $("sku").value.trim());     // prefiere el link
+    const mlink = raw.match(/(\d{6,})/); const sku = mlink ? mlink[1] : raw;
     if (!sku) return;
-    $("sku").value = sku;                                             // deja el SKU limpio (para la imagen)
     const hint = $("skuHint"); hint.textContent = "Buscando en falabella.com…";
     const api = "https://www.falabella.com/s/browse/v3/product/cl?site=falabella-cl&productId=" + encodeURIComponent(sku);
     // 1) directo (funciona servido en https, ej. GitHub Pages). 2) proxies (para file://)
@@ -286,25 +286,34 @@
         const r = await fetchTimeout(url, 9000);
         const t = await r.text(); let j; try { j = JSON.parse(t); } catch (e) { ultimo = "respuesta no-JSON"; continue; }
         const d = j.data || j; if (!d || !d.variants) { ultimo = "sin datos"; continue; }
-        aplicarProducto(d);
+        aplicarProducto(d, sku);
         hint.textContent = "Datos cargados — CONFIRMA los precios (pueden variar).";
         render(); return;
       } catch (e) { ultimo = (e && e.name === "AbortError") ? "timeout" : "bloqueado (CORS)"; }
     }
     hint.textContent = "No se pudo traer de falabella.com (" + ultimo + "). Publica en GitHub Pages o rellena manual.";
   }
-  function aplicarProducto(d) {
+  function aplicarProducto(d, sku) {
+    // borra lo anterior antes de rellenar
+    ["marca", "categoria", "modelo", "precio", "precioOU", "precioOferta", "precioNormal"].forEach((id) => { $(id).value = ""; });
+    if (sku) $("sku").value = sku;
     if (d.brandName) $("marca").value = d.brandName;
-    if (d.name && !$("modelo").value.trim()) $("modelo").value = d.name;
-    try { const bc = d.breadCrumb || []; if (bc.length && !$("categoria").value.trim()) $("categoria").value = (bc[bc.length - 2] || bc[bc.length - 1]).label || ""; } catch (e) {}
+    if (d.name) $("modelo").value = d.name;
+    try { const bc = d.breadCrumb || []; if (bc.length) $("categoria").value = (bc[bc.length - 2] || bc[bc.length - 1]).label || ""; } catch (e) {}
     const v = (d.variants || []).find((x) => x.id === d.primaryVariantId) || d.variants[0] || {};
     const pr = {}; (v.prices || []).forEach((p) => { pr[p.type] = parseInt(String((p.price && p.price[0]) || "").replace(/\D/g, ""), 10); });
-    if (pr.cmrPrice) $("precioOU").value = pr.cmrPrice;
-    if (pr.internetPrice) { $("precioOferta").value = pr.internetPrice; $("precio").value = pr.internetPrice; }
-    if (pr.normalPrice) $("precioNormal").value = pr.normalPrice;
+    // detecta el tipo automáticamente
+    let tipo = "normal";
+    if (!isNaN(pr.cmrPrice)) tipo = "ou";
+    else if (!isNaN(pr.internetPrice) && !isNaN(pr.normalPrice) && pr.internetPrice < pr.normalPrice) tipo = "oferta";
+    $("tipo").value = tipo;
+    // asigna precios
+    if (!isNaN(pr.cmrPrice)) $("precioOU").value = pr.cmrPrice;
+    if (!isNaN(pr.internetPrice)) { $("precioOferta").value = pr.internetPrice; $("precio").value = pr.internetPrice; }
+    if (!isNaN(pr.normalPrice)) { $("precioNormal").value = pr.normalPrice; if (isNaN(pr.internetPrice)) $("precio").value = pr.normalPrice; }
   }
   $("btnSku").addEventListener("click", buscarSku);
-  $("sku").addEventListener("keydown", (e) => { if (e.key === "Enter") buscarSku(); });
+  $("link").addEventListener("keydown", (e) => { if (e.key === "Enter") buscarSku(); });
 
   /* ---------- Toggles ---------- */
   $("showImg").addEventListener("change", () => { $("imgManualWrap").classList.toggle("hidden", !$("showImg").checked); render(); });
