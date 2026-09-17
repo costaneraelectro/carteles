@@ -80,22 +80,25 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
   position: relative; display: flex; flex-direction: column; padding: 34px 46px 0; overflow: hidden;
 }
 
-/* Header row: banner (header-mode) + QR */
-.c-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; min-height: 40px; }
+/* Header row: banner (header-mode) */
+.c-top { display: flex; align-items: flex-start; min-height: 30px; }
 .c-top__banner { flex: 1; min-width: 0; }
-.c-top__banner img { max-height: 46px; max-width: 100%; object-fit: contain; object-position: left center; }
-.c-qr { width: 130px; height: 130px; flex: 0 0 auto; }
+.c-top__banner img { max-height: 44px; max-width: 70%; object-fit: contain; object-position: left center; }
+.c-top.hidden { display: none; }
+
+/* QR: absoluto arriba-derecha, no empuja layout */
+.c-qr { position: absolute; top: 26px; right: 44px; width: 128px; height: 128px; z-index: 5; }
 .c-qr canvas, .c-qr img { width: 100% !important; height: 100% !important; }
 .c-qr.hidden { display: none; }
 
 /* Franja (banner full width, fondo blanco como el cartel) */
-.c-franja { margin: -34px -46px 0; padding: 0; background: var(--papel); display: flex; align-items: center; justify-content: center; }
-.c-franja img { width: 100%; max-height: 150px; object-fit: contain; }
+.c-franja { margin: -34px -46px 0; padding: 4px 0; background: var(--papel); display: flex; align-items: center; justify-content: center; }
+.c-franja img { width: 92%; max-height: 96px; object-fit: contain; }
 .c-franja.hidden { display: none; }
 
-/* Cuerpo centrable */
-.c-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: flex-start; }
-.c-body.center { justify-content: center; }
+/* Cuerpo: se auto-escala para calzar en el alto fijo */
+.c-body { flex: 1 1 auto; position: relative; overflow: hidden; }
+.c-fit { transform-origin: top center; width: 100%; }
 
 /* Imagen producto */
 .c-media { display: flex; align-items: center; justify-content: center; padding: 6px 0; }

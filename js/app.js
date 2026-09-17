@@ -89,10 +89,11 @@
     /* Banner */
     const ev = CFG.eventos.find((e) => e.id === $("evento").value);
     const franja = ev && ev.franja && ev.src;
+    const header = ev && !ev.franja && ev.src;
     $("franja").classList.toggle("hidden", !franja);
-    $("topBanner").classList.toggle("hidden", !(ev && !ev.franja && ev.src));
+    $("top").classList.toggle("hidden", !header);
     if (franja) $("franjaImg").src = ev.src;
-    else if (ev && ev.src) $("topBannerImg").src = ev.src;
+    if (header) $("topBannerImg").src = ev.src;
 
     /* QR */
     const qrOn = $("showQr").checked && $("qrLink").value.trim();
@@ -103,7 +104,6 @@
     /* Imagen */
     const showImg = $("showImg").checked;
     $("media").classList.toggle("hidden", !showImg);
-    $("body").classList.toggle("center", !showImg);   // centrar cuando no hay imagen
     if (showImg) {
       const sku = $("sku").value.trim();
       const src = manualImg || (sku ? "https://media.falabella.com/falabellaCL/" + encodeURIComponent(sku) + "/public" : "");
@@ -183,6 +183,20 @@
     const logo = CFG.slots.fpuntos.src;
     $("fLogo").style.display = logo ? "" : "none";
     if (logo) $("fLogo").src = logo;
+
+    requestAnimationFrame(fitBody);
+  }
+
+  /* Auto-escala el cuerpo para que calce en el alto fijo y quede centrado */
+  function fitBody() {
+    const body = $("body"), fit = $("fit");
+    fit.style.transform = "none";
+    const avail = body.clientHeight, natural = fit.scrollHeight;
+    if (!avail || !natural) return;
+    const s = Math.min(1, avail / natural);
+    const showImg = $("showImg").checked;
+    const dy = showImg ? 0 : Math.max(0, (avail - natural * s) / 2); // centrar vertical si no hay imagen
+    fit.style.transform = "translateY(" + dy + "px) scale(" + s + ")";
   }
 
   /* ---------- Toggles ---------- */
