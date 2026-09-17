@@ -8,12 +8,19 @@
   const SIZES = {
     carta:  { w: 19.5, h: 26, layout: "p", img: true,  banner: true,  cae: true,  label: "Carta" },
     s13x19: { w: 13,   h: 19, layout: "p", img: false, banner: true,  cae: true,  label: "13×19" },
-    s9x13:  { w: 9,    h: 13, layout: "p", img: false, banner: false, cae: false, label: "9×13" },
+    s9x13:  { w: 9,    h: 13, layout: "p", img: false, banner: true,  cae: true,  label: "9×13" },
     s9x7:   { w: 9,    h: 7,  layout: "p", img: false, banner: true,  cae: false, label: "9×7" },
     s6x4:   { w: 6,    h: 4,  layout: "p", img: false, banner: false, cae: false, label: "6×4" },
     s12x3:  { w: 12,   h: 3,  layout: "h", img: false, banner: false, cae: false, label: "12×3" },
+    s9x13plan: { w: 8.4, h: 12, layout: "telco", img: false, banner: false, cae: false, label: "9×13 Planes" },
   };
   const LETTER = { w: 21.59, h: 27.94 }; // carta cm
+  const OPERADORES = [
+    { key: "claro", label: "Claro", slot: "opClaro" },
+    { key: "entel", label: "Entel", slot: "opEntel" },
+    { key: "movistar", label: "Movistar", slot: "opMovistar" },
+    { key: "wom", label: "WOM", slot: "opWom" },
+  ];
 
   /* ---------- Config ---------- */
   const CFG_KEY = "carteles_cfg_v2";
@@ -42,6 +49,11 @@
     slots: {
       badgeUnica: { label: "Sello Oportunidad única + CMR", src: "" },
       fpuntos:    { label: "Logo Fpuntos (pie)", src: "assets/logos/fpuntos.png" },
+      opClaro:    { label: "Logo Claro (planes)", src: "assets/logos/telco/claro.png" },
+      opEntel:    { label: "Logo Entel (planes)", src: "" },
+      opMovistar: { label: "Logo Movistar (planes)", src: "assets/logos/telco/movistar.png" },
+      opWom:      { label: "Logo WOM (planes)", src: "" },
+      falabella:  { label: "Logo Falabella «f» (planes)", src: "" },
     },
   };
   // Medida recomendada para subir banners (Canva), según tipo
@@ -56,8 +68,8 @@
         delete c.proxy; delete c.firebase;                 // ya no se usan
         if (c.slots) {
           delete c.slots.cmrCard;                          // logo eliminado
-          if (!c.slots.badgeUnica) c.slots.badgeUnica = { label: "Sello Oportunidad única + CMR", src: "" };
-          if (!c.slots.fpuntos) c.slots.fpuntos = { label: "Logo Fpuntos (pie)", src: "assets/logos/fpuntos.png" };
+          const D = DEFAULT_CFG.slots;
+          Object.keys(D).forEach((k) => { if (!c.slots[k]) c.slots[k] = structuredClone(D[k]); });
         }
         return c;
       }
@@ -130,21 +142,30 @@
     const size = curSize();
     const caps = [size.img ? "imagen" : null, size.banner ? "banner+QR" : null, size.cae ? "CAE" : null].filter(Boolean).join(" · ");
     $("tamHint").textContent = size.w + " × " + size.h + " cm" + (caps ? " · " + caps : " · solo precios");
-    // capacidades según tamaño
+    const horiz = size.layout === "h";
+    const telco = size.layout === "telco";
+    // capacidades / campos según tamaño
     $("caeWrap").classList.toggle("hidden", !size.cae);
     $("bannerWrap").classList.toggle("hidden", !size.banner);
-    $("qrFieldset").classList.toggle("hidden", !size.banner);
+    $("qrFieldset").classList.toggle("hidden", !(size.banner || telco));
+    $("tipoField").classList.toggle("hidden", telco);
+    $("fsPrecios").classList.toggle("hidden", telco);
+    $("fsTelco").classList.toggle("hidden", !telco);
     // layout activo
-    const horiz = size.layout === "h";
-    $("cartel").classList.toggle("hidden", horiz);
+    $("cartel").classList.toggle("hidden", horiz || telco);
     $("cartelH").classList.toggle("hidden", !horiz);
-    // dims de diseño: ancho fijo (fuentes como carta), alto según proporción del tamaño
-    if (horiz) {
+    $("cartelP").classList.toggle("hidden", !telco);
+    // dims de diseño
+    if (telco) {
+      const DW = 660, el = $("cartelP");
+      el.style.width = DW + "px";
+      el.style.height = Math.round(DW * (size.h / size.w)) + "px";
+    } else if (horiz) {
       const HDES = 230, el = $("cartelH");
       el.style.height = HDES + "px";
       el.style.width = Math.round(HDES * (size.w / size.h)) + "px";
     } else {
-      const DW = 750; // ancho de diseño constante
+      const DW = 750;
       $("cartel").style.width = DW + "px";
       $("cartel").style.height = Math.round(DW * (size.h / size.w)) + "px";
     }
@@ -152,7 +173,7 @@
     $("imgManualWrap").classList.toggle("hidden", !(size.img && $("showImg").checked));
     $("showImg").parentElement.classList.toggle("hidden", !size.img);
 
-    if (horiz) renderHorizontal(); else renderPortrait(size);
+    if (telco) renderTelco(); else if (horiz) renderHorizontal(); else renderPortrait(size);
     requestAnimationFrame(() => { fitBody(); fitStage(); });
   }
 
@@ -246,6 +267,56 @@
     $("hPrices").innerHTML = html;
   }
 
+  /* ---------- Telco (9x13 planes) ---------- */
+  function buildTelcoForm() {
+    const box = $("telcoForm"); box.innerHTML = "";
+    OPERADORES.forEach((op) => {
+      const w = document.createElement("fieldset"); w.style.margin = "0 0 10px";
+      w.innerHTML =
+        '<legend style="color:#333">' + op.label + '</legend>' +
+        '<div class="field check"><input type="checkbox" id="t_' + op.key + '_on"/><label for="t_' + op.key + '_on" style="margin:0">Mostrar</label></div>' +
+        '<div class="row2"><div class="field"><label>Valor equipo</label><input type="number" id="t_' + op.key + '_eq"/></div>' +
+        '<div class="field"><label>Plan mensual</label><input type="number" id="t_' + op.key + '_plan"/></div></div>' +
+        '<div class="row2"><div class="field"><label>GB</label><input type="text" id="t_' + op.key + '_gb" placeholder="300"/></div>' +
+        '<div class="field"><label>Mandato (meses)</label><input type="number" id="t_' + op.key + '_man" placeholder="18"/></div></div>';
+      box.appendChild(w);
+    });
+    OPERADORES.forEach((op) => ["on", "eq", "plan", "gb", "man"].forEach((f) => {
+      const el = $("t_" + op.key + "_" + f); el.addEventListener("input", render); el.addEventListener("change", render);
+    }));
+  }
+  function renderTelco() {
+    $("tpEquipo").textContent = [$("marca").value.toUpperCase(), $("modelo").value.toUpperCase()].filter(Boolean).join(" ");
+    $("tpFecha").textContent = fmtFecha($("vigDesde").value);
+    const badge = CFG.slots.badgeUnica.src;
+    $("tpRows").innerHTML = OPERADORES.map((op) => {
+      const on = $("t_" + op.key + "_on").checked;
+      const logo = CFG.slots[op.slot].src;
+      const eq = num("t_" + op.key + "_eq"), plan = num("t_" + op.key + "_plan");
+      const gb = $("t_" + op.key + "_gb").value.trim(), man = $("t_" + op.key + "_man").value.trim();
+      return '<div class="tp-row' + (on ? "" : " off") + '">' +
+        '<div class="tp-logo">' + (logo ? '<img src="' + logo + '"/>' : '<span style="font-weight:800;color:#bbb;font-size:12px">' + op.label + '</span>') + '</div>' +
+        '<div class="tp-mid">' +
+          '<div class="tp-lbl">Valor equipo</div>' +
+          '<div class="tp-eq"><span class="v">' + (clp(eq) || "") + '</span>' + (badge ? '<img src="' + badge + '"/>' : '') + '</div>' +
+          '<div class="tp-lbl">Valor plan mensual</div>' +
+          '<div class="tp-plan">' + (clp(plan) || "") + ' <small>/mes</small></div>' +
+        '</div>' +
+        '<div class="tp-right">' +
+          '<div class="gb">' + (gb ? gb + " GB" : "") + '</div>' +
+          '<div class="min">Minutos <b>LIBRES</b></div>' +
+          '<div class="man">Mandato <b>' + (man || "") + '</b> meses</div>' +
+        '</div></div>';
+    }).join("");
+    const qrOn = $("showQr").checked && $("qrLink").value.trim();
+    $("tpQr").classList.toggle("hidden", !qrOn);
+    if (qrOn) { if ($("tpQr").dataset.link !== $("qrLink").value.trim()) { $("tpQr").dataset.link = $("qrLink").value.trim(); $("tpQr").innerHTML = ""; try { new QRCode($("tpQr"), { text: $("qrLink").value.trim(), width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M }); } catch (e) {} } }
+    else { $("tpQr").innerHTML = ""; $("tpQr").dataset.link = ""; }
+    const fala = CFG.slots.falabella.src;
+    $("tpFala").classList.toggle("hidden", !fala);
+    if (fala) $("tpFala").src = fala;
+  }
+
   /* auto-ajuste del cuerpo portrait: reduce el tamaño de fuente (var --k) hasta calzar.
      Sin transform, para que html2canvas exporte bien. */
   function fitBody() {
@@ -325,7 +396,7 @@
      HOJA / IMPOSICIÓN
      ==================================================================== */
   let QUEUE = []; // {sizeKey, url, id?}
-  const activeEl = () => curSize().layout === "h" ? $("cartelH") : $("cartel");
+  const activeEl = () => { const l = curSize().layout; return l === "h" ? $("cartelH") : l === "telco" ? $("cartelP") : $("cartel"); };
 
   /* ---------- Firebase opcional (Firestore + TTL 24h) ---------- */
   const FB = { ready: false, db: null, fs: null };
@@ -567,5 +638,5 @@
   window.addEventListener("resize", fitStage);
 
   /* ---------- Init ---------- */
-  renderConfig(); render(); fitStage(); fbInit();
+  buildTelcoForm(); renderConfig(); render(); fitStage(); fbInit();
 })();

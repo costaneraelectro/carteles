@@ -167,6 +167,42 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .cartelH .h-prices .pv { font-weight: 700; font-size: 58px; line-height: .9; }        /* principal */
 .cartelH .h-prices .pv.sec { font-size: 40px; }                                          /* secundarios */
 
+/* ===== Layout TELCO (9×13 Planes) ===== */
+.cartelP { background: var(--papel); color: var(--negro); font-family: var(--font); padding: 26px 26px 0; display: flex; flex-direction: column; overflow: hidden; }
+.cartelP .tp-title { font-weight: 700; font-size: 34px; color: #555; text-transform: uppercase; letter-spacing: .01em; line-height: 1; }
+.cartelP .tp-title b { color: var(--verde); }
+.cartelP .tp-equipo { font-weight: 700; font-size: 28px; text-transform: uppercase; margin-top: 4px; }
+.cartelP .tp-rows { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.cartelP .tp-row { border: 1px solid #e2e2e2; border-radius: 16px; padding: 12px 14px; display: grid; grid-template-columns: 92px 1fr 1.25fr; align-items: center; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+.cartelP .tp-logo { display: flex; align-items: center; justify-content: center; }
+.cartelP .tp-logo img { max-width: 82px; max-height: 66px; object-fit: contain; }
+.cartelP .tp-mid { border-right: 1px solid #ddd; padding-right: 10px; }
+.cartelP .tp-lbl { font-weight: 500; font-size: 15px; color: #222; line-height: 1; }
+.cartelP .tp-eq { display: flex; align-items: center; gap: 8px; }
+.cartelP .tp-eq .v { font-weight: 700; font-size: 26px; color: var(--rojo); line-height: 1; }
+.cartelP .tp-eq img { height: 22px; object-fit: contain; }
+.cartelP .tp-plan { font-weight: 700; font-size: 26px; line-height: 1; margin-top: 2px; }
+.cartelP .tp-plan small { font-size: 16px; font-weight: 500; }
+.cartelP .tp-right .gb { font-weight: 700; font-size: 34px; color: var(--verde); line-height: 1; }
+.cartelP .tp-right .min { font-weight: 500; font-size: 22px; line-height: 1.05; }
+.cartelP .tp-right .min b { font-weight: 700; }
+.cartelP .tp-right .man { font-weight: 500; font-size: 17px; margin-top: 3px; }
+.cartelP .tp-row.off { opacity: 1; }
+.cartelP .tp-row.off .tp-eq, .cartelP .tp-row.off .tp-plan, .cartelP .tp-row.off .gb, .cartelP .tp-row.off .man, .cartelP .tp-row.off .min b { visibility: hidden; }
+
+.cartelP .tp-foot { margin-top: auto; padding: 12px 0 16px; }
+.cartelP .tp-fecha { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #333; }
+.cartelP .tp-porta { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #222; margin-top: 4px; }
+.cartelP .tp-porta small { font-size: 11px; color: #444; }
+.cartelP .tp-seguro { display: flex; align-items: center; gap: 16px; margin-top: 14px; }
+.cartelP .tp-seg-txt { font-size: 20px; line-height: 1.15; flex: 1; }
+.cartelP .tp-seg-txt b { font-weight: 700; }
+.cartelP .tp-qr { width: 120px; height: 120px; flex: 0 0 auto; }
+.cartelP .tp-qr canvas, .cartelP .tp-qr img { width: 100% !important; height: 100% !important; }
+.cartelP .tp-fala { height: 96px; object-fit: contain; flex: 0 0 auto; }
+.cartelP .tp-fala.hidden { display: none; }
+.cartelP.hidden { display: none; }
+
 /* Footer */
 .c-footer { margin: 0 -46px; padding: 12px 46px 16px; display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; }
 .c-footer__legal { font-size: 10px; line-height: 1.25; color: #444; font-family: Arial, Helvetica, sans-serif; text-align: left; }

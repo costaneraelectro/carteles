@@ -42,10 +42,11 @@
             <option value="s9x7">9 × 7 cm</option>
             <option value="s6x4">6 × 4 cm</option>
             <option value="s12x3">12 × 3 cm (horizontal)</option>
+            <option value="s9x13plan">9 × 13 cm · Planes (telco)</option>
           </select>
           <div class="hint" id="tamHint"></div>
         </div>
-        <div class="field">
+        <div class="field" id="tipoField">
           <label>Tipo de cartel</label>
           <select id="tipo">
             <option value="normal">Precio normal</option>
@@ -91,12 +92,18 @@
         <div class="field hidden" id="qrWrap"><label>Link (Falabella.com u otro)</label><input type="text" id="qrLink" placeholder="https://www.falabella.com/falabella-cl/product/17123831" /></div>
       </fieldset>
 
-      <fieldset>
+      <fieldset id="fsPrecios">
         <legend>Precios</legend>
         <div class="field" id="fOU"><label>Precio Oportunidad única <span class="badge-auto">rojo</span></label><input type="number" id="precioOU" placeholder="76990" /></div>
         <div class="field" id="fOferta"><label>Precio oferta (TMP) <span class="badge-auto">rojo</span></label><input type="number" id="precioOferta" placeholder="189990" /></div>
         <div class="field" id="fPrecio"><label>Precio</label><input type="number" id="precio" placeholder="249990" /></div>
         <div class="field" id="fNormal"><label>Precio normal</label><input type="number" id="precioNormal" placeholder="249990" /></div>
+      </fieldset>
+
+      <fieldset id="fsTelco" class="hidden">
+        <legend>Planes por operador</legend>
+        <p class="hint" style="margin-top:0">Marca / modelo del equipo salen de «Producto». La fecha usa «Vigencia → Desde». Activa cada operador y llena sus valores.</p>
+        <div id="telcoForm"></div>
       </fieldset>
 
       <fieldset id="fsElectro">
@@ -231,6 +238,22 @@
         <div class="h-right">
           <div class="h-badge hidden" id="hBadge"></div>
           <div class="h-prices" id="hPrices"></div>
+        </div>
+      </article>
+
+      <!-- Layout telco (9x13 planes) -->
+      <article class="cartelP hidden" id="cartelP">
+        <div class="tp-title">CONTRATA TU <b>PLAN</b></div>
+        <div class="tp-equipo" id="tpEquipo"></div>
+        <div class="tp-rows" id="tpRows"></div>
+        <div class="tp-foot">
+          <div class="tp-fecha" id="tpFecha"></div>
+          <div class="tp-porta">◉ Oferta exclusiva para Portabilidad<br><small>(*) Contratación sujeta a evaluación comercial. Este es el valor de activación del equipo según plan contratado</small></div>
+          <div class="tp-seguro">
+            <div class="tp-seg-txt"><b>¡Asegura tu celular!</b><br>Protégelo ante daños y/o robos.<br>Escanea el QR para más información.</div>
+            <div class="tp-qr hidden" id="tpQr"></div>
+            <img class="tp-fala hidden" id="tpFala" alt="Falabella" />
+          </div>
         </div>
       </article>
     </div>
