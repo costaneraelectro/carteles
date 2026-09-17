@@ -26,6 +26,23 @@ Reproduce la estructura exacta de la cartelería de tienda:
 - **Pie** — vigencia, legal y logo **Fpuntos**.
 - **Exporta** — **PNG** y **PDF** carta vertical.
 
+## Tamaños e impresión de varias piezas por hoja
+
+Además de **Carta** (la única con imagen), arma tamaños chicos de tienda:
+**9×13, 9×7, 6×4** (mismo layout, sin imagen) y **12×3** (layout horizontal).
+
+Flujo para imprimir varias en una hoja carta:
+
+1. En **Cartel**, elige el tamaño, arma el cartel y pulsa **＋ Grabar en la hoja**.
+   Repite para el mismo cartel (repetir) o para varios distintos (mezcla).
+2. Ve a la pestaña **Hoja**. Calcula solo cuántas piezas caben por hoja carta y
+   las acomoda en la grilla (rotando la pieza si así caben más). Ejemplos:
+   6×4 → 20, 12×3 → 14, 9×7 → 9, 9×13 → 4.
+3. Marca **Agregar borde** y elige **Línea de corte** o **Marcas de corte**.
+4. **Descargar hoja PNG / PDF** (carta, 150 dpi).
+
+La cola de piezas es por tamaño y vive en memoria de la sesión.
+
 ## Pestaña Configuración
 
 - **Banners** — sube / edita / borra. Casilla *franja* = ancho completo; sin

@@ -18,6 +18,7 @@
 
     <div class="tabs">
       <button class="tab active" data-tab="cartel">Cartel</button>
+      <button class="tab" data-tab="hoja">Hoja</button>
       <button class="tab" data-tab="config">Configuración</button>
     </div>
 
@@ -36,6 +37,17 @@
             <option value="ou_cae">Oportunidad única · CAE</option>
             <option value="ou_sincae">Oportunidad única · SIN CAE</option>
           </select>
+        </div>
+        <div class="field">
+          <label>Tamaño</label>
+          <select id="tamano">
+            <option value="carta">Carta (con imagen)</option>
+            <option value="s9x13">9 × 13 cm</option>
+            <option value="s9x7">9 × 7 cm</option>
+            <option value="s6x4">6 × 4 cm</option>
+            <option value="s12x3">12 × 3 cm (horizontal)</option>
+          </select>
+          <div class="hint" id="tamHint"></div>
         </div>
         <div class="field">
           <label>Banner</label>
@@ -101,6 +113,36 @@
       <div class="actions">
         <button class="btn png" id="btnPng">Descargar PNG</button>
         <button class="btn pdf" id="btnPdf">Descargar PDF</button>
+      </div>
+      <div class="actions" style="margin-top:8px">
+        <button class="btn ghost" id="btnGrabar">＋ Grabar en la hoja</button>
+      </div>
+    </div>
+
+    <!-- ---------- TAB HOJA ---------- -->
+    <div class="tabpane hidden" id="pane-hoja">
+      <div class="sheetbar" id="sheetInfo"></div>
+      <div class="field">
+        <label>Piezas grabadas (tamaño actual)</label>
+        <div class="queue" id="queue"></div>
+      </div>
+      <fieldset>
+        <legend>Borde para recortar</legend>
+        <div class="field check"><input type="checkbox" id="bordeOn" /><label for="bordeOn" style="margin:0">Agregar borde</label></div>
+        <div class="field" id="bordeTipoWrap">
+          <label>Tipo de borde</label>
+          <select id="bordeTipo">
+            <option value="linea">Línea de corte</option>
+            <option value="marcas">Marcas de corte (esquinas)</option>
+          </select>
+        </div>
+      </fieldset>
+      <div class="actions">
+        <button class="btn png" id="btnSheetPng">Descargar hoja PNG</button>
+        <button class="btn pdf" id="btnSheetPdf">Descargar hoja PDF</button>
+      </div>
+      <div class="actions" style="margin-top:8px">
+        <button class="btn ghost" id="btnClearQueue">Vaciar piezas</button>
       </div>
     </div>
 
@@ -171,7 +213,25 @@
         </footer>
 
       </article>
+
+      <!-- Layout horizontal (12x3) -->
+      <article class="cartelH hidden" id="cartelH">
+        <div class="h-left">
+          <div class="h-marca" id="hMarca"></div>
+          <div class="h-cat" id="hCat"></div>
+          <div class="h-sku" id="hSku"></div>
+          <div class="h-vig" id="hVig"></div>
+        </div>
+        <div class="h-div"></div>
+        <div class="h-right">
+          <div class="h-badge hidden" id="hBadge"></div>
+          <div class="h-prices" id="hPrices"></div>
+        </div>
+      </article>
     </div>
+
+    <!-- Preview de hoja -->
+    <div class="sheetwrap hidden" id="sheetWrap"><div class="sheet" id="sheet"></div></div>
   </section>
 
 </div>
