@@ -352,9 +352,24 @@
     try { await deleteDoc(doc(FB.db, "piezas", item.id)); } catch (e) {}
   }
 
+  // Asegura que Brandon Grotesque esté cargada antes de capturar (evita texto encimado)
+  async function ensureFonts() {
+    try {
+      if (document.fonts) {
+        await Promise.all([
+          document.fonts.load('400 40px "Brandon Grotesque"'),
+          document.fonts.load('500 40px "Brandon Grotesque"'),
+          document.fonts.load('700 40px "Brandon Grotesque"'),
+          document.fonts.load('900 40px "Brandon Grotesque"'),
+        ]);
+        await document.fonts.ready;
+      }
+    } catch (e) {}
+  }
   async function snap(el) {
+    await ensureFonts();
     const w = parseFloat(el.style.width), h = parseFloat(el.style.height);
-    return html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff", width: w, height: h });
+    return html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff", width: w, height: h, windowWidth: w, windowHeight: h });
   }
   const nombre = () => (($("marca").value || "cartel") + "-" + ($("sku").value || Date.now())).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const errExport = () => alert("No se pudo exportar. Si la imagen viene del SKU puede bloquear la descarga (CORS): sube la imagen manual.");
