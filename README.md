@@ -41,7 +41,33 @@ Flujo para imprimir varias en una hoja carta:
 3. Marca **Agregar borde** y elige **Línea de corte** o **Marcas de corte**.
 4. **Descargar hoja PNG / PDF** (carta, 150 dpi).
 
-La cola de piezas es por tamaño y vive en memoria de la sesión.
+La cola de piezas es por tamaño. Vive en memoria de la sesión, salvo que actives
+Firebase (abajo), donde se guarda online y se borra sola a las 24 h.
+
+## Almacenamiento online (Firebase) — opcional
+
+Guarda las piezas grabadas en la nube y las **borra solas a las 24 h** con el TTL
+de Firestore. Pasos (una vez):
+
+1. Crea un proyecto en <https://console.firebase.google.com> y una app **Web**.
+2. Activa **Firestore Database** (modo producción).
+3. En **Configuración → Configuración de la app** copia el objeto `firebaseConfig`
+   (apiKey, projectId, appId, …) y pégalo en la app: pestaña **Configuración →
+   Almacenamiento online (Firebase)**. El estado debe pasar a "conectado".
+4. **TTL (borrado a 24 h):** Firestore → *Time-to-live* → crea una política sobre
+   la colección `piezas`, campo `expireAt`. Firestore borra los documentos
+   vencidos (best-effort, dentro de ~24–72 h del vencimiento).
+5. **Reglas** (uso interno). Ejemplo mínimo:
+   ```
+   match /databases/{db}/documents {
+     match /piezas/{id} { allow read, write: if true; }
+   }
+   ```
+   > `if true` deja la colección abierta a cualquiera con la config. Sirve para uso
+   > interno de tienda; si necesitas cerrarla, agrega Firebase Auth / App Check.
+
+Cada pieza se guarda como JPEG (para caber en el límite de 1 MB por documento) con
+`expireAt = ahora + 24 h`. Al abrir la app se recargan las piezas no vencidas.
 
 ## Pestaña Configuración
 

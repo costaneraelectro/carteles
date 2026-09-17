@@ -167,6 +167,13 @@
       </fieldset>
 
       <fieldset>
+        <legend>Almacenamiento online (Firebase)</legend>
+        <p class="hint" style="margin-top:0">Opcional. Guarda las piezas grabadas en la nube y las borra solas a las 24 h (TTL de Firestore). Pega la config de tu proyecto Firebase (objeto JSON). Ver README para crear el proyecto y activar el TTL.</p>
+        <div class="field"><textarea id="cfgFirebase" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea></div>
+        <div class="sheetbar"><span class="pill" id="fbStatus">Firebase: desactivado</span></div>
+      </fieldset>
+
+      <fieldset>
         <legend>Texto legal del pie</legend>
         <div class="field"><textarea id="cfgLegal"></textarea></div>
         <div class="actions"><button class="btn ghost" id="resetCfg">Restaurar valores por defecto</button></div>

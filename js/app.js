@@ -34,6 +34,7 @@
   const DEFAULT_CFG = {
     legal: DEFAULT_LEGAL,
     proxy: "https://api.allorigins.win/raw?url=",
+    firebase: "",
     eventos: [
       { id: "online",    label: "Tenemos más online (por defecto)", src: "assets/banners/tenemos-mas.png", franja: false },
       { id: "exclusivo", label: "Exclusivo falabella.com",          src: "assets/banners/exclusivo-falabella.png", franja: true },
@@ -267,8 +268,48 @@
   /* ====================================================================
      HOJA / IMPOSICIÓN
      ==================================================================== */
-  let QUEUE = []; // {sizeKey, url}
+  let QUEUE = []; // {sizeKey, url, id?}
   const activeEl = () => curSize().layout === "h" ? $("cartelH") : $("cartel");
+
+  /* ---------- Firebase opcional (Firestore + TTL 24h) ---------- */
+  const FB = { ready: false, db: null, fs: null };
+  const fbStatus = (t) => { const el = $("fbStatus"); if (el) el.textContent = "Firebase: " + t; };
+  async function fbInit() {
+    const raw = (CFG.firebase || "").trim();
+    FB.ready = false;
+    if (!raw) { fbStatus("desactivado"); return; }
+    let cfg; try { cfg = JSON.parse(raw); } catch (e) { fbStatus("config inválida (JSON)"); return; }
+    try {
+      const appMod = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+      const fs = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      const app = appMod.initializeApp(cfg, "carteles-" + Date.now());
+      FB.db = fs.getFirestore(app); FB.fs = fs; FB.ready = true;
+      fbStatus("conectado");
+      await fbLoad();
+    } catch (e) { fbStatus("error: " + (e.message || e)); }
+  }
+  async function fbSave(item) {
+    if (!FB.ready) return;
+    const { collection, addDoc, Timestamp } = FB.fs;
+    try {
+      const ref = await addDoc(collection(FB.db, "piezas"), { sizeKey: item.sizeKey, url: item.url, createdAt: Timestamp.now(), expireAt: Timestamp.fromMillis(Date.now() + 24 * 3600 * 1000) });
+      item.id = ref.id;
+    } catch (e) { fbStatus("error al guardar: " + (e.message || e)); }
+  }
+  async function fbLoad() {
+    if (!FB.ready) return;
+    const { collection, getDocs, query, where, Timestamp } = FB.fs;
+    try {
+      const snap = await getDocs(query(collection(FB.db, "piezas"), where("expireAt", ">", Timestamp.now())));
+      snap.forEach((d) => { const x = d.data(); if (!QUEUE.some((it) => it.id === d.id)) QUEUE.push({ sizeKey: x.sizeKey, url: x.url, id: d.id }); });
+      renderSheet();
+    } catch (e) { fbStatus("error al leer: " + (e.message || e)); }
+  }
+  async function fbDelete(item) {
+    if (!FB.ready || !item.id) return;
+    const { doc, deleteDoc } = FB.fs;
+    try { await deleteDoc(doc(FB.db, "piezas", item.id)); } catch (e) {}
+  }
 
   async function snap(el) {
     const w = parseFloat(el.style.width), h = parseFloat(el.style.height);
@@ -281,14 +322,14 @@
   $("btnPdf").addEventListener("click", async () => { try { const s = curSize(); const c = await snap(activeEl()); const { jsPDF } = window.jspdf; const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: s.h >= s.w ? "portrait" : "landscape" }); const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(); const x = (pw - s.w) / 2, y = (ph - s.h) / 2; pdf.addImage(c.toDataURL("image/png"), "PNG", x, y, s.w, s.h); pdf.save(nombre() + ".pdf"); } catch (e) { errExport(); } });
 
   $("btnGrabar").addEventListener("click", async () => {
-    try { const c = await snap(activeEl()); QUEUE.push({ sizeKey: $("tamano").value, url: c.toDataURL("image/png") }); flashGrabar(); }
+    try { const c = await snap(activeEl()); const item = { sizeKey: $("tamano").value, url: c.toDataURL("image/jpeg", 0.9) }; QUEUE.push(item); flashGrabar(); await fbSave(item); renderSheet(); }
     catch (e) { errExport(); }
   });
   function flashGrabar() { const b = $("btnGrabar"); const o = b.textContent; b.textContent = "✓ Grabado"; setTimeout(() => b.textContent = o, 900); }
 
   $("bordeOn").addEventListener("change", renderSheet);
   $("bordeTipo").addEventListener("change", renderSheet);
-  $("btnClearQueue").addEventListener("click", () => { QUEUE = QUEUE.filter((q) => q.sizeKey !== $("tamano").value); renderSheet(); });
+  $("btnClearQueue").addEventListener("click", () => { const rm = QUEUE.filter((q) => q.sizeKey === $("tamano").value); QUEUE = QUEUE.filter((q) => q.sizeKey !== $("tamano").value); rm.forEach(fbDelete); renderSheet(); });
 
   // modelo de imposición: pieza SIN rotar; solo elegimos orientación de la hoja
   function sheetModel() {
@@ -313,7 +354,7 @@
     // cola visual
     const q = $("queue"); q.innerHTML = "";
     if (!items.length) q.innerHTML = '<div class="empty">Aún no grabas piezas de este tamaño. Ve a «Cartel» y pulsa «Grabar en la hoja».</div>';
-    items.forEach((it, i) => { const d = document.createElement("div"); d.className = "q"; d.innerHTML = '<img src="' + it.url + '"/><button title="Quitar">×</button>'; d.querySelector("button").addEventListener("click", () => { const idx = QUEUE.indexOf(it); if (idx >= 0) QUEUE.splice(idx, 1); renderSheet(); }); q.appendChild(d); });
+    items.forEach((it, i) => { const d = document.createElement("div"); d.className = "q"; d.innerHTML = '<img src="' + it.url + '"/><button title="Quitar">×</button>'; d.querySelector("button").addEventListener("click", () => { const idx = QUEUE.indexOf(it); if (idx >= 0) QUEUE.splice(idx, 1); fbDelete(it); renderSheet(); }); q.appendChild(d); });
 
     // preview hoja
     const SP = Math.min(560 / m.sw, 720 / m.sh); // px por cm en preview
@@ -394,7 +435,7 @@
   function renderConfig() {
     const list = $("bannerlist"); list.innerHTML = ""; CFG.eventos.forEach((ev, i) => list.appendChild(bannerRow(ev, i)));
     const sl = $("slotlist"); sl.innerHTML = ""; Object.keys(CFG.slots).forEach((k) => sl.appendChild(slotRow(CFG.slots[k])));
-    $("cfgLegal").value = CFG.legal; $("cfgProxy").value = CFG.proxy; fillEventos();
+    $("cfgLegal").value = CFG.legal; $("cfgProxy").value = CFG.proxy; $("cfgFirebase").value = CFG.firebase || ""; fillEventos();
   }
   function thumb(src) { const t = document.createElement("div"); t.className = "thumb"; if (src) { const im = document.createElement("img"); im.src = src; t.appendChild(im); } else t.textContent = "—"; return t; }
   function uploadBtn(cb) { const b = document.createElement("button"); b.textContent = "Subir"; const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.style.display = "none"; inp.addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (x) => cb(x.target.result); r.readAsDataURL(f); }); b.addEventListener("click", () => inp.click()); b.appendChild(inp); return b; }
@@ -419,6 +460,7 @@
   $("addBanner").addEventListener("click", () => { CFG.eventos.push({ id: "ev" + Date.now(), label: "Nuevo banner", src: "", franja: true }); save(); renderConfig(); });
   $("cfgLegal").addEventListener("input", () => { CFG.legal = $("cfgLegal").value; save(); render(); });
   $("cfgProxy").addEventListener("input", () => { CFG.proxy = $("cfgProxy").value; save(); });
+  let fbTimer; $("cfgFirebase").addEventListener("input", () => { CFG.firebase = $("cfgFirebase").value; save(); clearTimeout(fbTimer); fbTimer = setTimeout(fbInit, 800); });
   $("resetCfg").addEventListener("click", () => { if (!confirm("¿Restaurar configuración por defecto?")) return; CFG = structuredClone(DEFAULT_CFG); save(); renderConfig(); render(); });
 
   /* ---------- Fit preview ---------- */
@@ -434,5 +476,5 @@
   window.addEventListener("resize", fitStage);
 
   /* ---------- Init ---------- */
-  renderConfig(); render(); fitStage();
+  renderConfig(); render(); fitStage(); fbInit();
 })();
