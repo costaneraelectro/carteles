@@ -15,6 +15,7 @@
     s9x13plan: { w: 8.4, h: 12, layout: "telco", img: false, banner: false, cae: false, label: "9×13 Planes" },
   };
   const LETTER = { w: 21.59, h: 27.94 }; // carta cm
+  const TELCO_QR = "https://rebate-management-prd.eastus2.cloudapp.azure.com/rebate-carteles/download-pdf/insurance/?hash_cartel=T4RXdWu";
   const OPERADORES = [
     { key: "claro", label: "Claro", slot: "opClaro" },
     { key: "entel", label: "Entel", slot: "opEntel" },
@@ -147,19 +148,23 @@
     // capacidades / campos según tamaño
     $("caeWrap").classList.toggle("hidden", !size.cae);
     $("bannerWrap").classList.toggle("hidden", !size.banner);
-    $("qrFieldset").classList.toggle("hidden", !(size.banner || telco));
+    $("qrFieldset").classList.toggle("hidden", !size.banner || telco);   // QR fijo en telco
     $("tipoField").classList.toggle("hidden", telco);
     $("fsPrecios").classList.toggle("hidden", telco);
     $("fsTelco").classList.toggle("hidden", !telco);
+    // en telco no se rellenan: SKU, Link/Buscar, Categoría
+    $("skuField").classList.toggle("hidden", telco);
+    $("linkField").classList.toggle("hidden", telco);
+    $("catField").classList.toggle("hidden", telco);
     // layout activo
     $("cartel").classList.toggle("hidden", horiz || telco);
     $("cartelH").classList.toggle("hidden", !horiz);
     $("cartelP").classList.toggle("hidden", !telco);
     // dims de diseño
     if (telco) {
-      const DW = 660, el = $("cartelP");
-      el.style.width = DW + "px";
-      el.style.height = Math.round(DW * (size.h / size.w)) + "px";
+      const el = $("cartelP");
+      el.style.width = "660px";
+      el.style.height = "auto";      // alto según contenido (sin espacio muerto)
     } else if (horiz) {
       const HDES = 230, el = $("cartelH");
       el.style.height = HDES + "px";
@@ -308,10 +313,9 @@
           '<div class="man">Mandato <b>' + (man || "") + '</b> meses</div>' +
         '</div></div>';
     }).join("");
-    const qrOn = $("showQr").checked && $("qrLink").value.trim();
-    $("tpQr").classList.toggle("hidden", !qrOn);
-    if (qrOn) { if ($("tpQr").dataset.link !== $("qrLink").value.trim()) { $("tpQr").dataset.link = $("qrLink").value.trim(); $("tpQr").innerHTML = ""; try { new QRCode($("tpQr"), { text: $("qrLink").value.trim(), width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M }); } catch (e) {} } }
-    else { $("tpQr").innerHTML = ""; $("tpQr").dataset.link = ""; }
+    // QR fijo del seguro (no editable)
+    $("tpQr").classList.remove("hidden");
+    if ($("tpQr").dataset.link !== TELCO_QR) { $("tpQr").dataset.link = TELCO_QR; $("tpQr").innerHTML = ""; try { new QRCode($("tpQr"), { text: TELCO_QR, width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M }); } catch (e) {} }
     const fala = CFG.slots.falabella.src;
     $("tpFala").classList.toggle("hidden", !fala);
     if (fala) $("tpFala").src = fala;
@@ -457,7 +461,7 @@
   }
   async function snap(el) {
     await ensureFonts();
-    const w = parseFloat(el.style.width), h = parseFloat(el.style.height);
+    const w = el.offsetWidth, h = el.offsetHeight;
     // html2canvas se descoloca (texto encimado) si un ancestro tiene transform:scale
     // (el zoom del preview). Se quita durante la captura y se restaura.
     const ss = $("stageScale"), prev = ss.style.transform;
@@ -470,7 +474,7 @@
   const errExport = () => alert("No se pudo exportar. Si la imagen viene del SKU puede bloquear la descarga (CORS): sube la imagen manual.");
 
   $("btnPng").addEventListener("click", async () => { try { const c = await snap(activeEl()); const a = document.createElement("a"); a.href = c.toDataURL("image/png"); a.download = nombre() + ".png"; a.click(); } catch (e) { errExport(); } });
-  $("btnPdf").addEventListener("click", async () => { try { const s = curSize(); const c = await snap(activeEl()); const { jsPDF } = window.jspdf; const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: s.h >= s.w ? "portrait" : "landscape" }); const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(); const x = (pw - s.w) / 2, y = (ph - s.h) / 2; pdf.addImage(c.toDataURL("image/png"), "PNG", x, y, s.w, s.h); pdf.save(nombre() + ".pdf"); } catch (e) { errExport(); } });
+  $("btnPdf").addEventListener("click", async () => { try { const s = curSize(); const el = activeEl(); const c = await snap(el); const asp = el.offsetHeight / el.offsetWidth; const wcm = s.w, hcm = s.w * asp; const { jsPDF } = window.jspdf; const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: hcm >= wcm ? "portrait" : "landscape" }); const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(); const x = (pw - wcm) / 2, y = (ph - hcm) / 2; pdf.addImage(c.toDataURL("image/png"), "PNG", x, y, wcm, hcm); pdf.save(nombre() + ".pdf"); } catch (e) { errExport(); } });
 
   $("btnGrabar").addEventListener("click", async () => {
     try { const c = await snap(activeEl()); const item = { sizeKey: $("tamano").value, url: c.toDataURL("image/jpeg", 0.9), qty: 1 }; QUEUE.push(item); flashGrabar(); await fbSave(item); renderSheet(); }

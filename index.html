@@ -64,12 +64,12 @@
 
       <fieldset>
         <legend>Producto</legend>
-        <div class="field">
+        <div class="field" id="skuField">
           <label>SKU (manual)</label>
           <input type="text" id="sku" placeholder="17123831" />
           <div class="hint">Se usa para la imagen y se muestra en el cartel.</div>
         </div>
-        <div class="field">
+        <div class="field" id="linkField">
           <label>Link Falabella.com (autocompletar)</label>
           <div class="inline-btn">
             <input type="text" id="link" placeholder="Pega el link del producto" />
@@ -79,7 +79,7 @@
         </div>
         <div class="row2">
           <div class="field"><label>Marca</label><input type="text" id="marca" placeholder="NINJA" /></div>
-          <div class="field"><label>Categoría</label><input type="text" id="categoria" placeholder="ELECTRO HOGAR" /></div>
+          <div class="field" id="catField"><label>Categoría</label><input type="text" id="categoria" placeholder="ELECTRO HOGAR" /></div>
         </div>
         <div class="field"><label>Modelo <span class="badge-auto">opcional</span></label><input type="text" id="modelo" placeholder="NC300EU" /></div>
         <div class="field check"><input type="checkbox" id="showImg" /><label for="showImg" style="margin:0">Mostrar imagen del producto (del SKU)</label></div>
