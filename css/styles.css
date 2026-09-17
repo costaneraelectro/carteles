@@ -95,6 +95,9 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .c-franja { margin: -34px -46px 0; padding: 4px 0; background: var(--papel); display: flex; align-items: center; justify-content: center; }
 .c-franja img { width: 92%; max-height: 96px; object-fit: contain; }
 .c-franja.hidden { display: none; }
+/* Deja hueco a la derecha para el QR y no lo pisa */
+.c-franja.has-qr { justify-content: flex-start; padding-left: 20px; padding-right: 190px; }
+.c-franja.has-qr img { width: 100%; }
 
 /* Cuerpo: se auto-escala para calzar en el alto fijo */
 .c-body { flex: 1 1 auto; position: relative; overflow: hidden; }

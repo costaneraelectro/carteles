@@ -97,6 +97,7 @@
 
     /* QR */
     const qrOn = $("showQr").checked && $("qrLink").value.trim();
+    $("franja").classList.toggle("has-qr", !!(franja && qrOn));
     $("qrBox").classList.toggle("hidden", !qrOn);
     if (qrOn) { if ($("qrBox").dataset.link !== $("qrLink").value.trim()) { $("qrBox").dataset.link = $("qrLink").value.trim(); drawQR($("qrLink").value.trim()); } }
     else { $("qrBox").innerHTML = ""; $("qrBox").dataset.link = ""; }
