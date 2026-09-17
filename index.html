@@ -28,20 +28,10 @@
       <fieldset>
         <legend>Tipo y banner</legend>
         <div class="field">
-          <label>Tipo de cartel</label>
-          <select id="tipo">
-            <option value="normal_cae">Normal electro · CAE</option>
-            <option value="normal_sincae">Normal electro · SIN CAE</option>
-            <option value="oferta_cae">Oferta · CAE</option>
-            <option value="oferta_sincae">Oferta · SIN CAE</option>
-            <option value="ou_cae">Oportunidad única · CAE</option>
-            <option value="ou_sincae">Oportunidad única · SIN CAE</option>
-          </select>
-        </div>
-        <div class="field">
           <label>Tamaño</label>
           <select id="tamano">
             <option value="carta">Carta (con imagen)</option>
+            <option value="s13x19">13 × 19 cm</option>
             <option value="s9x13">9 × 13 cm</option>
             <option value="s9x7">9 × 7 cm</option>
             <option value="s6x4">6 × 4 cm</option>
@@ -50,6 +40,15 @@
           <div class="hint" id="tamHint"></div>
         </div>
         <div class="field">
+          <label>Tipo de cartel</label>
+          <select id="tipo">
+            <option value="normal">Precio normal</option>
+            <option value="oferta">Oferta</option>
+            <option value="ou">Oportunidad única</option>
+          </select>
+        </div>
+        <div class="field check" id="caeWrap"><input type="checkbox" id="caeOn" /><label for="caeOn" style="margin:0">Con cuotas / CAE</label></div>
+        <div class="field" id="bannerWrap">
           <label>Banner</label>
           <select id="evento"></select>
         </div>
@@ -60,11 +59,8 @@
         <legend>Producto</legend>
         <div class="field">
           <label>SKU</label>
-          <div class="inline-btn">
-            <input type="text" id="sku" placeholder="17123831" />
-            <button class="btn sku" id="btnSku" style="flex:0 0 auto;padding:9px 12px">Buscar</button>
-          </div>
-          <div class="hint" id="skuHint">Al buscar, rellena marca y precios desde Falabella.com. Confirma siempre (pueden variar).</div>
+          <input type="text" id="sku" placeholder="17123831" />
+          <div class="hint" id="skuHint">Se usa para bajar la imagen del producto (solo Carta).</div>
         </div>
         <div class="row2">
           <div class="field"><label>Marca</label><input type="text" id="marca" placeholder="NINJA" /></div>
@@ -75,10 +71,10 @@
         <div class="field hidden" id="imgManualWrap"><label>Imagen manual</label><input type="file" id="imagen" accept="image/*" /></div>
       </fieldset>
 
-      <fieldset>
+      <fieldset id="qrFieldset">
         <legend>QR</legend>
         <div class="field check"><input type="checkbox" id="showQr" /><label for="showQr" style="margin:0">Agregar QR en la esquina</label></div>
-        <div class="field hidden" id="qrWrap"><label>Link de Falabella.com</label><input type="text" id="qrLink" placeholder="https://www.falabella.com/falabella-cl/product/17123831" /></div>
+        <div class="field hidden" id="qrWrap"><label>Link (Falabella.com u otro)</label><input type="text" id="qrLink" placeholder="https://www.falabella.com/falabella-cl/product/17123831" /></div>
       </fieldset>
 
       <fieldset>
@@ -121,9 +117,10 @@
 
     <!-- ---------- TAB HOJA ---------- -->
     <div class="tabpane hidden" id="pane-hoja">
+      <div class="sheetbar"><span class="pill" id="fbStatus">Nube…</span></div>
       <div class="sheetbar" id="sheetInfo"></div>
       <div class="field">
-        <label>Piezas grabadas (tamaño actual)</label>
+        <label>Piezas grabadas (tamaño actual) — ajusta la cantidad de cada una</label>
         <div class="queue" id="queue"></div>
       </div>
       <fieldset>
@@ -158,19 +155,6 @@
       <fieldset>
         <legend>Sellos y logos</legend>
         <div class="bannerlist" id="slotlist"></div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Búsqueda por SKU</legend>
-        <div class="field"><label>Proxy CORS (para leer Falabella.com)</label><input type="text" id="cfgProxy" /></div>
-        <div class="hint" style="margin-top:-6px">La página no puede leer Falabella.com directo (CORS). Se usa un proxy. Por defecto allorigins; puedes cambiarlo.</div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Almacenamiento online (Firebase)</legend>
-        <p class="hint" style="margin-top:0">Opcional. Guarda las piezas grabadas en la nube y las borra solas a las 24 h (TTL de Firestore). Pega la config de tu proyecto Firebase (objeto JSON). Ver README para crear el proyecto y activar el TTL.</p>
-        <div class="field"><textarea id="cfgFirebase" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea></div>
-        <div class="sheetbar"><span class="pill" id="fbStatus">Firebase: desactivado</span></div>
       </fieldset>
 
       <fieldset>

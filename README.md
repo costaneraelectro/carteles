@@ -9,17 +9,15 @@ sin servidor — y funciona en GitHub Pages.
 Reproduce la estructura exacta de la cartelería de tienda:
 
 - **Tipografía** — **Brandon Grotesque** (la misma de los carteles).
-- **6 tipos** (filtro): Normal electro CAE · Normal electro SIN CAE · Oferta CAE ·
-  Oferta SIN CAE · Oportunidad única CAE · Oportunidad única SIN CAE.
+- **3 tipos** — Precio normal · Oferta · Oportunidad única. Casilla **Con cuotas /
+  CAE** (solo en Carta y 13×19) agrega cuotas + CAE/CTC.
   - **Oferta** — "TODO MEDIO DE PAGO" (rojo) y debajo "PRECIO NORMAL".
   - **Oportunidad única** — sello + precio OU, **Oferta TMP (se puede desactivar)**
-    y precio normal, los tres del mismo tamaño.
-  - Las variantes **CAE** agregan cuotas + CAE/CTC.
-- **Buscar por SKU** — botón *Buscar* lee Falabella.com (vía proxy CORS) y rellena
-  marca y precios (oferta / normal / CMR). **Confirma siempre**, pueden variar.
+    y precio normal (iguales en Carta/13×19; el principal más grande en chicos).
 - **Imagen por SKU** — `media.falabella.com/falabellaCL/{sku}/public`, con upload
-  manual de respaldo. Sin imagen, el contenido va **centrado**.
-- **QR** — pega el link de Falabella.com y genera el QR en la esquina.
+  manual de respaldo (solo Carta). Sin imagen, el contenido va **centrado**.
+- **QR** — pega un link (Falabella.com u otro) y genera el QR en la esquina
+  (solo Carta, 13×19 y 9×7).
 - **CAE / cuotas automáticos** — 12 cuotas @ 39,93%: cuota ≈ precio × 0,101296,
   CTC ≈ precio × 1,22347 (de los carteles reales). Editables.
 - **Datos en el cartel** — MARCA, CATEGORÍA, `MODELO:` (si va) y `SKU:`.
@@ -28,8 +26,10 @@ Reproduce la estructura exacta de la cartelería de tienda:
 
 ## Tamaños e impresión de varias piezas por hoja
 
-Además de **Carta** (la única con imagen), arma tamaños chicos de tienda:
-**9×13, 9×7, 6×4** (mismo layout, sin imagen) y **12×3** (layout horizontal).
+Tamaños: **Carta** (con imagen, banner/QR, CAE), **13×19** (banner/QR, CAE, sin
+imagen), **9×7** (banner/QR), **9×13** y **6×4** (solo precios) y **12×3**
+(horizontal). Solo Carta y 13×19 llevan CAE; solo Carta, 13×19 y 9×7 llevan
+banner/QR.
 
 Flujo para imprimir varias en una hoja carta:
 
@@ -41,48 +41,47 @@ Flujo para imprimir varias en una hoja carta:
 3. Marca **Agregar borde** y elige **Línea de corte** o **Marcas de corte**.
 4. **Descargar hoja PNG / PDF** (carta, 150 dpi).
 
-La cola de piezas es por tamaño. Vive en memoria de la sesión, salvo que actives
-Firebase (abajo), donde se guarda online y se borra sola a las 24 h.
+Al grabar se agrega **1 copia** a la hoja; en la pestaña Hoja ajustas la
+**cantidad** de cada pieza y la hoja se llena hasta el tope de la grilla.
 
-## Almacenamiento online (Firebase) — opcional
+## Almacenamiento online (Firebase)
 
-Guarda las piezas grabadas en la nube y las **borra solas a las 24 h** con el TTL
-de Firestore. Pasos (una vez):
+Las piezas grabadas se guardan en la nube (Firestore, proyecto `carteles-electro`,
+ya configurado en el código) y se **borran solas a las 24 h**. Al abrir la app se
+recargan las piezas no vencidas — sirven entre computadores del mismo proyecto.
 
-1. Crea un proyecto en <https://console.firebase.google.com> y una app **Web**.
-2. Activa **Firestore Database** (modo producción).
-3. En **Configuración → Configuración de la app** copia el objeto `firebaseConfig`
-   (apiKey, projectId, appId, …) y pégalo en la app: pestaña **Configuración →
-   Almacenamiento online (Firebase)**. El estado debe pasar a "conectado".
-4. **TTL (borrado a 24 h):** Firestore → *Time-to-live* → crea una política sobre
-   la colección `piezas`, campo `expireAt`. Firestore borra los documentos
-   vencidos (best-effort, dentro de ~24–72 h del vencimiento).
-5. **Reglas** (uso interno). Ejemplo mínimo:
+Para que funcione, en la consola de Firebase:
+
+1. **Reglas** (Firestore → Reglas → Publicar):
    ```
-   match /databases/{db}/documents {
-     match /piezas/{id} { allow read, write: if true; }
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /piezas/{id} { allow read, write: if true; }
+     }
    }
    ```
-   > `if true` deja la colección abierta a cualquiera con la config. Sirve para uso
-   > interno de tienda; si necesitas cerrarla, agrega Firebase Auth / App Check.
+   > `if true` deja la colección abierta. Uso interno de tienda; si necesitas
+   > cerrarla, agrega Firebase Auth / App Check.
+2. **TTL (borrado a 24 h):** Firestore → *Time-to-live* → política sobre la
+   colección `piezas`, campo `expireAt` (borra best-effort, ~24–72 h del vencimiento).
 
 Cada pieza se guarda como JPEG (para caber en el límite de 1 MB por documento) con
-`expireAt = ahora + 24 h`. Al abrir la app se recargan las piezas no vencidas.
+`expireAt = ahora + 24 h`.
 
 ## Pestaña Configuración
 
 - **Banners** — sube / edita / borra. Casilla *franja* = ancho completo; sin
   marcar = header (arriba-izquierda, como "Tenemos más online", el por defecto).
-  El banner va sobre fondo blanco igual que el cartel.
-- **Sellos y logos** — sube el sello *Oportunidad única + CMR*, la *mini tarjeta
-  CMR* (junto a las cuotas) y el logo *Fpuntos* del pie. Mientras no subas el
-  sello, sale un marcador de posición.
-- **Proxy CORS** para la búsqueda por SKU (por defecto allorigins; editable).
+  Cada banner muestra la **medida recomendada** para subir (para diseñar en Canva):
+  franja ~1200×260 px, header ~1000×110 px (PNG con fondo transparente).
+- **Sellos y logos** — sube el sello *Oportunidad única + CMR* y el logo *Fpuntos*
+  del pie. Mientras no subas el sello, sale un marcador de posición.
 - **Legal** del pie editable. "Restaurar" vuelve a los valores por defecto.
 - Todo se guarda en el navegador (localStorage).
 
-> El sello oficial *Oportunidad única + CMR* y la *mini tarjeta CMR* no vienen en
-> el repo — súbelos una vez desde Configuración.
+> El sello oficial *Oportunidad única + CMR* no viene en el repo — súbelo una vez
+> desde Configuración.
 
 ## Uso
 
