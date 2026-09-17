@@ -257,6 +257,46 @@
     fit.style.transform = "translateY(" + dy + "px) scale(" + s + ")";
   }
 
+  /* ====================================================================
+     BUSCAR EN FALABELLA (API JSON pública vía proxy)
+     ==================================================================== */
+  const PROXIES = [
+    (u) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+    (u) => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u),
+    (u) => "https://corsproxy.io/?url=" + encodeURIComponent(u),
+  ];
+  async function buscarSku() {
+    let sku = $("sku").value.trim();
+    const mlink = sku.match(/(\d{6,})/); if (mlink) sku = mlink[1];   // acepta link pegado
+    if (!sku) return;
+    $("sku").value = sku;                                             // deja el SKU limpio (para la imagen)
+    const hint = $("skuHint"); hint.textContent = "Buscando en falabella.com…";
+    const api = "https://www.falabella.com/s/browse/v3/product/cl?site=falabella-cl&productId=" + encodeURIComponent(sku);
+    for (const px of PROXIES) {
+      try {
+        const r = await fetch(px(api), { headers: { accept: "application/json" } });
+        const t = await r.text(); let j; try { j = JSON.parse(t); } catch (e) { continue; }
+        const d = j.data || j; if (!d || !d.variants) continue;
+        aplicarProducto(d);
+        hint.textContent = "Datos cargados — CONFIRMA los precios (pueden variar).";
+        render(); return;
+      } catch (e) {}
+    }
+    hint.textContent = "No se pudo traer de falabella.com. Rellena manual.";
+  }
+  function aplicarProducto(d) {
+    if (d.brandName) $("marca").value = d.brandName;
+    if (d.name && !$("modelo").value.trim()) $("modelo").value = d.name;
+    try { const bc = d.breadCrumb || []; if (bc.length && !$("categoria").value.trim()) $("categoria").value = (bc[bc.length - 2] || bc[bc.length - 1]).label || ""; } catch (e) {}
+    const v = (d.variants || []).find((x) => x.id === d.primaryVariantId) || d.variants[0] || {};
+    const pr = {}; (v.prices || []).forEach((p) => { pr[p.type] = parseInt(String((p.price && p.price[0]) || "").replace(/\D/g, ""), 10); });
+    if (pr.cmrPrice) $("precioOU").value = pr.cmrPrice;
+    if (pr.internetPrice) { $("precioOferta").value = pr.internetPrice; $("precio").value = pr.internetPrice; }
+    if (pr.normalPrice) $("precioNormal").value = pr.normalPrice;
+  }
+  $("btnSku").addEventListener("click", buscarSku);
+  $("sku").addEventListener("keydown", (e) => { if (e.key === "Enter") buscarSku(); });
+
   /* ---------- Toggles ---------- */
   $("showImg").addEventListener("change", () => { $("imgManualWrap").classList.toggle("hidden", !$("showImg").checked); render(); });
   $("showQr").addEventListener("change", () => { $("qrWrap").classList.toggle("hidden", !$("showQr").checked); render(); });

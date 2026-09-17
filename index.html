@@ -58,9 +58,12 @@
       <fieldset>
         <legend>Producto</legend>
         <div class="field">
-          <label>SKU</label>
-          <input type="text" id="sku" placeholder="17123831" />
-          <div class="hint" id="skuHint">Se usa para bajar la imagen del producto (solo Carta).</div>
+          <label>SKU / link del producto</label>
+          <div class="inline-btn">
+            <input type="text" id="sku" placeholder="17123831 o pega el link" />
+            <button class="btn sku" id="btnSku" style="flex:0 0 auto;padding:9px 12px">Buscar</button>
+          </div>
+          <div class="hint" id="skuHint">Trae marca y precios desde falabella.com. Confirma siempre (pueden variar).</div>
         </div>
         <div class="row2">
           <div class="field"><label>Marca</label><input type="text" id="marca" placeholder="NINJA" /></div>

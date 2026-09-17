@@ -14,6 +14,9 @@ Reproduce la estructura exacta de la cartelería de tienda:
   - **Oferta** — "TODO MEDIO DE PAGO" (rojo) y debajo "PRECIO NORMAL".
   - **Oportunidad única** — sello + precio OU, **Oferta TMP (se puede desactivar)**
     y precio normal (iguales en Carta/13×19; el principal más grande en chicos).
+- **Buscar por SKU** — botón *Buscar* (o pega el link del producto) trae marca y
+  precios (oferta / normal / CMR) desde la API pública de falabella.com
+  (`browse/v3/product`, vía proxy CORS con reintentos). **Confirma siempre**.
 - **Imagen por SKU** — `media.falabella.com/falabellaCL/{sku}/public`, con upload
   manual de respaldo (solo Carta). Sin imagen, el contenido va **centrado**.
 - **QR** — pega un link (Falabella.com u otro) y genera el QR en la esquina
