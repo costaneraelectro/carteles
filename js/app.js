@@ -267,6 +267,10 @@
     (u) => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u),
     (u) => "https://corsproxy.io/?url=" + encodeURIComponent(u),
   ];
+  function fetchTimeout(url, ms) {
+    const ctrl = new AbortController(); const id = setTimeout(() => ctrl.abort(), ms);
+    return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(id));
+  }
   async function buscarSku() {
     let sku = $("sku").value.trim();
     const mlink = sku.match(/(\d{6,})/); if (mlink) sku = mlink[1];   // acepta link pegado
@@ -274,17 +278,20 @@
     $("sku").value = sku;                                             // deja el SKU limpio (para la imagen)
     const hint = $("skuHint"); hint.textContent = "Buscando en falabella.com…";
     const api = "https://www.falabella.com/s/browse/v3/product/cl?site=falabella-cl&productId=" + encodeURIComponent(sku);
-    for (const px of PROXIES) {
+    // 1) directo (funciona servido en https, ej. GitHub Pages). 2) proxies (para file://)
+    const intentos = [api, ...PROXIES.map((px) => px(api))];
+    let ultimo = "";
+    for (const url of intentos) {
       try {
-        const r = await fetch(px(api));   // sin headers extra (evita preflight CORS)
-        const t = await r.text(); let j; try { j = JSON.parse(t); } catch (e) { continue; }
-        const d = j.data || j; if (!d || !d.variants) continue;
+        const r = await fetchTimeout(url, 9000);
+        const t = await r.text(); let j; try { j = JSON.parse(t); } catch (e) { ultimo = "respuesta no-JSON"; continue; }
+        const d = j.data || j; if (!d || !d.variants) { ultimo = "sin datos"; continue; }
         aplicarProducto(d);
         hint.textContent = "Datos cargados — CONFIRMA los precios (pueden variar).";
         render(); return;
-      } catch (e) {}
+      } catch (e) { ultimo = (e && e.name === "AbortError") ? "timeout" : "bloqueado (CORS)"; }
     }
-    hint.textContent = "No se pudo traer de falabella.com. Rellena manual.";
+    hint.textContent = "No se pudo traer de falabella.com (" + ultimo + "). Publica en GitHub Pages o rellena manual.";
   }
   function aplicarProducto(d) {
     if (d.brandName) $("marca").value = d.brandName;
