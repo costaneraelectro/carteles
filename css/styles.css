@@ -1,5 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap");
-/* Brandon Grotesque va incrustada (base64) en el <head> de index.html */
+/* Brandon Grotesque va incrustada (base64) en el <head> de index.html.
+   Fuente de apoyo (UI, legal): sans del sistema (sin @import externo, que rompe
+   la exportación con html2canvas). */
 
 :root {
   --verde: #a6ce39;
@@ -9,12 +10,12 @@
   --gris: #6b6b6b;
   --gris-cl: #e6e6e6;
   --papel: #ffffff;
-  --font: "Brandon Grotesque", "Montserrat", Arial, sans-serif;
+  --font: "Brandon Grotesque", Arial, Helvetica, sans-serif;
   --cartel-w: 750px;
   --cartel-h: 1000px;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; font-family: "Montserrat", Arial, sans-serif; background: #f2f3f5; color: var(--negro); }
+html, body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f2f3f5; color: var(--negro); }
 
 /* ===== Shell ===== */
 .app { display: grid; grid-template-columns: 400px 1fr; gap: 24px; max-width: 1440px; margin: 0 auto; padding: 20px; }
@@ -119,7 +120,7 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .c-badge { display: flex; justify-content: center; margin: calc(16px * var(--k)) 0 calc(4px * var(--k)); }
 .c-badge img { height: calc(100px * var(--k)); object-fit: contain; }
 .c-badge.hidden { display: none; }
-.c-badge .ph { border: 2px dashed #ddd; color: #b3b3b3; font-family: "Montserrat",sans-serif; font-size: calc(12px * var(--k)); font-weight: 700; border-radius: 12px; padding: 14px 20px; text-align: center; }
+.c-badge .ph { border: 2px dashed #ddd; color: #b3b3b3; font-family: Arial, Helvetica, sans-serif; font-size: calc(12px * var(--k)); font-weight: 700; border-radius: 12px; padding: 14px 20px; text-align: center; }
 
 /* Precios */
 .c-precios { text-align: center; margin-top: calc(10px * var(--k)); }
@@ -151,11 +152,12 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .cartelH .h-marca { font-weight: 700; font-size: 44px; line-height: .9; text-transform: uppercase; }
 .cartelH .h-cat { font-weight: 500; font-size: 22px; text-transform: uppercase; }
 .cartelH .h-sku { font-weight: 500; font-size: 18px; color: #333; text-transform: uppercase; margin-top: 2px; }
-.cartelH .h-vig { font-family: "Montserrat",sans-serif; font-size: 11px; color: #555; margin-top: 6px; }
+.cartelH .h-vig { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #555; margin-top: 6px; }
 .cartelH .h-div { width: 2px; background: #cfcfcf; align-self: stretch; }
-.cartelH .h-right { flex: 1.1; display: flex; align-items: center; justify-content: center; gap: 14px; }
+.cartelH .h-right { flex: 1.1; display: flex; align-items: flex-start; justify-content: center; gap: 14px; padding-top: 6px; }
+.cartelH .h-badge { align-self: flex-start; }
 .cartelH .h-badge img { height: 70px; object-fit: contain; }
-.cartelH .h-badge .ph { border: 1px dashed #ddd; color: #b3b3b3; font-family: "Montserrat"; font-size: 9px; padding: 8px; border-radius: 8px; }
+.cartelH .h-badge .ph { border: 1px dashed #ddd; color: #b3b3b3; font-family: Arial; font-size: 9px; padding: 8px; border-radius: 8px; }
 .cartelH .h-prices { text-align: right; }
 .cartelH .h-prices .lbl { font-weight: 700; font-size: 14px; text-transform: uppercase; line-height: 1; margin-top: 4px; }
 .cartelH .h-prices .pv { font-weight: 700; font-size: 58px; line-height: .9; }        /* principal */
@@ -163,7 +165,7 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 
 /* Footer */
 .c-footer { margin: 0 -46px; padding: 12px 46px 16px; display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; }
-.c-footer__legal { font-size: 10px; line-height: 1.25; color: #444; font-family: "Montserrat", Arial, sans-serif; text-align: left; }
+.c-footer__legal { font-size: 10px; line-height: 1.25; color: #444; font-family: Arial, Helvetica, sans-serif; text-align: left; }
 .c-footer__legal .vig { font-weight: 700; text-transform: uppercase; }
 .c-footer__right { flex: 0 0 auto; }
 .c-footer__right img { height: 74px; object-fit: contain; }

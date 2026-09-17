@@ -378,7 +378,13 @@
   async function snap(el) {
     await ensureFonts();
     const w = parseFloat(el.style.width), h = parseFloat(el.style.height);
-    return html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff", width: w, height: h, windowWidth: w, windowHeight: h });
+    // html2canvas se descoloca (texto encimado) si un ancestro tiene transform:scale
+    // (el zoom del preview). Se quita durante la captura y se restaura.
+    const ss = $("stageScale"), prev = ss.style.transform;
+    ss.style.transform = "none";
+    try {
+      return await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff", width: w, height: h });
+    } finally { ss.style.transform = prev; }
   }
   const nombre = () => (($("marca").value || "cartel") + "-" + ($("sku").value || Date.now())).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const errExport = () => alert("No se pudo exportar. Si la imagen viene del SKU puede bloquear la descarga (CORS): sube la imagen manual.");
