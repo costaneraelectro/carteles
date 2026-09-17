@@ -245,16 +245,18 @@
     $("hPrices").innerHTML = html;
   }
 
-  /* auto-escala cuerpo portrait */
+  /* auto-ajuste del cuerpo portrait: reduce el tamaño de fuente (var --k) hasta calzar.
+     Sin transform, para que html2canvas exporte bien. */
   function fitBody() {
     if (curSize().layout === "h") return;
     const body = $("body"), fit = $("fit");
-    fit.style.transform = "none";
-    const avail = body.clientHeight, natural = fit.scrollHeight;
-    if (!avail || !natural) return;
-    const s = Math.min(1, avail / natural);
-    const dy = $("showImg").checked && curSize().img ? 0 : Math.max(0, (avail - natural * s) / 2);
-    fit.style.transform = "translateY(" + dy + "px) scale(" + s + ")";
+    let k = 1; fit.style.setProperty("--k", "1");
+    for (let i = 0; i < 5; i++) {
+      const avail = body.clientHeight, natural = fit.scrollHeight;
+      if (!avail || !natural || natural <= avail + 1) break;
+      k = Math.max(0.05, k * (avail / natural) * 0.985);
+      fit.style.setProperty("--k", String(k));
+    }
   }
 
   /* ====================================================================
@@ -274,7 +276,7 @@
     const api = "https://www.falabella.com/s/browse/v3/product/cl?site=falabella-cl&productId=" + encodeURIComponent(sku);
     for (const px of PROXIES) {
       try {
-        const r = await fetch(px(api), { headers: { accept: "application/json" } });
+        const r = await fetch(px(api));   // sin headers extra (evita preflight CORS)
         const t = await r.text(); let j; try { j = JSON.parse(t); } catch (e) { continue; }
         const d = j.data || j; if (!d || !d.variants) continue;
         aplicarProducto(d);

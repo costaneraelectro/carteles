@@ -98,45 +98,45 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .c-franja.hidden { display: none; }
 
 /* Cuerpo: se auto-escala para calzar en el alto fijo */
-.c-body { flex: 1 1 auto; position: relative; overflow: hidden; }
-.c-fit { transform-origin: top center; width: 100%; }
+/* Cuerpo: centra vertical; el contenido se ajusta escalando la fuente (var --k),
+   sin transform (para que la exportación con html2canvas no se enime) */
+.c-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+.c-fit { width: 100%; --k: 1; }
 
 /* Imagen producto */
 .c-media { display: flex; align-items: center; justify-content: center; padding: 6px 0; }
-.c-media img { max-width: 74%; max-height: 240px; object-fit: contain; }
+.c-media img { max-width: 74%; max-height: calc(240px * var(--k)); object-fit: contain; }
 .c-media.hidden { display: none; }
 
 /* Info */
 .c-info { text-align: center; margin-top: 6px; }
-.c-marca { font-weight: 700; font-size: 62px; line-height: .95; letter-spacing: -0.01em; text-transform: uppercase; }
-.c-cat { font-weight: 500; font-size: 34px; line-height: 1; margin-top: 2px; text-transform: uppercase; }
-.c-modelo { font-weight: 500; font-size: 21px; color: #222; margin-top: 8px; text-transform: uppercase; }
-.c-sku { font-weight: 500; font-size: 21px; color: #222; margin-top: 1px; text-transform: uppercase; }
+.c-marca { font-weight: 700; font-size: calc(62px * var(--k)); line-height: .95; letter-spacing: -0.01em; text-transform: uppercase; }
+.c-cat { font-weight: 500; font-size: calc(34px * var(--k)); line-height: 1; margin-top: 2px; text-transform: uppercase; }
+.c-modelo { font-weight: 500; font-size: calc(21px * var(--k)); color: #222; margin-top: calc(8px * var(--k)); text-transform: uppercase; }
+.c-sku { font-weight: 500; font-size: calc(21px * var(--k)); color: #222; margin-top: 1px; text-transform: uppercase; }
 
 /* Badge Oportunidad única */
-.c-badge { display: flex; justify-content: center; margin: 16px 0 4px; }
-.c-badge img { height: 100px; object-fit: contain; }
+.c-badge { display: flex; justify-content: center; margin: calc(16px * var(--k)) 0 calc(4px * var(--k)); }
+.c-badge img { height: calc(100px * var(--k)); object-fit: contain; }
 .c-badge.hidden { display: none; }
-.c-badge .ph { border: 2px dashed #ddd; color: #b3b3b3; font-family: "Montserrat",sans-serif; font-size: 12px; font-weight: 700; border-radius: 12px; padding: 14px 20px; text-align: center; }
+.c-badge .ph { border: 2px dashed #ddd; color: #b3b3b3; font-family: "Montserrat",sans-serif; font-size: calc(12px * var(--k)); font-weight: 700; border-radius: 12px; padding: 14px 20px; text-align: center; }
 
 /* Precios */
-.c-precios { text-align: center; margin-top: 10px; }
-.p-block { margin: 6px 0; }
-.p-tag { font-weight: 700; font-size: 30px; letter-spacing: .01em; text-transform: uppercase; line-height: 1; }
+.c-precios { text-align: center; margin-top: calc(10px * var(--k)); }
+.p-block { margin: calc(6px * var(--k)) 0; }
+.p-tag { font-weight: 700; font-size: calc(30px * var(--k)); letter-spacing: .01em; text-transform: uppercase; line-height: 1; }
 .p-val { font-weight: 700; letter-spacing: -0.01em; line-height: .9; }
-.p-val.xl { font-size: 120px; }
-.p-val.lg { font-size: 88px; }
-.p-val.md { font-size: 70px; }
-.p-val.sm { font-size: 52px; }
-.p-tag.sm { font-size: 22px; }
+.p-val.xl { font-size: calc(120px * var(--k)); }
+.p-val.lg { font-size: calc(88px * var(--k)); }
+.p-val.md { font-size: calc(70px * var(--k)); }
+.p-val.sm { font-size: calc(52px * var(--k)); }
+.p-tag.sm { font-size: calc(22px * var(--k)); }
 .p-rojo { color: var(--rojo); }
 .p-negro { color: var(--negro); }
-/* cuotas con mini tarjeta CMR */
-.p-cuotas-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 6px; }
-.p-cuotas-wrap img { height: 74px; object-fit: contain; }
+.p-cuotas-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: calc(6px * var(--k)); }
 .p-cuotas-txt { text-align: left; }
-.p-cuotas { font-weight: 700; font-size: 40px; line-height: 1; }
-.p-cae { font-weight: 500; font-size: 25px; color: #222; }
+.p-cuotas { font-weight: 700; font-size: calc(40px * var(--k)); line-height: 1; }
+.p-cae { font-weight: 500; font-size: calc(25px * var(--k)); color: #222; }
 
 /* Ocultar cromo (header/legal) en tamaños chicos */
 .cartel.no-chrome { padding-top: 20px; }
