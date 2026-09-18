@@ -109,8 +109,8 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .c-fit { width: 100%; --k: 1; }
 
 /* Imagen producto */
-.c-media { display: flex; align-items: center; justify-content: center; padding: 6px 0; }
-.c-media img { max-width: 74%; max-height: calc(240px * var(--k)); object-fit: contain; }
+.c-media { display: flex; align-items: center; justify-content: center; padding: 6px 0; overflow: hidden; }
+.c-media img { max-width: 74%; max-height: calc(240px * var(--k)); object-fit: contain; transform-origin: center; }
 .c-media.hidden { display: none; }
 
 /* Info */

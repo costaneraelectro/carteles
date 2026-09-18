@@ -110,7 +110,35 @@
 
   /* ---------- Imagen manual / QR ---------- */
   let manualImg = null;
-  $("imagen").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (x) => { manualImg = x.target.result; render(); }; r.readAsDataURL(f); });
+  $("imagen").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (x) => { manualImg = x.target.result; resetImgEditor(); render(); }; r.readAsDataURL(f); });
+
+  function resetImgEditor() { $("imgZoom").value = 1; $("imgX").value = 0; $("imgY").value = 0; }
+  $("imgReset").addEventListener("click", () => { resetImgEditor(); render(); });
+  $("imgTrim").addEventListener("click", () => {
+    const sku = $("sku").value.trim();
+    const src = manualImg || (sku ? "https://media.falabella.com/falabellaCL/" + encodeURIComponent(sku) + "/public" : "");
+    if (!src) return;
+    const im = new Image(); im.crossOrigin = "anonymous";
+    im.onload = () => {
+      const cv = document.createElement("canvas"); cv.width = im.naturalWidth; cv.height = im.naturalHeight;
+      const ctx = cv.getContext("2d"); ctx.drawImage(im, 0, 0);
+      let d; try { d = ctx.getImageData(0, 0, cv.width, cv.height).data; }
+      catch (e) { alert("No se puede recortar esta imagen (viene de otra web). Súbela como imagen manual y recórtala."); return; }
+      const thr = 244; let minX = cv.width, minY = cv.height, maxX = 0, maxY = 0, found = false;
+      for (let y = 0; y < cv.height; y++) for (let x = 0; x < cv.width; x++) {
+        const i = (y * cv.width + x) * 4, r = d[i], g = d[i + 1], b = d[i + 2], a = d[i + 3];
+        if (a > 12 && !(r > thr && g > thr && b > thr)) { found = true; if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y; }
+      }
+      if (!found) return;
+      const pad = 8; minX = Math.max(0, minX - pad); minY = Math.max(0, minY - pad); maxX = Math.min(cv.width - 1, maxX + pad); maxY = Math.min(cv.height - 1, maxY + pad);
+      const w = maxX - minX + 1, h = maxY - minY + 1;
+      const out = document.createElement("canvas"); out.width = w; out.height = h;
+      out.getContext("2d").drawImage(cv, minX, minY, w, h, 0, 0, w, h);
+      manualImg = out.toDataURL("image/png"); resetImgEditor(); render();
+    };
+    im.onerror = () => alert("No se pudo cargar la imagen para recortar. Súbela como imagen manual.");
+    im.src = src;
+  });
   function drawQR(link) { const box = $("qrBox"); box.innerHTML = ""; if (!link) return; try { new QRCode(box, { text: link, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.M }); } catch (e) {} }
 
   /* ====================================================================
@@ -174,8 +202,10 @@
       $("cartel").style.width = DW + "px";
       $("cartel").style.height = Math.round(DW * (size.h / size.w)) + "px";
     }
-    // imagen manual solo carta
-    $("imgManualWrap").classList.toggle("hidden", !(size.img && $("showImg").checked));
+    // imagen manual + editor solo carta con imagen
+    const imgOn = size.img && $("showImg").checked;
+    $("imgManualWrap").classList.toggle("hidden", !imgOn);
+    $("fsImg").classList.toggle("hidden", !imgOn);
     $("showImg").parentElement.classList.toggle("hidden", !size.img);
 
     if (telco) renderTelco(); else if (horiz) renderHorizontal(); else renderPortrait(size);
@@ -201,7 +231,14 @@
 
     const showImg = size.img && $("showImg").checked;
     $("media").classList.toggle("hidden", !showImg);
-    if (showImg) { const sku = $("sku").value.trim(); const src = manualImg || (sku ? "https://media.falabella.com/falabellaCL/" + encodeURIComponent(sku) + "/public" : ""); if (src) $("mediaImg").src = src; }
+    if (showImg) {
+      const sku = $("sku").value.trim();
+      const src = manualImg || (sku ? "https://media.falabella.com/falabellaCL/" + encodeURIComponent(sku) + "/public" : "");
+      if (src) $("mediaImg").src = src;
+      const z = parseFloat($("imgZoom").value) || 1, x = parseFloat($("imgX").value) || 0, y = parseFloat($("imgY").value) || 0;
+      $("mediaImg").style.transform = "translate(" + x + "px," + y + "px) scale(" + z + ")";
+      $("zoomVal").textContent = Math.round(z * 100) + "%";
+    }
 
     $("oMarca").textContent = $("marca").value.toUpperCase();
     $("oCat").textContent = $("categoria").value.toUpperCase();
@@ -395,7 +432,7 @@
   /* ---------- Toggles ---------- */
   $("showImg").addEventListener("change", () => { $("imgManualWrap").classList.toggle("hidden", !$("showImg").checked); render(); });
   $("showQr").addEventListener("change", () => { $("qrWrap").classList.toggle("hidden", !$("showQr").checked); render(); });
-  ["tipo","tamano","caeOn","evento","ouTmp","sku","marca","categoria","modelo","qrLink","precio","precioNormal","precioOferta","precioOU","nCuotas","cae","valorCuota","ctc","vigDesde","vigHasta"]
+  ["tipo","tamano","caeOn","evento","ouTmp","sku","marca","categoria","modelo","qrLink","precio","precioNormal","precioOferta","precioOU","nCuotas","cae","valorCuota","ctc","vigDesde","vigHasta","imgZoom","imgX","imgY"]
     .forEach((id) => { $(id).addEventListener("input", render); $(id).addEventListener("change", render); });
 
   /* ====================================================================

@@ -84,6 +84,17 @@
         <div class="field"><label>Modelo <span class="badge-auto">opcional</span></label><input type="text" id="modelo" placeholder="NC300EU" /></div>
         <div class="field check"><input type="checkbox" id="showImg" /><label for="showImg" style="margin:0">Mostrar imagen del producto (del SKU)</label></div>
         <div class="field hidden" id="imgManualWrap"><label>Imagen manual</label><input type="file" id="imagen" accept="image/*" /></div>
+        <div id="fsImg" class="hidden" style="border-top:1px dashed var(--gris-cl);padding-top:10px;margin-top:4px">
+          <div class="field"><label>Zoom <span id="zoomVal" style="color:#999">100%</span></label><input type="range" id="imgZoom" min="0.5" max="3" step="0.02" value="1" style="width:100%" /></div>
+          <div class="row2">
+            <div class="field"><label>Mover ↔</label><input type="range" id="imgX" min="-220" max="220" step="1" value="0" style="width:100%" /></div>
+            <div class="field"><label>Mover ↕</label><input type="range" id="imgY" min="-220" max="220" step="1" value="0" style="width:100%" /></div>
+          </div>
+          <div class="actions">
+            <button class="btn ghost" id="imgTrim" style="padding:8px">✂ Recortar blanco</button>
+            <button class="btn ghost" id="imgReset" style="padding:8px">Reiniciar</button>
+          </div>
+        </div>
       </fieldset>
 
       <fieldset id="qrFieldset">
