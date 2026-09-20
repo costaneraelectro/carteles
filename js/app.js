@@ -51,7 +51,7 @@
       badgeUnica: { label: "Sello Oportunidad única + CMR", src: "assets/logos/badge-unica.png" },
       fpuntos:    { label: "Logo Fpuntos (pie)", src: "assets/logos/fpuntos.png" },
       opClaro:    { label: "Logo Claro (planes)", src: "assets/logos/telco/claro.png" },
-      opEntel:    { label: "Logo Entel (planes)", src: "" },
+      opEntel:    { label: "Logo Entel (planes)", src: "assets/logos/telco/entel.png" },
       opMovistar: { label: "Logo Movistar (planes)", src: "assets/logos/telco/movistar.png" },
       opWom:      { label: "Logo WOM (planes)", src: "assets/logos/telco/wom.png" },
       falabella:  { label: "Logo Falabella «f» (planes)", src: "assets/logos/telco/falabella.png" },
