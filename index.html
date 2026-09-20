@@ -190,10 +190,11 @@
         <div class="actions" style="margin-top:12px"><button class="btn ghost" id="addBanner">+ Agregar banner</button></div>
       </fieldset>
 
-      <fieldset>
-        <legend>Sellos y logos</legend>
+      <details class="cfg-adv">
+        <summary>Sellos y logos (avanzado)</summary>
+        <p class="hint">Ya vienen cargados por defecto. Ábrelo solo si necesitas reemplazar el sello Oportunidad única + CMR o el logo Fpuntos.</p>
         <div class="bannerlist" id="slotlist"></div>
-      </fieldset>
+      </details>
 
       <fieldset>
         <legend>Texto legal del pie</legend>
@@ -279,6 +280,44 @@
     <div class="sheetwrap hidden" id="sheetWrap"><div class="sheet" id="sheet"></div></div>
   </section>
 
+</div>
+
+<!-- ============ EDITOR DE BANNERS ============ -->
+<div class="ed-overlay hidden" id="bnEditor" role="dialog" aria-modal="true">
+  <div class="ed-box">
+    <div class="ed-head">
+      <strong>Editor de banner</strong>
+      <button class="ed-x" id="edCancel" title="Cerrar">✕</button>
+    </div>
+    <div class="ed-cv" id="edStage"><canvas id="edCanvas"></canvas><div class="ed-crop hidden" id="edCropBox"></div></div>
+    <div class="ed-tools">
+      <button id="edCropStart">Recortar</button>
+      <button id="edTrim">Auto-recortar</button>
+      <button id="edRot">Rotar 90°</button>
+      <button id="edFlip">Espejar</button>
+    </div>
+    <div class="ed-tools">
+      <span class="lbl">Quitar fondo</span>
+      <input type="range" id="edTol" min="0" max="120" value="40" />
+      <span class="lbl" id="edTolV">40</span>
+      <button id="edRmBg">Aplicar</button>
+    </div>
+    <div class="ed-tools">
+      <span class="lbl">Poner fondo</span>
+      <button class="sw" data-bg="transparent" title="Transparente" style="background:conic-gradient(#e6e6e6 0 25%,#fff 0 50%) 0 0/12px 12px"></button>
+      <button class="sw" data-bg="#ffffff" title="Blanco" style="background:#fff"></button>
+      <button class="sw" data-bg="#000000" title="Negro" style="background:#000"></button>
+      <button class="sw" data-bg="#a6ce39" title="Verde" style="background:#a6ce39"></button>
+      <button class="sw" data-bg="#e30613" title="Rojo" style="background:#e30613"></button>
+      <button class="sw" data-bg="#004b8d" title="Azul" style="background:#004b8d"></button>
+      <input type="color" id="edBgPick" value="#ffffff" title="Color a elección" />
+    </div>
+    <div class="ed-tools ed-foot">
+      <button id="edReset" class="gh">Deshacer todo</button>
+      <span class="ed-spacer"></span>
+      <button id="edSave" class="pr">Guardar</button>
+    </div>
+  </div>
 </div>
 
 <script src="js/lib/qrcode.min.js"></script>

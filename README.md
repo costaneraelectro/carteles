@@ -78,8 +78,14 @@ Cada pieza se guarda como JPEG (para caber en el límite de 1 MB por documento) 
   marcar = header (arriba-izquierda, como "Tenemos más online", el por defecto).
   Cada banner muestra la **medida recomendada** para subir (para diseñar en Canva):
   franja ~1200×260 px, header ~1000×110 px (PNG con fondo transparente).
-- **Sellos y logos** — sube el sello *Oportunidad única + CMR* y el logo *Fpuntos*
-  del pie. Mientras no subas el sello, sale un marcador de posición.
+  - **Editor de banners** — botón *Editar* en cada banner. Abre un editor con
+    **recortar** (arrastra el recuadro), **auto-recortar** (quita el borde en
+    blanco), **rotar**, **espejar**, **quitar fondo** (con tolerancia, por color
+    de las esquinas) y **poner fondo** (transparente o color). *Guardar* deja la
+    imagen editada; *Deshacer todo* vuelve al original.
+- **Sellos y logos (avanzado)** — ya vienen cargados por defecto (sello
+  *Oportunidad única + CMR* y logo *Fpuntos*). Sección **oculta**; ábrela solo si
+  necesitas reemplazarlos.
 - **Legal** del pie editable. "Restaurar" vuelve a los valores por defecto.
 - Todo se guarda en el navegador (localStorage).
 

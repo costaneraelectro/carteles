@@ -654,6 +654,7 @@
     const ops = document.createElement("div"); ops.className = "ops";
     const chk = document.createElement("label"); chk.className = "chk"; const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!ev.franja; cb.addEventListener("change", () => { ev.franja = cb.checked; save(); renderConfig(); render(); }); chk.appendChild(cb); chk.appendChild(document.createTextNode("franja"));
     ops.appendChild(uploadBtn((d) => { ev.src = d; save(); renderConfig(); render(); })); ops.appendChild(chk);
+    if (ev.src) { const edb = document.createElement("button"); edb.textContent = "Editar"; edb.addEventListener("click", () => openBannerEditor(ev.src, (d) => { ev.src = d; save(); renderConfig(); render(); })); ops.appendChild(edb); }
     const del = document.createElement("button"); del.className = "del"; del.textContent = "Borrar"; del.addEventListener("click", () => { CFG.eventos.splice(i, 1); save(); renderConfig(); render(); }); ops.appendChild(del);
     row.appendChild(ops); return row;
   }
@@ -679,6 +680,69 @@
     s.style.transform = "scale(" + sc + ")"; s.style.height = (h * sc) + "px";
   }
   window.addEventListener("resize", fitStage);
+
+  /* ---------- Editor de banners ---------- */
+  let ED = null;
+  function edLoad(src) { return new Promise((res, rej) => { const im = new Image(); im.crossOrigin = "anonymous"; im.onload = () => res(im); im.onerror = rej; im.src = src; }); }
+  async function openBannerEditor(src, onSave) {
+    let im; try { im = await edLoad(src); } catch (e) { alert("No se pudo abrir la imagen."); return; }
+    const w = im.naturalWidth || im.width, h = im.naturalHeight || im.height;
+    const work = document.createElement("canvas"); work.width = w; work.height = h;
+    work.getContext("2d").drawImage(im, 0, 0);
+    ED = { orig: src, work, onSave, cropping: false, drag: null };
+    edPaint(); $("bnEditor").classList.remove("hidden");
+  }
+  function edClose() { ED = null; $("bnEditor").classList.add("hidden"); $("edStage").classList.remove("cropping"); $("edCropStart").classList.remove("active"); $("edCropBox").classList.add("hidden"); }
+  function edPaint() { const c = $("edCanvas"); c.width = ED.work.width; c.height = ED.work.height; const x = c.getContext("2d"); x.clearRect(0, 0, c.width, c.height); x.drawImage(ED.work, 0, 0); $("edCropBox").classList.add("hidden"); }
+  function edSet(cv) { ED.work = cv; edPaint(); }
+  function edTrim() {
+    if (!ED) return; const w = ED.work.width, h = ED.work.height; const ctx = ED.work.getContext("2d", { willReadFrequently: true });
+    const d = ctx.getImageData(0, 0, w, h).data; const br = d[0], bgc = d[1], bb = d[2], ba = d[3]; const tol = 28;
+    let x0 = w, y0 = h, x1 = 0, y1 = 0, found = false;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = (y * w + x) * 4; const a = d[i + 3]; let keep;
+      if (a < 12) keep = false;
+      else if (ba > 200 && a > 200 && Math.abs(d[i] - br) < tol && Math.abs(d[i + 1] - bgc) < tol && Math.abs(d[i + 2] - bb) < tol) keep = false;
+      else keep = true;
+      if (keep) { found = true; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; } }
+    if (!found) return; const nw = x1 - x0 + 1, nh = y1 - y0 + 1;
+    const c = document.createElement("canvas"); c.width = nw; c.height = nh; c.getContext("2d").drawImage(ED.work, x0, y0, nw, nh, 0, 0, nw, nh); edSet(c);
+  }
+  function edRotate() { if (!ED) return; const w = ED.work.width, h = ED.work.height; const c = document.createElement("canvas"); c.width = h; c.height = w; const x = c.getContext("2d"); x.translate(h / 2, w / 2); x.rotate(Math.PI / 2); x.drawImage(ED.work, -w / 2, -h / 2); edSet(c); }
+  function edFlip() { if (!ED) return; const w = ED.work.width, h = ED.work.height; const c = document.createElement("canvas"); c.width = w; c.height = h; const x = c.getContext("2d"); x.translate(w, 0); x.scale(-1, 1); x.drawImage(ED.work, 0, 0); edSet(c); }
+  function edRemoveBg() {
+    if (!ED) return; const tol = +$("edTol").value; const w = ED.work.width, h = ED.work.height; const ctx = ED.work.getContext("2d", { willReadFrequently: true });
+    const img = ctx.getImageData(0, 0, w, h); const d = img.data;
+    const cs = [0, (w - 1) * 4, (h - 1) * w * 4, ((h - 1) * w + (w - 1)) * 4]; let rr = 0, gg = 0, bb = 0; cs.forEach((i) => { rr += d[i]; gg += d[i + 1]; bb += d[i + 2]; }); rr /= 4; gg /= 4; bb /= 4;
+    for (let i = 0; i < d.length; i += 4) { const dist = Math.sqrt((d[i] - rr) ** 2 + (d[i + 1] - gg) ** 2 + (d[i + 2] - bb) ** 2); if (dist <= tol) d[i + 3] = 0; }
+    ctx.putImageData(img, 0, 0); edPaint();
+  }
+  function edFillBg(color) { if (!ED) return; const w = ED.work.width, h = ED.work.height; const c = document.createElement("canvas"); c.width = w; c.height = h; const x = c.getContext("2d"); if (color && color !== "transparent") { x.fillStyle = color; x.fillRect(0, 0, w, h); } x.drawImage(ED.work, 0, 0); edSet(c); }
+  function edToggleCrop() { if (!ED) return; ED.cropping = !ED.cropping; ED.drag = null; $("edStage").classList.toggle("cropping", ED.cropping); $("edCropStart").classList.toggle("active", ED.cropping); $("edCropBox").classList.add("hidden"); }
+  (function wireEditor() {
+    $("edTrim").addEventListener("click", edTrim);
+    $("edRot").addEventListener("click", edRotate);
+    $("edFlip").addEventListener("click", edFlip);
+    $("edRmBg").addEventListener("click", edRemoveBg);
+    $("edTol").addEventListener("input", () => { $("edTolV").textContent = $("edTol").value; });
+    $("edCropStart").addEventListener("click", edToggleCrop);
+    $("edReset").addEventListener("click", async () => { if (ED) { const im = await edLoad(ED.orig); const c = document.createElement("canvas"); c.width = im.naturalWidth || im.width; c.height = im.naturalHeight || im.height; c.getContext("2d").drawImage(im, 0, 0); edSet(c); } });
+    $("edSave").addEventListener("click", () => { if (ED) { const cb = ED.onSave; const url = ED.work.toDataURL("image/png"); edClose(); cb(url); } });
+    $("edCancel").addEventListener("click", edClose);
+    $("bnEditor").addEventListener("click", (e) => { if (e.target === $("bnEditor")) edClose(); });
+    document.querySelectorAll("#bnEditor .sw").forEach((b) => b.addEventListener("click", () => edFillBg(b.getAttribute("data-bg"))));
+    $("edBgPick").addEventListener("input", () => edFillBg($("edBgPick").value));
+    const stage = $("edStage");
+    stage.addEventListener("pointerdown", (e) => { if (!ED || !ED.cropping) return; const r = $("edCanvas").getBoundingClientRect(); ED.drag = { x: e.clientX, y: e.clientY, r }; e.preventDefault(); });
+    window.addEventListener("pointermove", (e) => { if (!ED || !ED.drag) return; const sr = $("edStage").getBoundingClientRect(); const box = $("edCropBox"); const x0 = Math.min(ED.drag.x, e.clientX), y0 = Math.min(ED.drag.y, e.clientY), x1 = Math.max(ED.drag.x, e.clientX), y1 = Math.max(ED.drag.y, e.clientY); box.style.left = (x0 - sr.left) + "px"; box.style.top = (y0 - sr.top) + "px"; box.style.width = (x1 - x0) + "px"; box.style.height = (y1 - y0) + "px"; box.classList.remove("hidden"); });
+    window.addEventListener("pointerup", (e) => {
+      if (!ED || !ED.drag) return; const d = ED.drag; ED.drag = null; const cv = $("edCanvas"); const r = d.r; const sx = cv.width / r.width, sy = cv.height / r.height;
+      let x0 = Math.max(r.left, Math.min(d.x, e.clientX)), y0 = Math.max(r.top, Math.min(d.y, e.clientY)), x1 = Math.min(r.right, Math.max(d.x, e.clientX)), y1 = Math.min(r.bottom, Math.max(d.y, e.clientY));
+      const cx = Math.round((x0 - r.left) * sx), cy = Math.round((y0 - r.top) * sy), cw = Math.round((x1 - x0) * sx), ch = Math.round((y1 - y0) * sy);
+      if (cw > 4 && ch > 4) { const c = document.createElement("canvas"); c.width = cw; c.height = ch; c.getContext("2d").drawImage(ED.work, cx, cy, cw, ch, 0, 0, cw, ch); edSet(c); }
+      ED.cropping = false; stage.classList.remove("cropping"); $("edCropStart").classList.remove("active");
+    });
+  })();
+  window.openBannerEditor = openBannerEditor;
 
   /* ---------- Init ---------- */
   buildTelcoForm(); renderConfig(); render(); fitStage(); fbInit();
