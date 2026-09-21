@@ -245,7 +245,16 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .queue .q button { position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; border-radius: 50%; border: 0; background: var(--rojo); color: #fff; font-weight: 800; cursor: pointer; line-height: 1; }
 .queue .empty { color: var(--gris); font-size: 13px; padding: 14px; }
 
-.sheetwrap { display: flex; justify-content: center; }
+.queue .q .qx { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border: 0; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; font-size: 13px; line-height: 1; cursor: pointer; }
+.queue .q .qrow { text-align: center; margin-top: 4px; font-size: 10px; color: #666; }
+.queue .q .qrow label { font-size: 10px; color: #666; }
+.queue .q .qrow input { width: 46px; padding: 2px 4px; border: 1px solid var(--gris-cl); border-radius: 6px; }
+.queue .q .qed { display: block; width: 100%; margin-top: 4px; border: 1px solid var(--gris-cl); background: #f7f7f7; border-radius: 6px; padding: 3px 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
+html[data-theme="dark"] .queue .q { background: #1e2128; border-color: #343946; }
+html[data-theme="dark"] .queue .q .qed { background: #262a31; color: #dde; border-color: #3a3e46; }
+html[data-theme="dark"] .queue .q .qrow input { background: #262a31; color: #eef; border-color: #3a3e46; }
+.sheet-lbl { width: 100%; text-align: center; font-size: 12px; font-weight: 800; color: var(--gris); margin: 6px 0 2px; }
+.sheetwrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .sheet { background: #fff; position: relative; box-shadow: 0 2px 12px rgba(0,0,0,.12); }
 .sheet .cell { position: absolute; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .sheet .cell img { width: 100%; height: 100%; object-fit: contain; }

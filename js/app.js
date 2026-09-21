@@ -87,10 +87,8 @@
   const curSize = () => SIZES[$("tamano").value];
 
   /* ---------- Tabs ---------- */
-  document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
-    t.classList.add("active");
-    const tab = t.dataset.tab;
+  function goTab(tab) {
+    document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("active", x.dataset.tab === tab));
     $("pane-cartel").classList.toggle("hidden", tab !== "cartel");
     $("pane-hoja").classList.toggle("hidden", tab !== "hoja");
     $("pane-config").classList.toggle("hidden", tab !== "config");
@@ -98,7 +96,8 @@
     $("sheetWrap").classList.toggle("hidden", tab !== "hoja");
     if (tab === "hoja") renderSheet();
     fitStage();
-  }));
+  }
+  document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => goTab(t.dataset.tab)));
 
   /* ---------- Selector de banner ---------- */
   function fillEventos() {
@@ -449,8 +448,41 @@
   /* ---------- Toggles ---------- */
   $("showImg").addEventListener("change", () => { $("imgManualWrap").classList.toggle("hidden", !$("showImg").checked); render(); });
   $("showQr").addEventListener("change", () => { $("qrWrap").classList.toggle("hidden", !$("showQr").checked); render(); });
-  ["tipo","tamano","caeOn","evento","ouTmp","sku","marca","categoria","modelo","qrLink","precio","precioNormal","precioOferta","precioOU","nCuotas","cae","valorCuota","ctc","vigDesde","vigHasta","imgZoom","imgX","imgY"]
+  const FIELDS = ["tipo","tamano","caeOn","evento","ouTmp","sku","marca","categoria","modelo","qrLink","precio","precioNormal","precioOferta","precioOU","nCuotas","cae","valorCuota","ctc","vigDesde","vigHasta","imgZoom","imgX","imgY","showImg","showQr"];
+  const CHECKS = new Set(["caeOn","ouTmp","showImg","showQr"]);
+  FIELDS.filter((id) => !["showImg","showQr"].includes(id))
     .forEach((id) => { $(id).addEventListener("input", render); $(id).addEventListener("change", render); });
+
+  // estado del formulario (para editar piezas ya grabadas)
+  function formState() { const o = { _img: manualImg || null }; FIELDS.forEach((id) => { const el = $(id); if (!el) return; o[id] = CHECKS.has(id) ? el.checked : el.value; }); return o; }
+  function setFormState(o) {
+    manualImg = o._img || null;
+    FIELDS.forEach((id) => { const el = $(id); if (!el || !(id in o)) return; if (CHECKS.has(id)) el.checked = !!o[id]; else el.value = o[id]; });
+    $("imgManualWrap").classList.toggle("hidden", !$("showImg").checked);
+    $("qrWrap").classList.toggle("hidden", !$("showQr").checked);
+    render();
+  }
+  // carga la pieza en «Cartel», la saca de la hoja para re-grabar modificada
+  function editarPieza(it) {
+    if (!it.state) return;
+    setFormState(it.state);
+    const idx = QUEUE.indexOf(it); if (idx >= 0) QUEUE.splice(idx, 1); fbDelete(it);
+    goTab("cartel"); renderSheet();
+    $("skuHint").textContent = "Editando una pieza de la hoja — modifícala y pulsa «Grabar en la hoja».";
+  }
+  // limpiar: todo desde 0
+  $("btnLimpiar").addEventListener("click", () => {
+    if (!confirm("¿Limpiar el cartel y empezar desde 0?")) return;
+    ["sku","marca","categoria","modelo","qrLink","precio","precioNormal","precioOferta","precioOU","valorCuota","ctc","vigDesde","vigHasta","link","loteSkus"].forEach((id) => { if ($(id)) $(id).value = ""; });
+    $("tipo").value = "normal"; $("nCuotas").value = "12"; $("cae").value = "39,93%";
+    $("caeOn").checked = false; $("ouTmp").checked = true;
+    if ($("showImg")) $("showImg").checked = true; if ($("showQr")) $("showQr").checked = false;
+    manualImg = null; resetImgEditor();
+    $("imgManualWrap").classList.add("hidden"); $("qrWrap").classList.add("hidden");
+    $("skuHint").textContent = "Detecta el tipo (OU / oferta / normal), rellena todo y reemplaza lo escrito.";
+    if ($("loteMsg")) $("loteMsg").textContent = "";
+    render();
+  });
 
   /* ====================================================================
      HOJA / IMPOSICIÓN
@@ -541,7 +573,7 @@
   $("btnPdf").addEventListener("click", async () => { try { const s = curSize(); const el = activeEl(); const c = await snap(el); const asp = el.offsetHeight / el.offsetWidth; const wcm = s.w, hcm = s.w * asp; const { jsPDF } = window.jspdf; const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: hcm >= wcm ? "portrait" : "landscape" }); const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(); const topLeft = s.layout === "telco"; const x = topLeft ? 0.3 : (pw - wcm) / 2, y = topLeft ? 0.3 : (ph - hcm) / 2; pdf.addImage(c.toDataURL("image/png"), "PNG", x, y, wcm, hcm); pdf.save(nombre() + ".pdf"); } catch (e) { errExport(); } });
 
   $("btnGrabar").addEventListener("click", async () => {
-    try { const c = await snap(activeEl()); const item = { sizeKey: $("tamano").value, url: c.toDataURL("image/jpeg", 0.9), qty: 1 }; QUEUE.push(item); flashGrabar(); await fbSave(item); renderSheet(); }
+    try { const c = await snap(activeEl()); const item = { sizeKey: $("tamano").value, url: c.toDataURL("image/jpeg", 0.9), qty: 1 }; if (curSize().layout !== "telco") item.state = formState(); QUEUE.push(item); flashGrabar(); await fbSave(item); renderSheet(); }
     catch (e) { errExport(); }
   });
   function flashGrabar() { const b = $("btnGrabar"); const o = b.textContent; b.textContent = "✓ Grabado"; setTimeout(() => b.textContent = o, 900); }
@@ -573,7 +605,7 @@
       const res = await fetchProducto(sku);
       if (!res.d) { fail.push(sku); continue; }
       aplicarProducto(res.d, sku); render(); await raf2(); await mediaLista(); await raf2();
-      try { const c = await snap(activeEl()); const item = { sizeKey: $("tamano").value, url: c.toDataURL("image/jpeg", 0.9), qty: 1 }; QUEUE.push(item); await fbSave(item); ok++; }
+      try { const c = await snap(activeEl()); const item = { sizeKey: $("tamano").value, url: c.toDataURL("image/jpeg", 0.9), qty: 1 }; if (curSize().layout !== "telco") item.state = formState(); QUEUE.push(item); await fbSave(item); ok++; }
       catch (e) { fail.push(sku); }
     }
     renderSheet(); b.disabled = false;
@@ -594,57 +626,62 @@
     return combos.reduce((a, b) => b.n > a.n ? b : a);
   }
 
+  // divide la lista de copias en páginas de capacidad n
+  function paginar(flat, n) { const p = []; for (let i = 0; i < flat.length; i += n) p.push(flat.slice(i, i + n)); return p.length ? p : [[]]; }
+
   function renderSheet() {
     const s = curSize();
     const items = QUEUE.filter((q) => q.sizeKey === $("tamano").value);
     const m = sheetModel();
     const total = items.reduce((a, it) => a + (it.qty || 1), 0);
+    const flat = []; items.forEach((it) => { for (let i = 0; i < (it.qty || 1); i++) flat.push(it); }); // TODAS las copias
+    const pgs = paginar(flat, m.n);
     $("sheetInfo").innerHTML =
       '<span class="pill">' + s.label + ' cm</span>' +
       '<span class="pill">' + m.n + ' por hoja (' + m.cols + '×' + m.rows + ')</span>' +
       '<span class="pill">hoja ' + (m.sw > m.sh ? 'horizontal' : 'vertical') + '</span>' +
-      '<span class="pill">' + total + ' / ' + m.n + ' copias en la hoja</span>';
+      '<span class="pill">' + total + ' pieza(s) · ' + pgs.length + ' hoja(s)</span>';
 
-    // cola visual con cantidad por pieza
+    // cola visual: cada cartel con cantidad, editar y quitar
     const q = $("queue"); q.innerHTML = "";
     if (!items.length) q.innerHTML = '<div class="empty">Aún no grabas piezas de este tamaño. Ve a «Cartel» y pulsa «Grabar en la hoja».</div>';
     items.forEach((it) => {
       const d = document.createElement("div"); d.className = "q";
-      d.innerHTML = '<img src="' + it.url + '"/><button title="Quitar">×</button>' +
-        '<div style="text-align:center;margin-top:4px"><label style="font-size:10px;color:#666">cant.</label> ' +
-        '<input type="number" min="1" value="' + (it.qty || 1) + '" style="width:46px;padding:2px 4px;border:1px solid #ddd;border-radius:6px"/></div>';
-      d.querySelector("button").addEventListener("click", () => { const idx = QUEUE.indexOf(it); if (idx >= 0) QUEUE.splice(idx, 1); fbDelete(it); renderSheet(); });
+      const editable = !!it.state;
+      d.innerHTML = '<img src="' + it.url + '"/><button class="qx" title="Quitar">×</button>' +
+        '<div class="qrow"><label>cant.</label><input type="number" min="1" value="' + (it.qty || 1) + '"/></div>' +
+        (editable ? '<button class="qed" title="Editar en Cartel">✎ Editar</button>' : '');
+      d.querySelector(".qx").addEventListener("click", () => { const idx = QUEUE.indexOf(it); if (idx >= 0) QUEUE.splice(idx, 1); fbDelete(it); renderSheet(); });
       d.querySelector("input").addEventListener("input", (e) => { it.qty = Math.max(1, parseInt(e.target.value, 10) || 1); fbUpdateQty(it); renderSheet(); });
+      if (editable) d.querySelector(".qed").addEventListener("click", () => editarPieza(it));
       q.appendChild(d);
     });
 
-    // lista plana según cantidad (no llena la hoja con copias de más)
-    const flat = []; items.forEach((it) => { for (let i = 0; i < (it.qty || 1) && flat.length < m.n; i++) flat.push(it); });
-
-    // preview hoja
+    // preview: una hoja por página
+    const wrap = $("sheetWrap"); wrap.innerHTML = "";
     const SP = Math.min(560 / m.sw, 720 / m.sh); // px por cm en preview
-    const sheet = $("sheet");
-    sheet.style.width = (m.sw * SP) + "px"; sheet.style.height = (m.sh * SP) + "px";
-    sheet.innerHTML = "";
-    const gridW = m.cols * m.cw, gridH = m.rows * m.ch;
-    const offX = (m.sw - gridW) / 2, offY = (m.sh - gridH) / 2;
     const borde = $("bordeOn").checked, tipo = $("bordeTipo").value;
-    let k = 0;
-    for (let r = 0; r < m.rows; r++) for (let col = 0; col < m.cols; col++) {
-      const cell = document.createElement("div");
-      cell.className = "cell" + (borde && tipo === "linea" ? " linea" : "");
-      cell.style.left = ((offX + col * m.cw) * SP) + "px";
-      cell.style.top = ((offY + r * m.ch) * SP) + "px";
-      cell.style.width = (m.cw * SP) + "px";
-      cell.style.height = (m.ch * SP) + "px";
-      if (k < flat.length) {
-        const img = document.createElement("img"); img.src = flat[k].url;
-        cell.appendChild(img);
+    pgs.forEach((pg, pi) => {
+      if (pgs.length > 1) { const lab = document.createElement("div"); lab.className = "sheet-lbl"; lab.textContent = "Hoja " + (pi + 1) + " / " + pgs.length; wrap.appendChild(lab); }
+      const sheet = document.createElement("div"); sheet.className = "sheet";
+      sheet.style.width = (m.sw * SP) + "px"; sheet.style.height = (m.sh * SP) + "px";
+      const gridW = m.cols * m.cw, gridH = m.rows * m.ch;
+      const offX = (m.sw - gridW) / 2, offY = (m.sh - gridH) / 2;
+      let k = 0;
+      for (let r = 0; r < m.rows; r++) for (let col = 0; col < m.cols; col++) {
+        const cell = document.createElement("div");
+        cell.className = "cell" + (borde && tipo === "linea" ? " linea" : "");
+        cell.style.left = ((offX + col * m.cw) * SP) + "px";
+        cell.style.top = ((offY + r * m.ch) * SP) + "px";
+        cell.style.width = (m.cw * SP) + "px";
+        cell.style.height = (m.ch * SP) + "px";
+        if (k < pg.length) { const img = document.createElement("img"); img.src = pg[k].url; cell.appendChild(img); }
+        k++;
+        sheet.appendChild(cell);
+        if (borde && tipo === "marcas") addCropMarks(sheet, (offX + col * m.cw) * SP, (offY + r * m.ch) * SP, m.cw * SP, m.ch * SP);
       }
-      k++;
-      sheet.appendChild(cell);
-      if (borde && tipo === "marcas") addCropMarks(sheet, (offX + col * m.cw) * SP, (offY + r * m.ch) * SP, m.cw * SP, m.ch * SP);
-    }
+      wrap.appendChild(sheet);
+    });
   }
   // marcas en las 4 esquinas de la celda (líneas hacia afuera)
   function addCropMarks(sheet, x, y, w, h) {
@@ -657,29 +694,36 @@
     mark(x, y, -1, -1); mark(x + w, y, 1, -1); mark(x, y + h, -1, 1); mark(x + w, y + h, 1, 1);
   }
 
-  // Export hoja a canvas de alta resolución (150 dpi)
-  async function exportSheetCanvas() {
+  // Export TODAS las hojas a canvas de alta resolución (150 dpi). Devuelve un array.
+  async function exportSheetCanvases() {
     const m = sheetModel();
     const DPI = 150, PPCM = DPI / 2.54;
-    const cv = document.createElement("canvas");
-    cv.width = Math.round(m.sw * PPCM); cv.height = Math.round(m.sh * PPCM);
-    const ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
     const items = QUEUE.filter((q) => q.sizeKey === $("tamano").value);
     if (!items.length) throw new Error("sin piezas");
-    const flat = []; items.forEach((it) => { for (let i = 0; i < (it.qty || 1) && flat.length < m.n; i++) flat.push(it); });
-    const imgs = await Promise.all(flat.map((it) => new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.src = it.url; })));
+    const flat = []; items.forEach((it) => { for (let i = 0; i < (it.qty || 1); i++) flat.push(it); });
+    const pgs = paginar(flat, m.n);
+    // precarga imágenes únicas
+    const cache = new Map();
+    await Promise.all([...new Set(flat.map((it) => it.url))].map((u) => new Promise((res) => { const im = new Image(); im.onload = () => { cache.set(u, im); res(); }; im.onerror = () => res(); im.src = u; })));
+    const borde = $("bordeOn").checked, tipo = $("bordeTipo").value;
     const gridW = m.cols * m.cw, gridH = m.rows * m.ch;
     const offX = (m.sw - gridW) / 2, offY = (m.sh - gridH) / 2;
-    const borde = $("bordeOn").checked, tipo = $("bordeTipo").value;
-    let k = 0;
-    for (let r = 0; r < m.rows; r++) for (let col = 0; col < m.cols; col++) {
-      const x = (offX + col * m.cw) * PPCM, y = (offY + r * m.ch) * PPCM, w = m.cw * PPCM, h = m.ch * PPCM;
-      if (k < imgs.length) ctx.drawImage(imgs[k], x, y, w, h);
-      if (k < imgs.length && borde && tipo === "linea") { ctx.strokeStyle = "#999"; ctx.lineWidth = 1; ctx.strokeRect(x, y, w, h); }
-      if (k < imgs.length && borde && tipo === "marcas") cropCanvas(ctx, x, y, w, h);
-      k++;
-    }
-    return cv;
+    return pgs.map((pg) => {
+      const cv = document.createElement("canvas");
+      cv.width = Math.round(m.sw * PPCM); cv.height = Math.round(m.sh * PPCM);
+      const ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
+      let k = 0;
+      for (let r = 0; r < m.rows; r++) for (let col = 0; col < m.cols; col++) {
+        const x = (offX + col * m.cw) * PPCM, y = (offY + r * m.ch) * PPCM, w = m.cw * PPCM, h = m.ch * PPCM;
+        if (k < pg.length) {
+          const im = cache.get(pg[k].url); if (im) ctx.drawImage(im, x, y, w, h);
+          if (borde && tipo === "linea") { ctx.strokeStyle = "#999"; ctx.lineWidth = 1; ctx.strokeRect(x, y, w, h); }
+          if (borde && tipo === "marcas") cropCanvas(ctx, x, y, w, h);
+        }
+        k++;
+      }
+      return cv;
+    });
   }
   function cropCanvas(ctx, x, y, w, h) {
     ctx.strokeStyle = "#333"; ctx.lineWidth = 1; const L = 18;
@@ -687,11 +731,22 @@
       ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + sx * L, py); ctx.moveTo(px, py); ctx.lineTo(px, py + sy * L); ctx.stroke();
     });
   }
-  $("btnSheetPng").addEventListener("click", async () => { try { const cv = await exportSheetCanvas(); const a = document.createElement("a"); a.href = cv.toDataURL("image/png"); a.download = "hoja-" + curSize().label + ".png"; a.click(); } catch (e) { alert("Graba al menos una pieza de este tamaño."); } });
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  $("btnSheetPng").addEventListener("click", async () => {
+    try {
+      const cvs = await exportSheetCanvases(); const base = "hoja-" + curSize().label;
+      for (let i = 0; i < cvs.length; i++) {
+        const a = document.createElement("a"); a.href = cvs[i].toDataURL("image/png");
+        a.download = cvs.length > 1 ? base + "-" + (i + 1) + ".png" : base + ".png"; a.click();
+        if (i < cvs.length - 1) await wait(400); // separa descargas para que no las bloquee
+      }
+    } catch (e) { alert("Graba al menos una pieza de este tamaño."); }
+  });
   $("btnSheetPdf").addEventListener("click", async () => {
-    try { const m = sheetModel(); const cv = await exportSheetCanvas(); const { jsPDF } = window.jspdf;
+    try { const m = sheetModel(); const cvs = await exportSheetCanvases(); const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: m.sw > m.sh ? "landscape" : "portrait" });
-      pdf.addImage(cv.toDataURL("image/png"), "PNG", 0, 0, m.sw, m.sh); pdf.save("hoja-" + curSize().label + ".pdf");
+      cvs.forEach((cv, i) => { if (i) pdf.addPage("letter", m.sw > m.sh ? "landscape" : "portrait"); pdf.addImage(cv.toDataURL("image/png"), "PNG", 0, 0, m.sw, m.sh); });
+      pdf.save("hoja-" + curSize().label + ".pdf");
     } catch (e) { alert("Graba al menos una pieza de este tamaño."); }
   });
 

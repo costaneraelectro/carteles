@@ -45,7 +45,13 @@ Flujo para imprimir varias en una hoja carta:
 4. **Descargar hoja PNG / PDF** (carta, 150 dpi).
 
 Al grabar se agrega **1 copia** a la hoja; en la pestaña Hoja ajustas la
-**cantidad** de cada pieza y la hoja se llena hasta el tope de la grilla.
+**cantidad** de cada pieza. Si las piezas no caben en una sola hoja, se generan
+**varias hojas** automáticamente (se ven todas en la vista previa y se descargan
+todas: PDF multipágina, o un PNG por hoja).
+
+Cada pieza grabada muestra su miniatura en la pestaña Hoja con **✎ Editar** (la
+vuelve a cargar en «Cartel» para modificarla) y **×** para quitarla. En «Cartel»,
+**🧹 Limpiar** vacía el formulario para empezar de cero.
 
 ## Almacenamiento online (Firebase)
 
