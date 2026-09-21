@@ -255,3 +255,46 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .sheet .crop::before, .sheet .crop::after { content: ""; position: absolute; background: #333; }
 .sheet .crop::before { width: 14px; height: 1px; top: 0; left: 0; }
 .sheet .crop::after { width: 1px; height: 14px; top: 0; left: 0; }
+
+/* ===== Cabecera: botón de tema ===== */
+.panel__head { position: relative; }
+.themebtn { position: absolute; top: 12px; right: 14px; border: 1px solid var(--gris-cl); background: #fff; width: 34px; height: 34px; border-radius: 9px; font-size: 16px; cursor: pointer; line-height: 1; }
+.themebtn:active { transform: translateY(1px); }
+
+/* ===== Pie: estado de nube "en línea" ===== */
+.panel__foot { padding: 10px 18px; border-top: 1px solid var(--gris-cl); display: flex; align-items: center; }
+.online { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 800; color: var(--gris); user-select: none; }
+.online .dot { width: 9px; height: 9px; border-radius: 50%; background: #bbb; transition: background .2s; }
+.online.on { color: var(--verde-osc); }
+.online.on .dot { background: var(--verde); box-shadow: 0 0 0 3px rgba(166,206,57,.18); }
+.online.off { color: #c62; }
+.online.off .dot { background: #e0604a; }
+.online.wait { color: #a80; }
+.online.wait .dot { background: #f0ad4e; }
+
+/* ===== Modo oscuro (solo el marco de la app; el cartel se imprime blanco) ===== */
+html[data-theme="dark"] { --gris: #a2a7b0; --gris-cl: #363a42; }
+html[data-theme="dark"] body { background: #14161b; color: #e7e8ea; }
+html[data-theme="dark"] .panel { background: #1e2128; border-color: #2c2f37; }
+html[data-theme="dark"] .panel h1 { color: #f3f3f5; }
+html[data-theme="dark"] .panel .sub, html[data-theme="dark"] .hint, html[data-theme="dark"] .banneritem .meta small { color: #9aa0a8; }
+html[data-theme="dark"] .tabs { border-bottom-color: #2c2f37; }
+html[data-theme="dark"] .tab { color: #9aa0a8; }
+html[data-theme="dark"] .tab.active { color: #fff; }
+html[data-theme="dark"] .field > label { color: #c6c9cf; }
+html[data-theme="dark"] .field input[type=text],
+html[data-theme="dark"] .field input[type=number],
+html[data-theme="dark"] .field select,
+html[data-theme="dark"] .field textarea { background: #262a31; color: #eef; border-color: #3a3e46; }
+html[data-theme="dark"] fieldset { border-color: #343946; }
+html[data-theme="dark"] fieldset legend { color: var(--verde); }
+html[data-theme="dark"] .btn.ghost { background: #262a31; color: #e7e8ea; border-color: #3a3e46; }
+html[data-theme="dark"] .sheetbar .pill { background: #262a31; border-color: #3a3e46; color: #d6d8dc; }
+html[data-theme="dark"] .banneritem { border-color: #343946; }
+html[data-theme="dark"] .banneritem .thumb { background: #17191e; border-color: #2c2f37; }
+html[data-theme="dark"] .banneritem .meta input { background: none; color: #eef; }
+html[data-theme="dark"] .banneritem .ops button { background: #262a31; color: #dde; border-color: #3a3e46; }
+html[data-theme="dark"] .themebtn { background: #262a31; border-color: #3a3e46; }
+html[data-theme="dark"] .panel__foot { border-top-color: #2c2f37; }
+html[data-theme="dark"] .online.on { color: var(--verde); }
+html[data-theme="dark"] .empty { color: #9aa0a8; }

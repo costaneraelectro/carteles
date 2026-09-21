@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script>(function(){try{var t=localStorage.getItem("cartel-theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <title>Generador de Carteles · Falabella</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icon/favicon-32.png" />
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icon/icon-192.png" />
@@ -23,6 +24,7 @@
   <!-- ================= PANEL ================= -->
   <section class="panel">
     <div class="panel__head">
+      <button class="themebtn" id="themeBtn" title="Modo claro / oscuro" aria-label="Cambiar tema">🌙</button>
       <h1>Generador de Carteles</h1>
       <p class="sub">Elige el tipo, escribe el SKU y ajusta. El cartel se arma con la estructura de tienda.</p>
     </div>
@@ -155,7 +157,6 @@
 
     <!-- ---------- TAB HOJA ---------- -->
     <div class="tabpane hidden" id="pane-hoja">
-      <div class="sheetbar"><span class="pill" id="fbStatus">Nube…</span></div>
       <div class="sheetbar" id="sheetInfo"></div>
       <div class="field">
         <label>Piezas grabadas (tamaño actual) — ajusta la cantidad de cada una</label>
@@ -201,6 +202,10 @@
         <div class="field"><textarea id="cfgLegal"></textarea></div>
         <div class="actions"><button class="btn ghost" id="resetCfg">Restaurar valores por defecto</button></div>
       </fieldset>
+    </div>
+
+    <div class="panel__foot">
+      <span class="online off" id="fbStatus"><span class="dot"></span><span class="tx">en línea</span></span>
     </div>
   </section>
 

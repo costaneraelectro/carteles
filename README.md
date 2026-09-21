@@ -97,6 +97,10 @@ Cada pieza se guarda como JPEG (para caber en el límite de 1 MB por documento) 
 Abre `index.html` (o publica en GitHub Pages). Elige el tipo, completa los datos;
 el cartel se arma en vivo. **Descargar PNG** o **Descargar PDF**.
 
+Botón **🌙 / ☀️** arriba a la derecha: alterna **modo claro / oscuro** (se recuerda
+en el navegador; el cartel siempre se exporta con fondo blanco para imprimir). En
+el pie del panel, el indicador **en línea** muestra el estado de la nube (Firebase).
+
 ## Fuentes
 
 Brandon Grotesque es de pago, así que no viene en el repo. Sube los archivos a

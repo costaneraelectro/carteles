@@ -443,7 +443,15 @@
 
   /* ---------- Firebase opcional (Firestore + TTL 24h) ---------- */
   const FB = { ready: false, db: null, fs: null };
-  const fbStatus = (t) => { const el = $("fbStatus"); if (el) el.textContent = "Firebase: " + t; };
+  const fbStatus = (t) => {
+    const el = $("fbStatus"); if (!el) return;
+    let state = "wait", label = "conectando…";
+    if (/conectad/i.test(t)) { state = "on"; label = "en línea"; }
+    else if (/sin conexi|error/i.test(t)) { state = "off"; label = "sin conexión"; }
+    el.classList.remove("on", "off", "wait"); el.classList.add(state);
+    el.title = "Nube (Firebase): " + t;
+    const tx = el.querySelector(".tx"); if (tx) tx.textContent = label; else el.textContent = label;
+  };
   async function fbInit() {
     FB.ready = false;
     fbStatus("conectando…");
@@ -743,6 +751,20 @@
     });
   })();
   window.openBannerEditor = openBannerEditor;
+
+  /* ---------- Tema claro / oscuro ---------- */
+  function applyThemeIcon() { const d = document.documentElement.getAttribute("data-theme") === "dark"; const b = $("themeBtn"); if (b) b.textContent = d ? "☀️" : "🌙"; }
+  (function wireTheme() {
+    applyThemeIcon();
+    const b = $("themeBtn"); if (!b) return;
+    b.addEventListener("click", () => {
+      const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+      const next = cur === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      try { localStorage.setItem("cartel-theme", next); } catch (e) {}
+      applyThemeIcon();
+    });
+  })();
 
   /* ---------- Init ---------- */
   buildTelcoForm(); renderConfig(); render(); fitStage(); fbInit();
