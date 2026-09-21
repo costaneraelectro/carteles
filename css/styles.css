@@ -298,3 +298,9 @@ html[data-theme="dark"] .themebtn { background: #262a31; border-color: #3a3e46; 
 html[data-theme="dark"] .panel__foot { border-top-color: #2c2f37; }
 html[data-theme="dark"] .online.on { color: var(--verde); }
 html[data-theme="dark"] .empty { color: #9aa0a8; }
+
+/* ===== Aviso de precio (validación) ===== */
+.warn { margin-top: 4px; font-size: 12px; font-weight: 800; color: #b23; background: #fff2f0; border: 1px solid #f3c2bd; border-radius: 8px; padding: 8px 10px; }
+html[data-theme="dark"] .warn { background: #3a2320; border-color: #6b3a33; color: #ffb3a8; }
+.btn.ghost.active { background: var(--verde); color: #10240a; border-color: var(--verde); }
+html[data-theme="dark"] .btn.ghost.active { color: #10240a; }

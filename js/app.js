@@ -209,7 +209,21 @@
     $("showImg").parentElement.classList.toggle("hidden", !size.img);
 
     if (telco) renderTelco(); else if (horiz) renderHorizontal(); else renderPortrait(size);
+    checkPriceWarn();
     requestAnimationFrame(() => { fitBody(); fitStage(); });
+  }
+
+  // 5) aviso si el precio de oferta/OU no es menor al normal
+  function checkPriceWarn() {
+    const el = $("priceWarn"); if (!el) return;
+    const tv = $("tipo").value;
+    const normal = num("precioNormal");
+    const off = tv === "ou" ? num("precioOU") : tv === "oferta" ? num("precioOferta") : num("precio");
+    const etq = tv === "ou" ? "OU" : tv === "oferta" ? "oferta" : "precio";
+    let msg = "";
+    if (!isNaN(off) && !isNaN(normal) && normal > 0 && off >= normal)
+      msg = "⚠ El precio " + etq + " (" + clp(off) + ") NO es menor al normal (" + clp(normal) + "). No hay descuento — revísalo.";
+    el.textContent = msg; el.classList.toggle("hidden", !msg);
   }
 
   function renderPortrait(size) {
@@ -386,13 +400,9 @@
     const ctrl = new AbortController(); const id = setTimeout(() => ctrl.abort(), ms);
     return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(id));
   }
-  async function buscarSku() {
-    let raw = ($("link").value.trim() || $("sku").value.trim());     // prefiere el link
-    const mlink = raw.match(/(\d{6,})/); const sku = mlink ? mlink[1] : raw;
-    if (!sku) return;
-    const hint = $("skuHint"); hint.textContent = "Buscando en falabella.com…";
+  // trae datos de un SKU; devuelve { d } o { err }
+  async function fetchProducto(sku) {
     const api = "https://www.falabella.com/s/browse/v3/product/cl?site=falabella-cl&productId=" + encodeURIComponent(sku);
-    // 1) directo (funciona servido en https, ej. GitHub Pages). 2) proxies (para file://)
     const intentos = [api, ...PROXIES.map((px) => px(api))];
     let ultimo = "";
     for (const url of intentos) {
@@ -400,12 +410,19 @@
         const r = await fetchTimeout(url, 9000);
         const t = await r.text(); let j; try { j = JSON.parse(t); } catch (e) { ultimo = "respuesta no-JSON"; continue; }
         const d = j.data || j; if (!d || !d.variants) { ultimo = "sin datos"; continue; }
-        aplicarProducto(d, sku);
-        hint.textContent = "Datos cargados — CONFIRMA los precios (pueden variar).";
-        render(); return;
+        return { d };
       } catch (e) { ultimo = (e && e.name === "AbortError") ? "timeout" : "bloqueado (CORS)"; }
     }
-    hint.textContent = "No se pudo traer de falabella.com (" + ultimo + "). Publica en GitHub Pages o rellena manual.";
+    return { err: ultimo || "sin conexión" };
+  }
+  async function buscarSku() {
+    let raw = ($("link").value.trim() || $("sku").value.trim());     // prefiere el link
+    const mlink = raw.match(/(\d{6,})/); const sku = mlink ? mlink[1] : raw;
+    if (!sku) return;
+    const hint = $("skuHint"); hint.textContent = "Buscando en falabella.com…";
+    const res = await fetchProducto(sku);
+    if (res.d) { aplicarProducto(res.d, sku); hint.textContent = "Datos cargados — CONFIRMA los precios (pueden variar)."; render(); return; }
+    hint.textContent = "No se pudo traer de falabella.com (" + res.err + "). Publica en GitHub Pages o rellena manual.";
   }
   function aplicarProducto(d, sku) {
     // borra lo anterior antes de rellenar
@@ -528,6 +545,40 @@
     catch (e) { errExport(); }
   });
   function flashGrabar() { const b = $("btnGrabar"); const o = b.textContent; b.textContent = "✓ Grabado"; setTimeout(() => b.textContent = o, 900); }
+
+  // 10) PNG alto contraste (opción aparte para probar impresión)
+  function contrastCanvas(src) {
+    const o = document.createElement("canvas"); o.width = src.width; o.height = src.height; const x = o.getContext("2d");
+    if ("filter" in x) { x.filter = "contrast(1.28) saturate(1.08) brightness(1.02)"; x.drawImage(src, 0, 0); x.filter = "none"; }
+    else x.drawImage(src, 0, 0);
+    return o;
+  }
+  $("btnPngHC").addEventListener("click", async () => { try { const c = contrastCanvas(await snap(activeEl())); const a = document.createElement("a"); a.href = c.toDataURL("image/png"); a.download = nombre() + "-hc.png"; a.click(); } catch (e) { errExport(); } });
+
+  // 9) Lote por SKU: busca, arma y graba cada uno en la hoja
+  function mediaLista() {
+    const md = $("media"); if (!md || md.classList.contains("hidden")) return Promise.resolve();
+    const im = $("mediaImg"); if (!im || !im.src) return Promise.resolve();
+    if (im.complete && im.naturalWidth) return Promise.resolve();
+    return new Promise((r) => { const done = () => r(); im.addEventListener("load", done, { once: true }); im.addEventListener("error", done, { once: true }); setTimeout(done, 4000); });
+  }
+  const raf2 = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  $("btnLote").addEventListener("click", async () => {
+    const msg = $("loteMsg"); const b = $("btnLote");
+    const skus = [...new Set(($("loteSkus").value.match(/\d{6,}/g) || []))];
+    if (!skus.length) { msg.textContent = "No hay SKU válidos (mínimo 6 dígitos)."; return; }
+    b.disabled = true; let ok = 0; const fail = [];
+    for (let i = 0; i < skus.length; i++) {
+      const sku = skus[i]; msg.textContent = "Procesando " + (i + 1) + "/" + skus.length + " — SKU " + sku + "…";
+      const res = await fetchProducto(sku);
+      if (!res.d) { fail.push(sku); continue; }
+      aplicarProducto(res.d, sku); render(); await raf2(); await mediaLista(); await raf2();
+      try { const c = await snap(activeEl()); const item = { sizeKey: $("tamano").value, url: c.toDataURL("image/jpeg", 0.9), qty: 1 }; QUEUE.push(item); await fbSave(item); ok++; }
+      catch (e) { fail.push(sku); }
+    }
+    renderSheet(); b.disabled = false;
+    msg.textContent = "Listo: " + ok + " grabado(s)" + (fail.length ? " · fallaron: " + fail.join(", ") : "") + ". Ve a la pestaña «Hoja».";
+  });
 
   $("bordeOn").addEventListener("change", renderSheet);
   $("bordeTipo").addEventListener("change", renderSheet);
@@ -678,16 +729,20 @@
   $("resetCfg").addEventListener("click", () => { if (!confirm("¿Restaurar configuración por defecto?")) return; CFG = structuredClone(DEFAULT_CFG); save(); renderConfig(); render(); });
 
   /* ---------- Fit preview ---------- */
+  let REAL = false;                          // 7) modo tamaño real
+  const PXCM = (function () { const d = document.createElement("div"); d.style.cssText = "width:10cm;position:absolute;left:-9999px;top:-9999px"; document.body.appendChild(d); const px = d.offsetWidth / 10; d.remove(); return px || 37.8; })();
   function fitStage() {
     const onHoja = !$("sheetWrap").classList.contains("hidden");
     if (onHoja) return;
     const s = $("stageScale"); const el = activeEl();
     const w = parseFloat(el.style.width) || 750, h = parseFloat(el.style.height) || 1000;
+    if (REAL) { const sc = (curSize().w * PXCM) / w; s.style.transform = "scale(" + sc + ")"; s.style.height = (h * sc) + "px"; return; }
     const availW = s.parentElement.clientWidth;
     const sc = Math.min(availW / w, 760 / h); // encaja en el panel
     s.style.transform = "scale(" + sc + ")"; s.style.height = (h * sc) + "px";
   }
   window.addEventListener("resize", fitStage);
+  $("btnReal").addEventListener("click", () => { REAL = !REAL; const b = $("btnReal"); b.classList.toggle("active", REAL); b.textContent = REAL ? "📐 Ajustar a panel" : "📐 Tamaño real"; fitStage(); });
 
   /* ---------- Editor de banners ---------- */
   let ED = null;
@@ -765,6 +820,11 @@
       applyThemeIcon();
     });
   })();
+
+  /* ---------- PWA offline (service worker) ---------- */
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  }
 
   /* ---------- Init ---------- */
   buildTelcoForm(); renderConfig(); render(); fitStage(); fbInit();

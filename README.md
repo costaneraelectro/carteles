@@ -101,6 +101,21 @@ Botón **🌙 / ☀️** arriba a la derecha: alterna **modo claro / oscuro** (s
 en el navegador; el cartel siempre se exporta con fondo blanco para imprimir). En
 el pie del panel, el indicador **en línea** muestra el estado de la nube (Firebase).
 
+Extras:
+
+- **Validación de precio** — avisa si el precio de oferta/OU no es menor al normal
+  (no hay descuento).
+- **📐 Tamaño real** — muestra el cartel a su medida física en cm (según la
+  pantalla) para verificar antes de imprimir; vuelve a ajustar al panel con el
+  mismo botón.
+- **PNG alto contraste** — descarga aparte, con más contraste, para probar cómo
+  imprime.
+- **Lote por SKU** — pega varios SKU (uno por línea, coma o espacio); busca cada
+  uno, arma el cartel del tamaño actual y lo graba en la hoja.
+- **Offline (PWA)** — un *service worker* (`sw.js`) cachea el marco de la app y las
+  librerías locales; funciona sin conexión e instalable como app. Solo la búsqueda
+  de SKU y la nube necesitan internet.
+
 ## Fuentes
 
 Brandon Grotesque es de pago, así que no viene en el repo. Sube los archivos a

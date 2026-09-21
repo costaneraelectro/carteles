@@ -116,6 +116,7 @@
         <div class="field" id="fOferta"><label>Precio oferta (TMP) <span class="badge-auto">rojo</span></label><input type="number" id="precioOferta" placeholder="189990" /></div>
         <div class="field" id="fPrecio"><label>Precio</label><input type="number" id="precio" placeholder="249990" /></div>
         <div class="field" id="fNormal"><label>Precio normal</label><input type="number" id="precioNormal" placeholder="249990" /></div>
+        <div class="warn hidden" id="priceWarn"></div>
       </fieldset>
 
       <fieldset id="fsTelco" class="hidden">
@@ -151,8 +152,20 @@
         <button class="btn pdf" id="btnPdf">Descargar PDF</button>
       </div>
       <div class="actions" style="margin-top:8px">
+        <button class="btn ghost" id="btnReal" title="Ver el cartel a su tamaño físico en cm">📐 Tamaño real</button>
+        <button class="btn ghost" id="btnPngHC" title="PNG con más contraste para probar impresión">PNG alto contraste</button>
+      </div>
+      <div class="actions" style="margin-top:8px">
         <button class="btn ghost" id="btnGrabar">＋ Grabar en la hoja</button>
       </div>
+
+      <fieldset id="fsLote" style="margin-top:14px">
+        <legend>Lote por SKU</legend>
+        <p class="hint" style="margin-top:0">Pega varios SKU (uno por línea, coma o espacio). Busca cada uno en falabella.com, arma el cartel del tamaño actual y lo graba en la hoja.</p>
+        <div class="field"><textarea id="loteSkus" placeholder="17123831&#10;18004521&#10;16559002" style="min-height:80px"></textarea></div>
+        <div class="actions"><button class="btn sku" id="btnLote">Generar lote</button></div>
+        <div class="hint" id="loteMsg" style="margin-top:8px"></div>
+      </fieldset>
     </div>
 
     <!-- ---------- TAB HOJA ---------- -->
