@@ -33,9 +33,9 @@ Reproduce la estructura exacta de la cartelería de tienda:
 (imagen + precio único + precio normal + descuento auto + SKU + unidades) y **3
 operadores fijos** (Claro / Entel / WOM) con precio, cargo fijo/mes y GB. Opcional:
 cinta *Lanzamiento*, cuotas CMR, y especificaciones sobre la imagen. Claro lleva
-roaming editable; Entel iconos de redes; WOM texto. Sube en Configuración →
-avanzado los logos **CONNECT**, **bandas 2G-5G** e **iconos redes Entel** (si no,
-salen como texto).
+roaming editable; Entel iconos de redes; WOM texto. Los logos **CONNECT**,
+**bandas 2G-5G** e **iconos redes Entel** ya vienen cargados (reemplazables en
+Configuración → avanzado).
 
 Tamaños: **Carta** (con imagen, banner/QR, CAE), **13×19** (banner/QR, CAE, sin
 imagen), **9×7** (banner/QR), **9×13** y **6×4** (solo precios) y **12×3**

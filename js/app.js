@@ -56,9 +56,9 @@
       opMovistar: { label: "Logo Movistar (planes)", src: "assets/logos/telco/movistar.png" },
       opWom:      { label: "Logo WOM (planes)", src: "assets/logos/telco/wom.png" },
       falabella:  { label: "Logo Falabella «f» (planes)", src: "assets/logos/telco/falabella.png" },
-      connect:    { label: "Logo CONNECT (pie planes)", src: "" },
-      bandas:     { label: "Sello 2G-5G «bandas» (pie planes)", src: "" },
-      entelRedes: { label: "Iconos redes Entel (columna Entel)", src: "" },
+      connect:    { label: "Logo CONNECT (pie planes)", src: "assets/logos/planes/connect.png" },
+      bandas:     { label: "Sello 2G-5G «bandas» (pie planes)", src: "assets/logos/planes/bandas.png" },
+      entelRedes: { label: "Iconos redes Entel (columna Entel)", src: "assets/logos/planes/entel-redes.png" },
     },
   };
   // Medida recomendada para subir banners (Canva), según tipo
@@ -75,6 +75,8 @@
           delete c.slots.cmrCard;                          // logo eliminado
           const D = DEFAULT_CFG.slots;
           Object.keys(D).forEach((k) => { if (!c.slots[k]) c.slots[k] = structuredClone(D[k]); });
+          // adopta los logos de planes agregados luego (si el slot quedó vacío)
+          ["connect", "bandas", "entelRedes"].forEach((k) => { if (c.slots[k] && !c.slots[k].src && D[k].src) c.slots[k].src = D[k].src; });
         }
         return c;
       }
