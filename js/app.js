@@ -13,6 +13,7 @@
     s6x4:   { w: 6,    h: 4,  layout: "p", img: false, banner: false, cae: false, label: "6×4" },
     s12x3:  { w: 12,   h: 3,  layout: "h", img: false, banner: false, cae: false, label: "12×3" },
     s9x13plan: { w: 8.4, h: 12, layout: "telco", img: false, banner: false, cae: false, label: "9×13 Planes" },
+    plancarta: { w: 21.6, h: 27.9, layout: "planes", img: true, banner: false, cae: false, label: "Carta gráfica planes" },
   };
   const LETTER = { w: 21.59, h: 27.94 }; // carta cm
   const TELCO_QR = "https://rebate-management-prd.eastus2.cloudapp.azure.com/rebate-carteles/download-pdf/insurance/?hash_cartel=T4RXdWu";
@@ -55,6 +56,9 @@
       opMovistar: { label: "Logo Movistar (planes)", src: "assets/logos/telco/movistar.png" },
       opWom:      { label: "Logo WOM (planes)", src: "assets/logos/telco/wom.png" },
       falabella:  { label: "Logo Falabella «f» (planes)", src: "assets/logos/telco/falabella.png" },
+      connect:    { label: "Logo CONNECT (pie planes)", src: "" },
+      bandas:     { label: "Sello 2G-5G «bandas» (pie planes)", src: "" },
+      entelRedes: { label: "Iconos redes Entel (columna Entel)", src: "" },
     },
   };
   // Medida recomendada para subir banners (Canva), según tipo
@@ -172,26 +176,34 @@
     $("tamHint").textContent = size.w + " × " + size.h + " cm" + (caps ? " · " + caps : " · solo precios");
     const horiz = size.layout === "h";
     const telco = size.layout === "telco";
+    const planes = size.layout === "planes";
     // capacidades / campos según tamaño
     $("caeWrap").classList.toggle("hidden", !size.cae);
     $("bannerWrap").classList.toggle("hidden", !size.banner);
     $("qrFieldset").classList.toggle("hidden", !size.banner || telco);   // QR fijo en telco
-    $("tipoField").classList.toggle("hidden", telco);
-    $("fsPrecios").classList.toggle("hidden", telco);
+    $("tipoField").classList.toggle("hidden", telco || planes);
+    $("fsPrecios").classList.toggle("hidden", telco || planes);
+    $("fsElectro").classList.toggle("hidden", telco || planes);
     $("fsTelco").classList.toggle("hidden", !telco);
+    $("fsPlanes").classList.toggle("hidden", !planes);
     // en telco no se rellenan: SKU, Link/Buscar, Categoría
     $("skuField").classList.toggle("hidden", telco);
     $("linkField").classList.toggle("hidden", telco);
-    $("catField").classList.toggle("hidden", telco);
+    $("catField").classList.toggle("hidden", telco || planes);
     // layout activo
-    $("cartel").classList.toggle("hidden", horiz || telco);
+    $("cartel").classList.toggle("hidden", horiz || telco || planes);
     $("cartelH").classList.toggle("hidden", !horiz);
     $("cartelP").classList.toggle("hidden", !telco);
+    $("cartelPL").classList.toggle("hidden", !planes);
     // dims de diseño
     if (telco) {
       const el = $("cartelP");
       el.style.width = "660px";
       el.style.height = "auto";      // alto según contenido (sin espacio muerto)
+    } else if (planes) {
+      const DW = 816, el = $("cartelPL");
+      el.style.width = DW + "px";
+      el.style.height = Math.round(DW * (size.h / size.w)) + "px";
     } else if (horiz) {
       const HDES = 230, el = $("cartelH");
       el.style.height = HDES + "px";
@@ -207,7 +219,7 @@
     $("fsImg").classList.toggle("hidden", !imgOn);
     $("showImg").parentElement.classList.toggle("hidden", !size.img);
 
-    if (telco) renderTelco(); else if (horiz) renderHorizontal(); else renderPortrait(size);
+    if (telco) renderTelco(); else if (planes) renderPlanes(); else if (horiz) renderHorizontal(); else renderPortrait(size);
     checkPriceWarn();
     requestAnimationFrame(() => { fitBody(); fitStage(); });
   }
@@ -373,10 +385,128 @@
     if (fala) $("tpFala").src = fala;
   }
 
+  /* ====================================================================
+     CARTA GRÁFICA PLANES
+     ==================================================================== */
+  const PLAN_OPS = [
+    { key: "claro", label: "CLARO", slot: "opClaro" },
+    { key: "entel", label: "ENTEL", slot: "opEntel" },
+    { key: "wom",   label: "WOM",   slot: "opWom" },
+  ];
+  const WOM_INC = "REDES SOCIALES Y APP MÚSICA PARA SIEMPRE / LIBRE ROAMING EN MÁS DE 50 PAÍSES / MODALIDAD ACUMULA TUS GB";
+  const CALLCENTER = "600 390 4100";
+  const MESES_ES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  function fechaLarga(v) { const m = (v || "").match(/^(\d{4})-(\d{2})-(\d{2})$/); if (!m) return ""; return parseInt(m[3], 10) + " de " + MESES_ES[parseInt(m[2], 10) - 1] + " de " + m[1]; }
+  function specIcon(txt) {
+    const t = (txt || "").toLowerCase();
+    let p;
+    if (/c[áa]mara/.test(t)) p = '<rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="3.4"/><path d="M8 6l1.5-2h5L16 6"/>';
+    else if (/memoria|almacen|gb|rom/.test(t)) p = '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M15 4v16"/>';
+    else if (/bater[íi]a|mah/.test(t)) p = '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4"/>';
+    else if (/procesador|chip|cpu|snap/.test(t)) p = '<rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>';
+    else p = '<circle cx="12" cy="12" r="7"/>';
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg>';
+  }
+  function renderPlanes() {
+    const badge = CFG.slots.badgeUnica.src;
+    const badgeImg = badge ? '<img src="' + badge + '"/>' : '';
+    const marca = $("marca").value.trim(), modelo = $("modelo").value.trim();
+    const skusRaw = $("plSkus").value.trim();
+    const primerSku = (skusRaw.match(/\d{5,}/) || [""])[0] || $("sku").value.trim();
+    const src = manualImg || (primerSku ? "https://media.falabella.com/falabellaCL/" + encodeURIComponent(primerSku) + "/public" : "");
+
+    const unico = num("plUnico"), normal = num("plNormal");
+    const desc = (!isNaN(unico) && !isNaN(normal)) ? normal - unico : NaN;
+    const destKey = $("plDestOp").value;
+    const destOp = PLAN_OPS.find((o) => o.key === destKey) || PLAN_OPS[0];
+    const cargoDest = num("plCargoDest");
+
+    // overlays izquierda
+    const lanza = $("plLanza").checked ? '<div class="pl-lanza">' + ($("plLanzaTxt").value.trim() || "LANZAMIENTO") + '</div>' : '';
+    const cuotas = $("plCuotas").checked ? '<div class="pl-cuotas"><b>' + (($("plCuotasN").value || "").trim() || "0") + '</b><span>cuotas sin interés con tu CMR</span></div>' : '';
+    let specs = '';
+    if ($("plSpecs").checked) {
+      const lines = $("plSpecsTxt").value.split("\n").map((s) => s.trim()).filter(Boolean);
+      specs = '<div class="pl-specs">' + lines.map((ln) => {
+        const parts = ln.split(/\||:/); const tit = (parts.shift() || "").trim(); const det = parts.join(":").trim();
+        return '<div class="pl-spec"><span class="ic">' + specIcon(tit) + '</span><span class="tx"><b>' + tit + '</b>' + (det ? '<br>' + det : '') + '</span></div>';
+      }).join("") + '</div>';
+    }
+
+    // columnas
+    const cols = PLAN_OPS.map((op) => {
+      const precio = num("pl_" + op.key + "_precio"), cargo = num("pl_" + op.key + "_cargo");
+      const gb = $("pl_" + op.key + "_gb").value.trim();
+      const logo = CFG.slots[op.slot].src;
+      let inc;
+      if (op.key === "claro") {
+        const r1 = $("pl_claro_roam1").value.trim(), r2 = $("pl_claro_roam2").value.trim();
+        inc = '<div class="pl-inc-claro">' +
+          (r1 ? '<div class="r roam">✈ INCLUYE ROAMING INTERNACIONAL DE<br><b>' + r1 + '</b></div>' : '') +
+          (r2 ? '<div class="r">+ <b>' + r2 + '</b></div>' : '') + '</div>';
+      } else if (op.key === "entel") {
+        const er = CFG.slots.entelRedes.src;
+        inc = er ? '<img class="pl-inc-redes" src="' + er + '"/>' : '<div class="pl-inc-txt">REDES SOCIALES</div>';
+      } else {
+        inc = '<div class="pl-inc-txt small">' + (($("pl_wom_inc").value.trim()) || WOM_INC) + '</div>';
+      }
+      return '<div class="pl-col">' +
+        '<div class="pl-col-top">' + badgeImg + '<span class="pr">' + (clp(precio) || "—") + '</span></div>' +
+        '<div class="pl-col-contr">CONTRATANDO PLAN<br><b>' + op.label + '</b></div>' +
+        '<div class="pl-col-plan-lbl">MINUTOS LIBRES</div>' +
+        '<div class="pl-col-plan"><b>' + (clp(cargo) || "—") + '</b> / MES</div>' +
+        '<div class="pl-col-gb"><span class="gb">' + (gb || "—") + '</span>' + (logo ? '<img src="' + logo + '"/>' : '') + '</div>' +
+        '<div class="pl-col-inc-lbl">I N C L U Y E</div>' +
+        inc + '</div>';
+    }).join('<div class="pl-col-sep"></div>');
+
+    // pie
+    const connect = CFG.slots.connect.src ? '<img class="pl-connect" src="' + CFG.slots.connect.src + '"/>' : '<div class="pl-connect tx">CONNECT</div>';
+    const bandas = CFG.slots.bandas.src ? '<img class="pl-bandas" src="' + CFG.slots.bandas.src + '"/>' : '<div class="pl-bandas tx">2G · 3G · 4G · 5G<br>APTO PARA TODAS LAS BANDAS</div>';
+    const opLogos = PLAN_OPS.map((op) => { const l = CFG.slots[op.slot].src; return l ? '<img src="' + l + '"/>' : ''; }).join("");
+    const fala = CFG.slots.falabella.src ? '<img class="pl-fala" src="' + CFG.slots.falabella.src + '"/>' : '';
+    const rango = fechaLarga($("vigDesde").value), rangoH = fechaLarga($("vigHasta").value);
+    const vig = (rango || rangoH) ? "Ofertas y promociones válidas desde el " + rango + (rangoH ? " hasta el " + rangoH : "") + " o hasta agotar las unidades disponibles informadas. " : "";
+
+    $("cartelPL").innerHTML =
+      '<div class="pl-head">' +
+        '<div class="pl-title">PLANES</div>' +
+        '<div class="pl-dots"><span class="pl-dot on"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span></div>' +
+        '<div class="pl-subwrap"><div class="pl-sub-b">ENTRE TODOS LOS PLANES,</div><div class="pl-sub-2">HAY UNO PERFECTO PARA TI.</div></div>' +
+      '</div>' +
+      '<div class="pl-rule"></div>' +
+      '<div class="pl-hero">' +
+        '<div class="pl-hero-l">' + lanza +
+          '<div class="pl-circle"></div>' + specs +
+          (src ? '<img class="pl-img" src="' + src + '" crossorigin="anonymous"/>' : '') + cuotas +
+        '</div>' +
+        '<div class="pl-hero-r">' +
+          '<div class="pl-brand">' + (marca || "Marca") + '</div>' +
+          '<div class="pl-model">' + (modelo || "Modelo") + '</div>' +
+          '<div class="pl-price-line"><div class="pl-badge">' + badgeImg + '</div>' +
+            '<div class="pl-price-red">' + (clp(unico) || "$—") + '</div></div>' +
+          '<div class="pl-contr">CONTRATANDO PLAN ' + destOp.label + (isNaN(cargoDest) ? '' : '<br>DE ' + clp(cargoDest) + ' / MES') + '</div>' +
+          '<div class="pl-normal-lbl">PRECIO NORMAL:</div>' +
+          '<div class="pl-price-normal">' + (clp(normal) || "$—") + '</div>' +
+          (isNaN(desc) ? '' : '<div class="pl-desc">DESCUENTO: ' + clp(desc) + '</div>') +
+          (skusRaw ? '<div class="pl-sku">SKU: ' + skusRaw + '</div>' : '') +
+          '<div class="pl-unids">UNIDS. DISPONIBLES: ' + (($("plUnids").value || "").trim() || "—") + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="pl-cols">' + cols + '</div>' +
+      '<div class="pl-call"><span>CONTRATA TU PLAN EN NUESTRO CALL CENTER</span> <b class="pl-call-phone">☏ ' + CALLCENTER + '</b> <span>O DE FORMA ONLINE EN FALABELLA.COM</span></div>' +
+      '<div class="pl-foot">' +
+        '<div class="pl-foot-l">' + bandas +
+          '<div class="pl-legal">' + vig + CFG.legal + '</div>' +
+        '</div>' +
+        '<div class="pl-foot-r">' + connect + '<div class="pl-oplogos">' + opLogos + '</div>' + fala + '</div>' +
+      '</div>';
+  }
+
   /* auto-ajuste del cuerpo portrait: reduce el tamaño de fuente (var --k) hasta calzar.
      Sin transform, para que html2canvas exporte bien. */
   function fitBody() {
-    if (curSize().layout === "h") return;
+    const L = curSize().layout; if (L === "h" || L === "telco" || L === "planes") return;
     const body = $("body"), fit = $("fit");
     let k = 1; fit.style.setProperty("--k", "1");
     for (let i = 0; i < 5; i++) {
@@ -488,7 +618,7 @@
      HOJA / IMPOSICIÓN
      ==================================================================== */
   let QUEUE = []; // {sizeKey, url, id?}
-  const activeEl = () => { const l = curSize().layout; return l === "h" ? $("cartelH") : l === "telco" ? $("cartelP") : $("cartel"); };
+  const activeEl = () => { const l = curSize().layout; return l === "h" ? $("cartelH") : l === "telco" ? $("cartelP") : l === "planes" ? $("cartelPL") : $("cartel"); };
 
   /* ---------- Firebase opcional (Firestore + TTL 24h) ---------- */
   const FB = { ready: false, db: null, fs: null };
@@ -882,5 +1012,9 @@
   }
 
   /* ---------- Init ---------- */
-  buildTelcoForm(); renderConfig(); render(); fitStage(); fbInit();
+  function wirePlanes() {
+    const box = $("fsPlanes"); if (!box) return;
+    box.querySelectorAll("input,select,textarea").forEach((el) => { el.addEventListener("input", render); el.addEventListener("change", render); });
+  }
+  buildTelcoForm(); wirePlanes(); renderConfig(); render(); fitStage(); fbInit();
 })();

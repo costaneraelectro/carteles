@@ -29,6 +29,14 @@ Reproduce la estructura exacta de la cartelería de tienda:
 
 ## Tamaños e impresión de varias piezas por hoja
 
+**Carta gráfica planes** (21,6×27,9 cm) — póster de planes de telefonía: héroe
+(imagen + precio único + precio normal + descuento auto + SKU + unidades) y **3
+operadores fijos** (Claro / Entel / WOM) con precio, cargo fijo/mes y GB. Opcional:
+cinta *Lanzamiento*, cuotas CMR, y especificaciones sobre la imagen. Claro lleva
+roaming editable; Entel iconos de redes; WOM texto. Sube en Configuración →
+avanzado los logos **CONNECT**, **bandas 2G-5G** e **iconos redes Entel** (si no,
+salen como texto).
+
 Tamaños: **Carta** (con imagen, banner/QR, CAE), **13×19** (banner/QR, CAE, sin
 imagen), **9×7** (banner/QR), **9×13** y **6×4** (solo precios) y **12×3**
 (horizontal). Solo Carta y 13×19 llevan CAE; solo Carta, 13×19 y 9×7 llevan

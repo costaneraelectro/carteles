@@ -50,6 +50,7 @@
             <option value="s6x4">6 × 4 cm</option>
             <option value="s12x3">12 × 3 cm (horizontal)</option>
             <option value="s9x13plan">9 × 13 cm · Planes</option>
+            <option value="plancarta">Carta gráfica planes</option>
           </select>
           <div class="hint" id="tamHint"></div>
         </div>
@@ -124,6 +125,53 @@
         <p class="hint" style="margin-top:0">Marca / modelo del equipo salen de «Producto». La fecha usa «Vigencia → Desde». Activa cada operador y llena sus valores.</p>
         <div class="field check"><input type="checkbox" id="telcoBorde" /><label for="telcoBorde" style="margin:0">Borde para recortar</label></div>
         <div id="telcoForm"></div>
+      </fieldset>
+
+      <fieldset id="fsPlanes" class="hidden">
+        <legend>Carta gráfica planes</legend>
+        <p class="hint" style="margin-top:0">Marca / modelo e imagen salen de «Producto» (SKU o subir). Vigencia usa «Desde/Hasta». Los 3 operadores (Claro · Entel · WOM) van siempre.</p>
+
+        <div class="row2">
+          <div class="field"><label>Precio único (destacado)</label><input type="number" id="plUnico" placeholder="649990" /></div>
+          <div class="field"><label>Precio normal</label><input type="number" id="plNormal" placeholder="999990" /></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Operador destacado</label><select id="plDestOp"><option value="claro">Claro</option><option value="entel" selected>Entel</option><option value="wom">WOM</option></select></div>
+          <div class="field"><label>Cargo mensual destacado</label><input type="number" id="plCargoDest" placeholder="24990" /></div>
+        </div>
+        <div class="field"><label>SKU (varios, separados por / o espacio)</label><input type="text" id="plSkus" placeholder="17564056 / 17564057 / 17564058" /></div>
+        <div class="field"><label>Unidades disponibles</label><input type="number" id="plUnids" placeholder="200" /></div>
+
+        <div class="row2">
+          <div class="field check"><input type="checkbox" id="plLanza" /><label for="plLanza" style="margin:0">Cinta «Lanzamiento»</label></div>
+          <div class="field"><label>Texto cinta</label><input type="text" id="plLanzaTxt" value="LANZAMIENTO" /></div>
+        </div>
+        <div class="row2">
+          <div class="field check"><input type="checkbox" id="plCuotas" /><label for="plCuotas" style="margin:0">Mostrar cuotas CMR</label></div>
+          <div class="field"><label>N° cuotas sin interés</label><input type="number" id="plCuotasN" value="10" /></div>
+        </div>
+        <div class="field check"><input type="checkbox" id="plSpecs" /><label for="plSpecs" style="margin:0">Mostrar especificaciones (sobre la imagen)</label></div>
+        <div class="field"><label>Especificaciones (una por línea — «Título: detalle»)</label><textarea id="plSpecsTxt" placeholder="Cámara trasera: 50 MP + 13 MP&#10;Memoria interna: 256 GB&#10;Batería: 5200 mAh&#10;Procesador: SM7635"></textarea></div>
+
+        <fieldset style="margin:10px 0 0"><legend style="color:#333">Claro</legend>
+          <div class="row2"><div class="field"><label>Precio plan</label><input type="number" id="pl_claro_precio" placeholder="659990" /></div>
+          <div class="field"><label>Cargo fijo / mes</label><input type="number" id="pl_claro_cargo" placeholder="24990" /></div></div>
+          <div class="field"><label>GB</label><input type="text" id="pl_claro_gb" placeholder="400GB" /></div>
+          <div class="field"><label>Roaming internacional</label><input type="text" id="pl_claro_roam1" placeholder="3 GB + 60 MINUTOS" /></div>
+          <div class="field"><label>Roaming línea 2</label><input type="text" id="pl_claro_roam2" placeholder="60 MINUTOS EN LLAMADAS LARGA DISTANCIA DESDE CHILE" /></div>
+        </fieldset>
+        <fieldset style="margin:10px 0 0"><legend style="color:#333">Entel</legend>
+          <div class="row2"><div class="field"><label>Precio plan</label><input type="number" id="pl_entel_precio" placeholder="649990" /></div>
+          <div class="field"><label>Cargo fijo / mes</label><input type="number" id="pl_entel_cargo" placeholder="24990" /></div></div>
+          <div class="field"><label>GB</label><input type="text" id="pl_entel_gb" placeholder="300GB" /></div>
+          <div class="hint">Incluye: iconos de redes (sube la tira en Configuración → avanzado, o queda «REDES SOCIALES»).</div>
+        </fieldset>
+        <fieldset style="margin:10px 0 0"><legend style="color:#333">WOM</legend>
+          <div class="row2"><div class="field"><label>Precio plan</label><input type="number" id="pl_wom_precio" placeholder="679990" /></div>
+          <div class="field"><label>Cargo fijo / mes</label><input type="number" id="pl_wom_cargo" placeholder="24990" /></div></div>
+          <div class="field"><label>GB</label><input type="text" id="pl_wom_gb" placeholder="500GB" /></div>
+          <div class="field"><label>Texto incluye</label><input type="text" id="pl_wom_inc" placeholder="Redes sociales y app música…" /></div>
+        </fieldset>
       </fieldset>
 
       <fieldset id="fsElectro">
@@ -293,6 +341,9 @@
           </div>
         </div>
       </article>
+
+      <!-- Layout carta gráfica planes (letter) -->
+      <article class="cartelPL hidden" id="cartelPL"></article>
     </div>
 
     <!-- Preview de hoja -->
