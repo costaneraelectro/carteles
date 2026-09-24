@@ -203,9 +203,9 @@
       el.style.width = "660px";
       el.style.height = "auto";      // alto según contenido (sin espacio muerto)
     } else if (planes) {
-      const DW = 816, el = $("cartelPL");
-      el.style.width = DW + "px";
-      el.style.height = Math.round(DW * (size.h / size.w)) + "px";
+      const el = $("cartelPL");
+      el.style.width = "816px";
+      el.style.height = "auto";      // alto según contenido (nada se recorta)
     } else if (horiz) {
       const HDES = 230, el = $("cartelH");
       el.style.height = HDES + "px";
@@ -535,15 +535,10 @@
       '</div>';   // /pl-inner
     fitPlanes();
   }
-  // escala el contenido para que SIEMPRE quepa en la hoja carta (nunca se desborda)
+  // el cartel de planes usa alto automático (sin transform): nada se recorta.
   function fitPlanes() {
-    const box = $("cartelPL"); const inner = box && box.querySelector(".pl-inner"); if (!inner) return;
-    const H = (box.clientHeight || 1054) * 0.992;   // pequeño margen inferior
-    inner.style.transform = "none";
-    const nat = inner.scrollHeight;
-    const k = nat > H ? H / nat : 1;
-    inner.style.transformOrigin = "top center";
-    inner.style.transform = k < 1 ? "scale(" + k + ")" : "none";
+    const box = $("cartelPL"); const inner = box && box.querySelector(".pl-inner");
+    if (inner) inner.style.transform = "none";
   }
 
   /* auto-ajuste del cuerpo portrait: reduce el tamaño de fuente (var --k) hasta calzar.
@@ -748,10 +743,13 @@
     const s = curSize(); const el = activeEl(); const c = await snap(el);
     const { jsPDF } = window.jspdf;
     if (s.layout === "planes") {
-      // carta completa: la pieza llena la página carta (proporción exacta)
+      // carta vertical: encaja la pieza completa en la hoja (contain, centrada) — nada se recorta
       const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: "portrait" });
       const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
-      pdf.addImage(c.toDataURL("image/png"), "PNG", 0, 0, pw, ph); pdf.save(nombre() + ".pdf"); return;
+      const cw = c.width, ch = c.height;
+      const k = Math.min(pw / cw, ph / ch);
+      const wcm = cw * k, hcm = ch * k;
+      pdf.addImage(c.toDataURL("image/png"), "PNG", (pw - wcm) / 2, (ph - hcm) / 2, wcm, hcm); pdf.save(nombre() + ".pdf"); return;
     }
     const asp = el.offsetHeight / el.offsetWidth; const wcm = s.w, hcm = s.w * asp;
     const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: hcm >= wcm ? "portrait" : "landscape" });
@@ -978,7 +976,7 @@
     const onHoja = !$("sheetWrap").classList.contains("hidden");
     if (onHoja) return;
     const s = $("stageScale"); const el = activeEl();
-    const w = parseFloat(el.style.width) || 750, h = parseFloat(el.style.height) || 1000;
+    const w = parseFloat(el.style.width) || el.offsetWidth || 750, h = parseFloat(el.style.height) || el.offsetHeight || 1000;
     if (REAL) { const sc = (curSize().w * PXCM) / w; s.style.transform = "scale(" + sc + ")"; s.style.height = (h * sc) + "px"; return; }
     const availW = s.parentElement.clientWidth;
     const sc = Math.min(availW / w, 760 / h); // encaja en el panel

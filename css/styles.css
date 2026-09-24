@@ -469,3 +469,7 @@ html[data-theme="dark"] .btn.ghost.active { color: #10240a; }
 .pl-call { margin-top: 11px; }
 .pl-foot { margin-top: 11px; }
 .pl-legal { line-height: 1.26; }
+
+/* ===== PLANES · v5: alto automático, sin recorte (export contain) ===== */
+.cartelPL { overflow: visible; height: auto; }
+.pl-inner { transform: none !important; }
