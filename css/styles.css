@@ -392,3 +392,53 @@ html[data-theme="dark"] .btn.ghost.active { color: #10240a; }
 .pl-oplogos { display: flex; flex-direction: column; gap: 5px; }
 .pl-oplogos img { height: 15px; max-width: 60px; object-fit: contain; }
 .pl-fala { height: 70px; }
+
+/* ===== PLANES · ajustes v2 (color, pesos, detalles gráficos, pie) ===== */
+.cartelPL { --pllima: #c6d209; overflow: hidden; }
+.pl-title { color: var(--pllima); }
+.pl-rule { background: var(--pllima); }
+.pl-dot { border-color: #111; }
+.pl-col-gb .gb { color: var(--pllima); }
+.pl-lanza { background: var(--pllima); }
+.pl-cuotas { background: var(--pllima); }
+
+/* pesos: marca bold, modelo y precios más delgados (como el original) */
+.pl-model { font-weight: 400; }
+.pl-price-red { font-weight: 600; }
+.pl-price-normal { font-weight: 500; }
+.pl-normal-lbl { font-weight: 400; }
+.pl-desc { font-weight: 400; }
+.pl-sku, .pl-unids { font-weight: 400; }
+
+/* corchetes lima + X alrededor del subtítulo */
+.pl-subwrap { padding: 6px 40px 4px 16px; }
+.pl-brk { position: absolute; width: 20px; height: 20px; border: 3px solid var(--pllima); }
+.pl-brk.tl { left: -2px; top: -8px; border-right: 0; border-bottom: 0; }
+.pl-brk.br { right: 18px; bottom: -6px; border-left: 0; border-top: 0; }
+.pl-x { position: absolute; right: -6px; top: -14px; color: var(--pllima); font-size: 30px; font-weight: 900; line-height: 1; }
+
+/* detalle gráfico arriba de la tarjeta héroe (◉ ○ ——) */
+.pl-hero-deco { position: absolute; top: 14px; left: 0; right: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; pointer-events: none; }
+.pl-hero-deco .d { width: 12px; height: 12px; border-radius: 50%; }
+.pl-hero-deco .d.on { background: var(--pllima); box-shadow: 0 0 0 3px #eef3c9; }
+.pl-hero-deco .d { border: 2px solid #ccc; }
+.pl-hero-deco .ln { position: absolute; right: 0; width: 90px; height: 1px; background: #ccc; }
+
+/* Claro incluye */
+.pl-inc-claro { font-size: 10.5px; color: #333; line-height: 1.25; text-align: center; }
+.pl-inc-claro .pl-plane { color: var(--pllima); margin-right: 4px; font-size: 13px; }
+.pl-inc-claro .roam b { color: #111; font-weight: 900; }
+.pl-inc-claro .r2 { margin-top: 5px; }
+.pl-inc-claro .r2 b { color: #111; font-weight: 900; }
+
+/* call center en una sola línea (sin cortar) */
+.pl-call { flex-wrap: nowrap; white-space: nowrap; font-size: 12px; gap: 10px; padding: 11px 16px; }
+.pl-call span { overflow: visible; }
+.pl-call-phone { font-size: 13px; padding: 4px 12px; }
+
+/* pie: logos de operador DEBAJO de connect; falabella a la derecha */
+.pl-foot-r { align-items: center; gap: 16px; }
+.pl-foot-brand { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.pl-oplogos { flex-direction: row; align-items: center; gap: 12px; }
+.pl-oplogos img { height: 18px; max-width: 66px; }
+.pl-connect { height: 40px; }

@@ -399,6 +399,27 @@
   const CALLCENTER = "600 390 4100";
   const MESES_ES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
   function fechaLarga(v) { const m = (v || "").match(/^(\d{4})-(\d{2})-(\d{2})$/); if (!m) return ""; return parseInt(m[3], 10) + " de " + MESES_ES[parseInt(m[2], 10) - 1] + " de " + m[1]; }
+  const dParts = (v) => { const m = (v || "").match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? { y: m[1], mo: parseInt(m[2], 10) - 1, d: parseInt(m[3], 10) } : null; };
+  function vigSentence(dv, hv) {
+    const a = dParts(dv), b = dParts(hv);
+    let r = "";
+    if (a && b) r = (a.mo === b.mo && a.y === b.y) ? "desde el " + a.d + " al " + b.d + " de " + MESES_ES[a.mo] + " de " + a.y
+      : "desde el " + a.d + " de " + MESES_ES[a.mo] + " de " + a.y + " al " + b.d + " de " + MESES_ES[b.mo] + " de " + b.y;
+    else if (a) r = "desde el " + a.d + " de " + MESES_ES[a.mo] + " de " + a.y;
+    return "Ofertas y promociones válidas " + (r ? r + " " : "") + "o hasta agotar las unidades disponibles informadas, lo que ocurra primero. ";
+  }
+  // Legal FIJO del cartel de planes (solo cambia la vigencia, que va antes)
+  const PLAN_LEGAL =
+    "La contratación del plan está sujeta a previa evaluación comercial de cada operador de telefonía, se realiza en base a la " +
+    "información de la tarjeta CMR del cliente y puede ser pagada con cualquier medio de pago disponible. El precio del equipo aplica " +
+    "solo si el cliente contrata el plan de telefonía indicado y firma un mandato para el cobro, en su tarjeta de crédito CMR, de la " +
+    "diferencia entre el valor del equipo asociado a la oportunidad única y el precio prepago de este, según corresponda. Lo anterior, " +
+    "al dar de baja el plan suscrito o contratar uno más económico dentro de un periodo de 18 meses para cada operador. Sobre las " +
+    "promociones, “Redes sociales y app música para siempre / Modalidad acumula tus GB” más información en www.wom.cl. Entel " +
+    "“Ahora RR.SS”, más información en www.entel.cl. “Larga distancia, Roaming en 20 países, incluye minutos, gigas, SMS y " +
+    "minutos en larga distancia”, más información en www.clarochile.cl El pago con tarjetas de crédito puede tener costos asociados. " +
+    "Consultar al emisor para mayor información. Infórmese sobre la garantía estatal de los depósitos en su banco o en www.cmfchilesbif.cl. " +
+    "No acumulable con otras ofertas, promociones o beneficios.";
   function specIcon(txt) {
     const t = (txt || "").toLowerCase();
     let p;
@@ -435,29 +456,32 @@
       }).join("") + '</div>';
     }
 
+    const gbTxt = (v) => { const s = (v || "").toString().trim(); return s ? s + "GB" : "—"; };
+
     // columnas
     const cols = PLAN_OPS.map((op) => {
       const precio = num("pl_" + op.key + "_precio"), cargo = num("pl_" + op.key + "_cargo");
-      const gb = $("pl_" + op.key + "_gb").value.trim();
+      const gb = gbTxt($("pl_" + op.key + "_gb").value);
       const logo = CFG.slots[op.slot].src;
       let inc;
       if (op.key === "claro") {
-        const r1 = $("pl_claro_roam1").value.trim(), r2 = $("pl_claro_roam2").value.trim();
+        const rg = ($("pl_claro_rgb").value || "").trim(), rm = ($("pl_claro_rmin").value || "").trim();
         inc = '<div class="pl-inc-claro">' +
-          (r1 ? '<div class="r roam">✈ INCLUYE ROAMING INTERNACIONAL DE<br><b>' + r1 + '</b></div>' : '') +
-          (r2 ? '<div class="r">+ <b>' + r2 + '</b></div>' : '') + '</div>';
+          '<div class="r roam"><span class="pl-plane">✈</span>INCLUYE ROAMING INTERNACIONAL DE<br><b>' + (rg ? rg + "GB" : "—") + ' + ' + (rm || "—") + ' MINUTOS</b></div>' +
+          '<div class="r2"><b>+ ' + (rm || "—") + ' MINUTOS</b> EN LLAMADAS LARGA<br>DISTANCIA DESDE CHILE</div>' +
+          '</div>';
       } else if (op.key === "entel") {
         const er = CFG.slots.entelRedes.src;
         inc = er ? '<img class="pl-inc-redes" src="' + er + '"/>' : '<div class="pl-inc-txt">REDES SOCIALES</div>';
       } else {
-        inc = '<div class="pl-inc-txt small">' + (($("pl_wom_inc").value.trim()) || WOM_INC) + '</div>';
+        inc = '<div class="pl-inc-txt small">' + WOM_INC + '</div>';   // WOM fijo
       }
       return '<div class="pl-col">' +
         '<div class="pl-col-top">' + badgeImg + '<span class="pr">' + (clp(precio) || "—") + '</span></div>' +
         '<div class="pl-col-contr">CONTRATANDO PLAN<br><b>' + op.label + '</b></div>' +
         '<div class="pl-col-plan-lbl">MINUTOS LIBRES</div>' +
         '<div class="pl-col-plan"><b>' + (clp(cargo) || "—") + '</b> / MES</div>' +
-        '<div class="pl-col-gb"><span class="gb">' + (gb || "—") + '</span>' + (logo ? '<img src="' + logo + '"/>' : '') + '</div>' +
+        '<div class="pl-col-gb"><span class="gb">' + gb + '</span>' + (logo ? '<img src="' + logo + '"/>' : '') + '</div>' +
         '<div class="pl-col-inc-lbl">I N C L U Y E</div>' +
         inc + '</div>';
     }).join('<div class="pl-col-sep"></div>');
@@ -467,17 +491,18 @@
     const bandas = CFG.slots.bandas.src ? '<img class="pl-bandas" src="' + CFG.slots.bandas.src + '"/>' : '<div class="pl-bandas tx">2G · 3G · 4G · 5G<br>APTO PARA TODAS LAS BANDAS</div>';
     const opLogos = PLAN_OPS.map((op) => { const l = CFG.slots[op.slot].src; return l ? '<img src="' + l + '"/>' : ''; }).join("");
     const fala = CFG.slots.falabella.src ? '<img class="pl-fala" src="' + CFG.slots.falabella.src + '"/>' : '';
-    const rango = fechaLarga($("vigDesde").value), rangoH = fechaLarga($("vigHasta").value);
-    const vig = (rango || rangoH) ? "Ofertas y promociones válidas desde el " + rango + (rangoH ? " hasta el " + rangoH : "") + " o hasta agotar las unidades disponibles informadas. " : "";
+    const legal = vigSentence($("vigDesde").value, $("vigHasta").value) + PLAN_LEGAL;
 
     $("cartelPL").innerHTML =
       '<div class="pl-head">' +
         '<div class="pl-title">PLANES</div>' +
         '<div class="pl-dots"><span class="pl-dot on"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span></div>' +
-        '<div class="pl-subwrap"><div class="pl-sub-b">ENTRE TODOS LOS PLANES,</div><div class="pl-sub-2">HAY UNO PERFECTO PARA TI.</div></div>' +
+        '<div class="pl-subwrap"><span class="pl-brk tl"></span><span class="pl-brk br"></span><span class="pl-x">✕</span>' +
+          '<div class="pl-sub-b">ENTRE TODOS LOS PLANES,</div><div class="pl-sub-2">HAY UNO PERFECTO PARA TI.</div></div>' +
       '</div>' +
       '<div class="pl-rule"></div>' +
       '<div class="pl-hero">' +
+        '<div class="pl-hero-deco"><span class="d on"></span><span class="d"></span><span class="ln"></span></div>' +
         '<div class="pl-hero-l">' + lanza +
           '<div class="pl-circle"></div>' + specs +
           (src ? '<img class="pl-img" src="' + src + '" crossorigin="anonymous"/>' : '') + cuotas +
@@ -496,12 +521,14 @@
         '</div>' +
       '</div>' +
       '<div class="pl-cols">' + cols + '</div>' +
-      '<div class="pl-call"><span>CONTRATA TU PLAN EN NUESTRO CALL CENTER</span> <b class="pl-call-phone">☏ ' + CALLCENTER + '</b> <span>O DE FORMA ONLINE EN FALABELLA.COM</span></div>' +
+      '<div class="pl-call"><span>CONTRATA TU PLAN EN NUESTRO CALL CENTER</span><b class="pl-call-phone">☏ ' + CALLCENTER + '</b><span>O DE FORMA ONLINE EN FALABELLA.COM</span></div>' +
       '<div class="pl-foot">' +
         '<div class="pl-foot-l">' + bandas +
-          '<div class="pl-legal">' + vig + CFG.legal + '</div>' +
+          '<div class="pl-legal">' + legal + '</div>' +
         '</div>' +
-        '<div class="pl-foot-r">' + connect + '<div class="pl-oplogos">' + opLogos + '</div>' + fala + '</div>' +
+        '<div class="pl-foot-r">' +
+          '<div class="pl-foot-brand">' + connect + '<div class="pl-oplogos">' + opLogos + '</div></div>' + fala +
+        '</div>' +
       '</div>';
   }
 
@@ -702,7 +729,21 @@
   const errExport = () => alert("No se pudo exportar. Si la imagen viene del SKU puede bloquear la descarga (CORS): sube la imagen manual.");
 
   $("btnPng").addEventListener("click", async () => { try { const c = await snap(activeEl()); const a = document.createElement("a"); a.href = c.toDataURL("image/png"); a.download = nombre() + ".png"; a.click(); } catch (e) { errExport(); } });
-  $("btnPdf").addEventListener("click", async () => { try { const s = curSize(); const el = activeEl(); const c = await snap(el); const asp = el.offsetHeight / el.offsetWidth; const wcm = s.w, hcm = s.w * asp; const { jsPDF } = window.jspdf; const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: hcm >= wcm ? "portrait" : "landscape" }); const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(); const topLeft = s.layout === "telco"; const x = topLeft ? 0.3 : (pw - wcm) / 2, y = topLeft ? 0.3 : (ph - hcm) / 2; pdf.addImage(c.toDataURL("image/png"), "PNG", x, y, wcm, hcm); pdf.save(nombre() + ".pdf"); } catch (e) { errExport(); } });
+  $("btnPdf").addEventListener("click", async () => { try {
+    const s = curSize(); const el = activeEl(); const c = await snap(el);
+    const { jsPDF } = window.jspdf;
+    if (s.layout === "planes") {
+      // carta completa: la pieza llena la página carta (proporción exacta)
+      const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: "portrait" });
+      const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+      pdf.addImage(c.toDataURL("image/png"), "PNG", 0, 0, pw, ph); pdf.save(nombre() + ".pdf"); return;
+    }
+    const asp = el.offsetHeight / el.offsetWidth; const wcm = s.w, hcm = s.w * asp;
+    const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: hcm >= wcm ? "portrait" : "landscape" });
+    const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+    const topLeft = s.layout === "telco"; const x = topLeft ? 0.3 : (pw - wcm) / 2, y = topLeft ? 0.3 : (ph - hcm) / 2;
+    pdf.addImage(c.toDataURL("image/png"), "PNG", x, y, wcm, hcm); pdf.save(nombre() + ".pdf");
+  } catch (e) { errExport(); } });
 
   $("btnGrabar").addEventListener("click", async () => {
     try { const c = await snap(activeEl()); const item = { sizeKey: $("tamano").value, url: c.toDataURL("image/jpeg", 0.9), qty: 1 }; if (curSize().layout !== "telco") item.state = formState(); QUEUE.push(item); flashGrabar(); await fbSave(item); renderSheet(); }
