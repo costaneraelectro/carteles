@@ -442,3 +442,30 @@ html[data-theme="dark"] .btn.ghost.active { color: #10240a; }
 .pl-oplogos { flex-direction: row; align-items: center; gap: 12px; }
 .pl-oplogos img { height: 18px; max-width: 66px; }
 .pl-connect { height: 40px; }
+
+/* ===== PLANES · ajustes v3 (autoajuste, header, pesos) ===== */
+.pl-inner { width: 816px; }
+/* separar el subtítulo del título PLANES (no se topan) */
+.pl-head { min-height: 176px; }
+.pl-title { font-size: 92px; }
+.pl-subwrap { top: 104px; bottom: auto; }
+.pl-dots { bottom: auto; top: 118px; }
+.pl-brk.tl { top: -6px; }
+.pl-brk.br { bottom: -8px; }
+.pl-x { top: -12px; }
+/* valores al lado de la imagen: más delgados, sin negrita */
+.pl-price-red { font-weight: 500; }
+.pl-price-normal { font-weight: 400; }
+.pl-brand { font-weight: 700; }
+
+/* ===== PLANES · v4 compactar para llenar la hoja (alto natural ≈ carta) ===== */
+.cartelPL { padding: 26px 40px 16px; }
+.pl-head { min-height: 166px; }
+.pl-rule { margin: 4px 0 12px; }
+.pl-hero { min-height: 286px; padding: 14px 16px; }
+.pl-hero-l { min-height: 276px; }
+.pl-circle { width: 250px; height: 250px; }
+.pl-cols { margin-top: 12px; padding: 14px 8px; }
+.pl-call { margin-top: 11px; }
+.pl-foot { margin-top: 11px; }
+.pl-legal { line-height: 1.26; }

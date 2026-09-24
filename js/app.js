@@ -223,7 +223,8 @@
 
     if (telco) renderTelco(); else if (planes) renderPlanes(); else if (horiz) renderHorizontal(); else renderPortrait(size);
     checkPriceWarn();
-    requestAnimationFrame(() => { fitBody(); fitStage(); });
+    requestAnimationFrame(() => { fitBody(); if (planes) fitPlanes(); fitStage(); });
+    if (planes && document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (curSize().layout === "planes") { fitPlanes(); fitStage(); } });
   }
 
   // 5) aviso si el precio de oferta/OU no es menor al normal
@@ -494,6 +495,7 @@
     const legal = vigSentence($("vigDesde").value, $("vigHasta").value) + PLAN_LEGAL;
 
     $("cartelPL").innerHTML =
+      '<div class="pl-inner">' +
       '<div class="pl-head">' +
         '<div class="pl-title">PLANES</div>' +
         '<div class="pl-dots"><span class="pl-dot on"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span></div>' +
@@ -529,7 +531,19 @@
         '<div class="pl-foot-r">' +
           '<div class="pl-foot-brand">' + connect + '<div class="pl-oplogos">' + opLogos + '</div></div>' + fala +
         '</div>' +
-      '</div>';
+      '</div>' +
+      '</div>';   // /pl-inner
+    fitPlanes();
+  }
+  // escala el contenido para que SIEMPRE quepa en la hoja carta (nunca se desborda)
+  function fitPlanes() {
+    const box = $("cartelPL"); const inner = box && box.querySelector(".pl-inner"); if (!inner) return;
+    const H = (box.clientHeight || 1054) * 0.992;   // pequeño margen inferior
+    inner.style.transform = "none";
+    const nat = inner.scrollHeight;
+    const k = nat > H ? H / nat : 1;
+    inner.style.transformOrigin = "top center";
+    inner.style.transform = k < 1 ? "scale(" + k + ")" : "none";
   }
 
   /* auto-ajuste del cuerpo portrait: reduce el tamaño de fuente (var --k) hasta calzar.
@@ -716,6 +730,7 @@
   }
   async function snap(el) {
     await ensureFonts();
+    if (curSize().layout === "planes") fitPlanes();   // reajusta con la fuente ya cargada
     const w = el.offsetWidth, h = el.offsetHeight;
     // html2canvas se descoloca (texto encimado) si un ancestro tiene transform:scale
     // (el zoom del preview). Se quita durante la captura y se restaura.
