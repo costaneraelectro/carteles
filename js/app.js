@@ -546,11 +546,19 @@
   function fitBody() {
     const L = curSize().layout; if (L === "h" || L === "telco" || L === "planes") return;
     const body = $("body"), fit = $("fit");
-    let k = 1; fit.style.setProperty("--k", "1");
-    for (let i = 0; i < 5; i++) {
-      const avail = body.clientHeight, natural = fit.scrollHeight;
-      if (!avail || !natural || natural <= avail + 1) break;
-      k = Math.max(0.05, k * (avail / natural) * 0.985);
+    fit.style.setProperty("--k", "1");
+    const availH = body.clientHeight, availW = body.clientWidth;
+    const natH = fit.scrollHeight, natW = fit.scrollWidth;
+    if (!availH || !natH) return;
+    // llena por alto Y ancho (crece si sobra, achica si falta); nunca clipa el precio
+    let k = Math.min(availH / natH, availW / natW) * 0.97;
+    k = Math.min(1.85, Math.max(0.05, k));
+    fit.style.setProperty("--k", String(k));
+    // refina: si al reescalar el texto se envuelve/desborda por alto o ancho, achica
+    for (let i = 0; i < 6; i++) {
+      const over = Math.max(fit.scrollHeight / availH, fit.scrollWidth / availW);
+      if (over <= 1.005) break;
+      k = Math.max(0.05, (k / over) * 0.99);
       fit.style.setProperty("--k", String(k));
     }
   }
