@@ -196,6 +196,18 @@
         </div>
       </fieldset>
 
+      <fieldset id="fsBorde">
+        <legend>Borde para recortar</legend>
+        <div class="field check"><input type="checkbox" id="cBordeOn" /><label for="cBordeOn" style="margin:0">Agregar borde al descargar PNG / PDF</label></div>
+        <div class="field" id="cBordeTipoWrap" style="margin-bottom:0">
+          <label>Tipo de borde</label>
+          <select id="cBordeTipo">
+            <option value="linea">Línea de corte</option>
+            <option value="marcas">Marcas de corte (esquinas)</option>
+          </select>
+        </div>
+      </fieldset>
+
       <div class="actions">
         <button class="btn png" id="btnPng">Descargar PNG</button>
         <button class="btn pdf" id="btnPdf">Descargar PDF</button>

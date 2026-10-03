@@ -188,6 +188,8 @@
     $("fsElectro").classList.toggle("hidden", telco || planes);
     $("fsTelco").classList.toggle("hidden", !telco);
     $("fsPlanes").classList.toggle("hidden", !planes);
+    $("fsBorde").classList.toggle("hidden", telco);          // telco ya trae su propio borde
+    $("cBordeTipoWrap").classList.toggle("hidden", !$("cBordeOn").checked);
     // en telco no se rellenan: SKU, Link/Buscar, Categoría
     $("skuField").classList.toggle("hidden", telco);
     $("linkField").classList.toggle("hidden", telco);
@@ -746,20 +748,50 @@
   const nombre = () => (($("marca").value || "cartel") + "-" + ($("sku").value || Date.now())).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const errExport = () => alert("No se pudo exportar. Si la imagen viene del SKU puede bloquear la descarga (CORS): sube la imagen manual.");
 
-  $("btnPng").addEventListener("click", async () => { try { const c = await snap(activeEl()); const a = document.createElement("a"); a.href = c.toDataURL("image/png"); a.download = nombre() + ".png"; a.click(); } catch (e) { errExport(); } });
+  // Borde para recortar en descargas individuales (PNG/PDF).
+  //  - Línea de corte: trazo fino sobre el contorno de la pieza.
+  //  - Marcas de corte: marcas en las 4 esquinas, FUERA de la pieza (agrega margen blanco).
+  // Telco trae su propio borde, se omite. Devuelve el canvas y los cm por px de la pieza.
+  function withBorde(base, s) {
+    const k = s.w / base.width;                                  // cm por px
+    if (!$("cBordeOn").checked || s.layout === "telco") return { cv: base, k };
+    const ppcm = 1 / k, tipo = $("cBordeTipo").value;
+    if (tipo === "linea") {
+      const cv = document.createElement("canvas"); cv.width = base.width; cv.height = base.height;
+      const x = cv.getContext("2d"); x.drawImage(base, 0, 0);
+      const lw = Math.max(2, Math.round(ppcm * 0.03));
+      x.strokeStyle = "#777"; x.lineWidth = lw; x.strokeRect(lw / 2, lw / 2, cv.width - lw, cv.height - lw);
+      return { cv, k };
+    }
+    const M = Math.round(ppcm * 0.7), L = ppcm * 0.45, G = ppcm * 0.15;   // margen, largo, separación
+    const cv = document.createElement("canvas"); cv.width = base.width + 2 * M; cv.height = base.height + 2 * M;
+    const x = cv.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, cv.width, cv.height); x.drawImage(base, M, M);
+    x.strokeStyle = "#222"; x.lineWidth = Math.max(2, Math.round(ppcm * 0.02)); x.lineCap = "butt";
+    [[M, M, -1, -1], [M + base.width, M, 1, -1], [M, M + base.height, -1, 1], [M + base.width, M + base.height, 1, 1]].forEach(([px, py, sx, sy]) => {
+      x.beginPath();
+      x.moveTo(px + sx * G, py); x.lineTo(px + sx * (G + L), py);     // horizontal, hacia afuera
+      x.moveTo(px, py + sy * G); x.lineTo(px, py + sy * (G + L));     // vertical, hacia afuera
+      x.stroke();
+    });
+    return { cv, k };
+  }
+
+  $("cBordeOn").addEventListener("change", () => $("cBordeTipoWrap").classList.toggle("hidden", !$("cBordeOn").checked));
+
+  $("btnPng").addEventListener("click", async () => { try { const s = curSize(); const { cv } = withBorde(await snap(activeEl()), s); const a = document.createElement("a"); a.href = cv.toDataURL("image/png"); a.download = nombre() + ".png"; a.click(); } catch (e) { errExport(); } });
   $("btnPdf").addEventListener("click", async () => { try {
-    const s = curSize(); const el = activeEl(); const c = await snap(el);
+    const s = curSize(); const el = activeEl();
+    const { cv: c, k } = withBorde(await snap(el), s);
     const { jsPDF } = window.jspdf;
     if (s.layout === "planes") {
       // carta vertical: encaja la pieza completa en la hoja (contain, centrada) — nada se recorta
       const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: "portrait" });
       const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
-      const cw = c.width, ch = c.height;
-      const k = Math.min(pw / cw, ph / ch);
-      const wcm = cw * k, hcm = ch * k;
+      const kk = Math.min(pw / c.width, ph / c.height);
+      const wcm = c.width * kk, hcm = c.height * kk;
       pdf.addImage(c.toDataURL("image/png"), "PNG", (pw - wcm) / 2, (ph - hcm) / 2, wcm, hcm); pdf.save(nombre() + ".pdf"); return;
     }
-    const asp = el.offsetHeight / el.offsetWidth; const wcm = s.w, hcm = s.w * asp;
+    const wcm = c.width * k, hcm = c.height * k;               // incluye margen de marcas si aplica
     const pdf = new jsPDF({ unit: "cm", format: "letter", orientation: hcm >= wcm ? "portrait" : "landscape" });
     const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
     const topLeft = s.layout === "telco"; const x = topLeft ? 0.3 : (pw - wcm) / 2, y = topLeft ? 0.3 : (ph - hcm) / 2;
@@ -779,7 +811,7 @@
     else x.drawImage(src, 0, 0);
     return o;
   }
-  $("btnPngHC").addEventListener("click", async () => { try { const c = contrastCanvas(await snap(activeEl())); const a = document.createElement("a"); a.href = c.toDataURL("image/png"); a.download = nombre() + "-hc.png"; a.click(); } catch (e) { errExport(); } });
+  $("btnPngHC").addEventListener("click", async () => { try { const s = curSize(); const { cv } = withBorde(contrastCanvas(await snap(activeEl())), s); const a = document.createElement("a"); a.href = cv.toDataURL("image/png"); a.download = nombre() + "-hc.png"; a.click(); } catch (e) { errExport(); } });
 
   // 9) Lote por SKU: busca, arma y graba cada uno en la hoja
   function mediaLista() {

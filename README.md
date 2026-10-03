@@ -50,6 +50,13 @@ Flujo para imprimir varias en una hoja carta:
    las acomoda en la grilla (rotando la pieza si así caben más). Ejemplos:
    6×4 → 20, 12×3 → 14, 9×7 → 9, 9×13 → 4.
 3. Marca **Agregar borde** y elige **Línea de corte** o **Marcas de corte**.
+
+**Borde en descargas individuales:** en «Cartel», sección **Borde para recortar**,
+marca *Agregar borde* y elige **Línea de corte** (trazo sobre el contorno) o
+**Marcas de corte** (esquinas, fuera de la pieza). Se aplica a **Descargar PNG**,
+**PNG alto contraste** y **Descargar PDF** (la pieza sale centrada en carta con su
+borde para recortar). No afecta a «Grabar en la hoja» (la hoja usa su propio borde).
+El cartel 9×13 Planes ya trae su borde propio.
 4. **Descargar hoja PNG / PDF** (carta, 150 dpi).
 
 Al grabar se agrega **1 copia** a la hoja; en la pestaña Hoja ajustas la
