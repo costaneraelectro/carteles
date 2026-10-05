@@ -548,21 +548,22 @@
   function fitBody() {
     const L = curSize().layout; if (L === "h" || L === "telco" || L === "planes") return;
     const body = $("body"), fit = $("fit");
-    fit.style.setProperty("--k", "1");
-    const availH = body.clientHeight, availW = body.clientWidth;
-    const natH = fit.scrollHeight, natW = fit.scrollWidth;
-    if (!availH || !natH) return;
-    // llena por alto Y ancho (crece si sobra, achica si falta); nunca clipa el precio
-    let k = Math.min(availH / natH, availW / natW) * 0.97;
-    k = Math.min(1.85, Math.max(0.05, k));
-    fit.style.setProperty("--k", String(k));
-    // refina: si al reescalar el texto se envuelve/desborda por alto o ancho, achica
-    for (let i = 0; i < 6; i++) {
-      const over = Math.max(fit.scrollHeight / availH, fit.scrollWidth / availW);
-      if (over <= 1.005) break;
-      k = Math.max(0.05, (k / over) * 0.99);
+    const availH = body.clientHeight, availW = fit.clientWidth;
+    if (!availH || !availW) return;
+    // Busca el MAYOR factor de letra (--k) que cabe: alto <= disponible y nada desborda
+    // en ancho (el precio no se parte, así que desborda cuando es demasiado grande).
+    // scrollWidth solo crece si algo se sale, por eso se prueba por bisección.
+    const cabe = (k) => {
       fit.style.setProperty("--k", String(k));
+      return fit.scrollHeight <= availH * 0.97 && fit.scrollWidth <= availW + 0.5;
+    };
+    let lo = 0.05, hi = 1.25;   // tope: más grande que antes (~+29 %) sin pasarse de proporción
+    if (cabe(hi)) { fit.style.setProperty("--k", String(hi)); return; }
+    for (let i = 0; i < 14; i++) {
+      const mid = (lo + hi) / 2;
+      if (cabe(mid)) lo = mid; else hi = mid;
     }
+    fit.style.setProperty("--k", String(lo));
   }
 
   /* ====================================================================
