@@ -164,7 +164,7 @@
   function cuotasHTML(c) {
     if (!c.t.cae || isNaN(c.vc)) return "";
     return '<div class="p-cuotas-wrap"><div class="p-cuotas-txt">' +
-      '<div class="p-cuotas">' + c.nc + ' CUOTAS DE ' + clp(c.vc) + '</div>' +
+      '<div class="p-cuotas">' + c.nc + ' CUOTAS DE <b>' + clp(c.vc) + '</b></div>' +
       '<div class="p-cae">CAE: ' + c.caeTxt + ' / CTC: ' + clp(c.ctc) + '</div></div></div>';
   }
   const badgeHTML = () => { const s = CFG.slots.badgeUnica.src; return s ? '<img src="' + s + '" alt="Oportunidad única" />' : '<div class="ph">Sube el sello «Oportunidad única + CMR»<br>en Configuración</div>'; };
@@ -290,12 +290,13 @@
     // Jerarquía: en tamaños chicos el precio principal (OU/oferta) va más grande que el resto
     const small = !size.cae;               // grandes (carta, 13×19) = precios iguales
     const PRIN = small ? "lg" : "xl";       // principal oferta/normal
-    const OUsz = small ? "lg" : "lg";       // OU principal
+    const OUsz = small ? "lg" : "xl";       // OU principal
     const SEC  = small ? "sm" : "md";       // secundarios (normal, otro medio)
+    $("cartel").classList.toggle("big", !small);   // proporciones del sistema en tamaños grandes
     let html = "";
     if (t.ou) {
       html += line("", clp(c.precioOU), "p-rojo", OUsz) + cuotasHTML(c);
-      const ouSec = small ? "sm" : "lg";    // en carta los 3 van igual (lg); en chicos, más chicos
+      const ouSec = small ? "sm" : "xm";    // en grandes los secundarios algo menores que el principal
       if ($("ouTmp").checked && !isNaN(c.precioOferta)) html += line("TODO MEDIO DE PAGO", clp(c.precioOferta), "p-negro", ouSec);
       if (!isNaN(c.precioNormal)) html += line("PRECIO NORMAL", clp(c.precioNormal), "p-negro", ouSec);
     } else if (t.oferta) {
@@ -557,7 +558,7 @@
       fit.style.setProperty("--k", String(k));
       return fit.scrollHeight <= availH * 0.97 && fit.scrollWidth <= availW + 0.5;
     };
-    let lo = 0.05, hi = 1.25;   // tope: más grande que antes (~+29 %) sin pasarse de proporción
+    let lo = 0.05, hi = 1;      // tamaño normal: solo achica si no cabe (como el sistema), nunca agranda
     if (cabe(hi)) { fit.style.setProperty("--k", String(hi)); return; }
     for (let i = 0; i < 14; i++) {
       const mid = (lo + hi) / 2;

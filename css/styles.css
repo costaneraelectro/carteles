@@ -155,9 +155,11 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .c-precios { text-align: center; margin-top: calc(10px * var(--k)); }
 .p-block { margin: calc(6px * var(--k)) 0; }
 .p-tag { font-weight: 700; font-size: calc(30px * var(--k)); letter-spacing: .01em; text-transform: uppercase; line-height: 1; }
-.p-val { font-weight: 700; letter-spacing: -0.01em; line-height: .9; }
+.p-tag.p-negro { font-weight: 500; }                 /* etiquetas negras en Medium (como el sistema) */
+.p-val { font-weight: 500; letter-spacing: -0.01em; line-height: .9; }   /* precios en Medium, no Bold/Black */
 .p-val.xl { font-size: calc(120px * var(--k)); }
 .p-val.lg { font-size: calc(88px * var(--k)); }
+.p-val.xm { font-size: calc(76px * var(--k)); }
 .p-val.md { font-size: calc(70px * var(--k)); }
 .p-val.sm { font-size: calc(52px * var(--k)); }
 .p-tag.sm { font-size: calc(22px * var(--k)); }
@@ -165,8 +167,22 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .p-negro { color: var(--negro); }
 .p-cuotas-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: calc(6px * var(--k)); }
 .p-cuotas-txt { text-align: left; }
-.p-cuotas { font-weight: 700; font-size: calc(40px * var(--k)); line-height: 1; }
-.p-cae { font-weight: 500; font-size: calc(25px * var(--k)); color: #222; }
+.p-cuotas { font-weight: 400; font-size: calc(40px * var(--k)); line-height: 1; }
+.p-cuotas b { font-weight: 500; font-size: 1.12em; }
+.p-cae { font-weight: 400; font-size: calc(25px * var(--k)); color: #222; }
+
+/* Tamaños grandes (carta, 13×19, 9×13): proporciones medidas de los carteles del sistema.
+   Precio principal ≈ 7,5 % del ancho del papel; modelo/SKU más chicos; marca algo menor. */
+.cartel.big .c-marca { font-size: calc(54px * var(--k)); }
+.cartel.big .c-cat { font-size: calc(32px * var(--k)); }
+.cartel.big .c-modelo { font-size: calc(17px * var(--k)); }
+.cartel.big .c-sku { font-size: calc(18px * var(--k)); }
+.cartel.big .c-badge img { height: calc(84px * var(--k)); }
+.cartel.big .p-val.xl { font-size: calc(84px * var(--k)); }
+.cartel.big .p-val.xm { font-size: calc(76px * var(--k)); }
+.cartel.big .p-val.md { font-size: calc(58px * var(--k)); }
+.cartel.big .p-cuotas { font-size: calc(30px * var(--k)); }
+.cartel.big .p-cae { font-size: calc(20px * var(--k)); }
 
 /* Ocultar cromo (header/legal) en tamaños chicos */
 .cartel.no-chrome { padding-top: 20px; }
