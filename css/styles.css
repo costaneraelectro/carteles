@@ -124,7 +124,7 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 
 /* Franja = banner de borde a borde (full bleed) */
 .c-franja { margin: -34px -46px 0; padding: 0; background: var(--papel); display: flex; align-items: center; justify-content: center; }
-.c-franja img { width: 100%; max-height: 130px; object-fit: contain; display: block; }
+.c-franja img { max-width: none; max-height: none; display: block; }   /* tamaño en px lo fija fitFranja (html2canvas no soporta object-fit) */
 .c-franja.hidden { display: none; }
 
 /* Cuerpo: se auto-escala para calzar en el alto fijo */
@@ -138,7 +138,7 @@ fieldset legend { font-size: 12px; font-weight: 800; color: var(--verde-osc); te
 .c-media img { max-width: 74%; max-height: calc(240px * var(--k)); object-fit: contain; transform-origin: center; }
 .c-media.hidden { display: none; }
 /* con imagen: la foto llena el espacio de arriba (alto lo fija fitBody) y el texto queda abajo */
-.cartel.has-img .c-media img { width: 92%; height: 100%; max-width: none; max-height: none; object-fit: contain; }
+.cartel.has-img .c-media img { max-width: none; max-height: none; }   /* tamaño en px lo fija fitBody (sin object-fit) */
 
 /* Info */
 .c-info { text-align: center; margin-top: 6px; }

@@ -242,6 +242,18 @@
     el.textContent = msg; el.classList.toggle("hidden", !msg);
   }
 
+  // Banner franja: ancho completo, alto máx. 130 px, SIN deformar. Se calcula en px porque
+  // html2canvas 1.4.1 ignora object-fit (al exportar estiraba el banner a lo ancho).
+  function fitFranja() {
+    const im = $("franjaImg"), box = $("franja");
+    if (!im.naturalWidth || !im.naturalHeight) return;
+    const bw = box.clientWidth; if (!bw) return;
+    const s = Math.min(bw / im.naturalWidth, 130 / im.naturalHeight);
+    im.style.width = Math.round(im.naturalWidth * s) + "px";
+    im.style.height = Math.round(im.naturalHeight * s) + "px";
+  }
+  $("franjaImg").addEventListener("load", () => { fitFranja(); fitBody(); });
+
   function renderPortrait(size) {
     const c = calc(), t = c.t;
     const ev = CFG.eventos.find((e) => e.id === $("evento").value);
@@ -250,7 +262,7 @@
     $("cartel").classList.toggle("no-chrome", !size.banner);
     $("franja").classList.toggle("hidden", !franja);
     $("top").classList.toggle("hidden", !header);
-    if (franja) $("franjaImg").src = ev.src;
+    if (franja) { $("franjaImg").src = ev.src; fitFranja(); }
     if (header) $("topBannerImg").src = ev.src;
 
     const qrOn = size.banner && $("showQr").checked && $("qrLink").value.trim();
@@ -570,11 +582,22 @@
       if (cabe(mid)) lo = mid; else hi = mid;
     }
     fit.style.setProperty("--k", String(lo));
+    const im = $("mediaImg");
     if (hasImg) {                // la imagen absorbe el espacio libre: el texto baja
       const textH = fit.scrollHeight - MINIMG;
       media.style.height = Math.max(MINIMG, Math.floor(availH * 0.97 - textH)) + "px";
-    }
+      // Tamaño en px respetando la proporción de la foto. NO se usa object-fit: html2canvas
+      // 1.4.1 no lo soporta y al exportar estiraba la imagen (se veía achatada en Windows).
+      if (im.naturalWidth && im.naturalHeight) {
+        const boxW = media.clientWidth * 0.92, boxH = media.clientHeight - 12;   // 12 = padding vertical
+        const s = Math.min(boxW / im.naturalWidth, boxH / im.naturalHeight);
+        im.style.width = Math.round(im.naturalWidth * s) + "px";
+        im.style.height = Math.round(im.naturalHeight * s) + "px";
+      }
+    } else { im.style.width = ""; im.style.height = ""; }
   }
+  // al cargar la foto hay que recalcular su tamaño
+  $("mediaImg").addEventListener("load", () => fitBody());
 
   /* ====================================================================
      BUSCAR EN FALABELLA (API JSON pública vía proxy)
@@ -746,7 +769,9 @@
   }
   async function snap(el) {
     await ensureFonts();
-    if (curSize().layout === "planes") fitPlanes();   // reajusta con la fuente ya cargada
+    const lay = curSize().layout;
+    if (lay === "planes") fitPlanes();                 // reajusta con la fuente ya cargada
+    else if (lay === "p") fitBody();                   // idem en verticales (Windows carga fuentes más lento)
     const w = el.offsetWidth, h = el.offsetHeight;
     // html2canvas se descoloca (texto encimado) si un ancestro tiene transform:scale
     // (el zoom del preview). Se quita durante la captura y se restaura.
