@@ -6,7 +6,10 @@
   /* ---------- Tamaños (cm) y capacidades ----------
      img=lleva foto  banner=lleva banner+QR+pie legal  cae=permite cuotas/CAE  */
   const SIZES = {
-    carta:  { w: 19.5, h: 26, layout: "p", img: true,  banner: true,  cae: true,  label: "Carta" },
+    // Carta (solo texto) y Carta con foto van por separado: cada una con su proporción.
+    // fitMax = tope del factor de letra (1 = tamaño base; >1 permite agrandar si sobra espacio).
+    carta:  { w: 19.5, h: 26, layout: "p", img: false, banner: true,  cae: true,  fitMax: 1.22, label: "Carta" },
+    cartafoto: { w: 19.5, h: 26, layout: "p", img: true, banner: true, cae: true, fitMax: 1, label: "Carta con foto" },
     s13x19: { w: 13,   h: 19, layout: "p", img: false, banner: true,  cae: true,  label: "13×19" },
     s9x13:  { w: 9,    h: 13, layout: "p", img: false, banner: true,  cae: true,  label: "9×13" },
     s9x7:   { w: 9,    h: 7,  layout: "p", img: false, banner: true,  cae: false, label: "9×7" },
@@ -218,10 +221,10 @@
       $("cartel").style.height = Math.round(DW * (size.h / size.w)) + "px";
     }
     // imagen manual + editor solo carta con imagen
-    const imgOn = size.img && $("showImg").checked;
+    const imgOn = size.img;                       // "Carta con foto" siempre lleva imagen
     $("imgManualWrap").classList.toggle("hidden", !imgOn);
     $("fsImg").classList.toggle("hidden", !imgOn);
-    $("showImg").parentElement.classList.toggle("hidden", !size.img);
+    $("showImg").parentElement.classList.add("hidden");   // ya no hace falta: el tamaño decide si lleva foto
 
     if (telco) renderTelco(); else if (planes) renderPlanes(); else if (horiz) renderHorizontal(); else renderPortrait(size);
     checkPriceWarn();
@@ -271,7 +274,7 @@
     if (qrOn) { if ($("qrBox").dataset.link !== $("qrLink").value.trim()) { $("qrBox").dataset.link = $("qrLink").value.trim(); drawQR($("qrLink").value.trim()); } }
     else { $("qrBox").innerHTML = ""; $("qrBox").dataset.link = ""; }
 
-    const showImg = size.img && $("showImg").checked;
+    const showImg = size.img;
     $("media").classList.toggle("hidden", !showImg);
     if (showImg) {
       const sku = $("sku").value.trim();
@@ -575,7 +578,7 @@
       fit.style.setProperty("--k", String(k));
       return fit.scrollHeight <= availH * 0.97 && fit.scrollWidth <= availW + 0.5;
     };
-    let lo = 0.05, hi = 1;      // tamaño normal: solo achica si no cabe (como el sistema), nunca agranda
+    let lo = 0.05, hi = curSize().fitMax || 1;   // 1 = tamaño base (solo achica); Carta sin foto puede crecer un poco
     if (cabe(hi)) lo = hi;
     else for (let i = 0; i < 14; i++) {
       const mid = (lo + hi) / 2;
@@ -668,6 +671,8 @@
   // estado del formulario (para editar piezas ya grabadas)
   function formState() { const o = { _img: manualImg || null }; FIELDS.forEach((id) => { const el = $(id); if (!el) return; o[id] = CHECKS.has(id) ? el.checked : el.value; }); return o; }
   function setFormState(o) {
+    // piezas grabadas antes de separar «Carta» / «Carta con foto»: carta con foto pasa a cartafoto
+    if (o.tamano === "carta" && o.showImg) o = Object.assign({}, o, { tamano: "cartafoto" });
     manualImg = o._img || null;
     FIELDS.forEach((id) => { const el = $(id); if (!el || !(id in o)) return; if (CHECKS.has(id)) el.checked = !!o[id]; else el.value = o[id]; });
     $("imgManualWrap").classList.toggle("hidden", !$("showImg").checked);

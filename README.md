@@ -18,7 +18,7 @@ Reproduce la estructura exacta de la cartelería de tienda:
   precios (oferta / normal / CMR) desde la API pública de falabella.com
   (`browse/v3/product`, vía proxy CORS con reintentos). **Confirma siempre**.
 - **Imagen por SKU** — `media.falabella.com/falabellaCL/{sku}/public`, con upload
-  manual de respaldo (solo Carta). Sin imagen, el contenido va **centrado**.
+  manual de respaldo (solo **Carta con foto**). Sin imagen, el contenido va **centrado**.
 - **QR** — pega un link (Falabella.com u otro) y genera el QR en la esquina
   (solo Carta, 13×19 y 9×7).
 - **CAE / cuotas automáticos** — 12 cuotas @ 39,93%: cuota ≈ precio × 0,101296,
@@ -37,7 +37,8 @@ roaming editable; Entel iconos de redes; WOM texto. Los logos **CONNECT**,
 **bandas 2G-5G** e **iconos redes Entel** ya vienen cargados (reemplazables en
 Configuración → avanzado).
 
-Tamaños: **Carta** (con imagen, banner/QR, CAE), **13×19** (banner/QR, CAE, sin
+Tamaños: **Carta** (solo texto, letra grande; banner/QR, CAE), **Carta con foto**
+(foto arriba y texto abajo; banner/QR, CAE), **13×19** (banner/QR, CAE, sin
 imagen), **9×7** (banner/QR), **9×13** y **6×4** (solo precios) y **12×3**
 (horizontal). Solo Carta y 13×19 llevan CAE; solo Carta, 13×19 y 9×7 llevan
 banner/QR.
