@@ -548,9 +548,14 @@
      Sin transform, para que html2canvas exporte bien. */
   function fitBody() {
     const L = curSize().layout; if (L === "h" || L === "telco" || L === "planes") return;
-    const body = $("body"), fit = $("fit");
+    const body = $("body"), fit = $("fit"), media = $("media"), cartel = $("cartel");
     const availH = body.clientHeight, availW = fit.clientWidth;
     if (!availH || !availW) return;
+    // Con imagen: la foto va ARRIBA y se estira con todo el espacio sobrante; el texto queda abajo.
+    const hasImg = !media.classList.contains("hidden") && !!$("mediaImg").getAttribute("src");
+    cartel.classList.toggle("has-img", hasImg);
+    const MINIMG = hasImg ? Math.round(availH * 0.34) : 0;      // alto mínimo de la imagen
+    media.style.height = hasImg ? MINIMG + "px" : "";
     // Busca el MAYOR factor de letra (--k) que cabe: alto <= disponible y nada desborda
     // en ancho (el precio no se parte, así que desborda cuando es demasiado grande).
     // scrollWidth solo crece si algo se sale, por eso se prueba por bisección.
@@ -559,12 +564,16 @@
       return fit.scrollHeight <= availH * 0.97 && fit.scrollWidth <= availW + 0.5;
     };
     let lo = 0.05, hi = 1;      // tamaño normal: solo achica si no cabe (como el sistema), nunca agranda
-    if (cabe(hi)) { fit.style.setProperty("--k", String(hi)); return; }
-    for (let i = 0; i < 14; i++) {
+    if (cabe(hi)) lo = hi;
+    else for (let i = 0; i < 14; i++) {
       const mid = (lo + hi) / 2;
       if (cabe(mid)) lo = mid; else hi = mid;
     }
     fit.style.setProperty("--k", String(lo));
+    if (hasImg) {                // la imagen absorbe el espacio libre: el texto baja
+      const textH = fit.scrollHeight - MINIMG;
+      media.style.height = Math.max(MINIMG, Math.floor(availH * 0.97 - textH)) + "px";
+    }
   }
 
   /* ====================================================================
