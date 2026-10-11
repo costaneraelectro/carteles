@@ -9,7 +9,7 @@
     // Carta (solo texto) y Carta con foto van por separado: cada una con su proporción.
     // fitMax = tope del factor de letra (1 = tamaño base; >1 permite agrandar si sobra espacio).
     carta:  { w: 19.5, h: 26, layout: "p", img: false, banner: true,  cae: true,  fitMax: 1.22, label: "Carta" },
-    cartafoto: { w: 19.5, h: 26, layout: "p", img: true, banner: true, cae: true, fitMax: 1, label: "Carta con foto" },
+    cartafoto: { w: 19.5, h: 26, layout: "p", img: true, banner: true, cae: true, fitMax: 1.2, label: "Carta con foto" },
     s13x19: { w: 13,   h: 19, layout: "p", img: false, banner: true,  cae: true,  label: "13×19" },
     s9x13:  { w: 9,    h: 13, layout: "p", img: false, banner: true,  cae: true,  label: "9×13" },
     s9x7:   { w: 9,    h: 7,  layout: "p", img: false, banner: true,  cae: false, label: "9×7" },
@@ -569,8 +569,6 @@
     // Con imagen: la foto va ARRIBA y se estira con todo el espacio sobrante; el texto queda abajo.
     const hasImg = !media.classList.contains("hidden") && !!$("mediaImg").getAttribute("src");
     cartel.classList.toggle("has-img", hasImg);
-    const MINIMG = hasImg ? Math.round(availH * 0.34) : 0;      // alto mínimo de la imagen
-    media.style.height = hasImg ? MINIMG + "px" : "";
     // Busca el MAYOR factor de letra (--k) que cabe: alto <= disponible y nada desborda
     // en ancho (el precio no se parte, así que desborda cuando es demasiado grande).
     // scrollWidth solo crece si algo se sale, por eso se prueba por bisección.
@@ -578,11 +576,22 @@
       fit.style.setProperty("--k", String(k));
       return fit.scrollHeight <= availH * 0.97 && fit.scrollWidth <= availW + 0.5;
     };
-    let lo = 0.05, hi = curSize().fitMax || 1;   // 1 = tamaño base (solo achica); Carta sin foto puede crecer un poco
-    if (cabe(hi)) lo = hi;
-    else for (let i = 0; i < 14; i++) {
-      const mid = (lo + hi) / 2;
-      if (cabe(mid)) lo = mid; else hi = mid;
+    const kMax = curSize().fitMax || 1;   // 1 = tamaño base (solo achica); Carta sin foto puede crecer un poco
+    const buscar = () => {
+      let lo = 0.05, hi = kMax;
+      if (cabe(hi)) return hi;
+      for (let i = 0; i < 14; i++) { const mid = (lo + hi) / 2; if (cabe(mid)) lo = mid; else hi = mid; }
+      return lo;
+    };
+    // Con foto: se reserva un alto mínimo para la imagen (30 %). Si así la letra queda más chica
+    // que el tamaño base, la foto cede espacio (25 %, 20 %) para que el texto no se vea pequeño.
+    const FRACS = hasImg ? [0.30, 0.25, 0.20] : [0];
+    let MINIMG = 0, lo = 0.05;
+    for (let i = 0; i < FRACS.length; i++) {
+      MINIMG = hasImg ? Math.round(availH * FRACS[i]) : 0;
+      media.style.height = hasImg ? MINIMG + "px" : "";
+      lo = buscar();
+      if (lo >= 1) break;
     }
     fit.style.setProperty("--k", String(lo));
     const im = $("mediaImg");
