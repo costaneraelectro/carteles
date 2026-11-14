@@ -142,7 +142,7 @@
 
       <fieldset id="fsDoble" class="hidden">
         <legend>Cartel doble (2 productos)</legend>
-        <p class="hint" style="margin-top:0">Dos productos en una carta. Cada uno puede ir con precio oferta o precio normal.</p>
+        <p class="hint" style="margin-top:0">Dos productos en una carta. Cada uno puede ir con precio oferta (rojo), Oportunidad única (sello + rojo) o precio normal.</p>
         <div class="db-form">
           <div class="db-form__t">Producto arriba</div>
           <div class="field"><label>SKU (autocompletar)</label><div class="inline-btn"><input type="text" id="dbASku" placeholder="17123831" /><button class="btn sku" id="dbABtn" type="button" style="flex:0 0 auto;padding:9px 12px">Buscar</button></div><div class="hint" id="dbAHint"></div></div>
@@ -152,7 +152,7 @@
           </div>
           <div class="field"><label>Modelo / SKU <span class="badge-auto">opcional</span></label><input type="text" id="dbAMod" placeholder="MODELO / SKU" /></div>
           <div class="row2">
-            <div class="field"><label>Tipo</label><select id="dbATipo"><option value="oferta">Precio oferta</option><option value="normal">Precio normal</option></select></div>
+            <div class="field"><label>Tipo</label><select id="dbATipo"><option value="oferta">Precio oferta</option><option value="ou">Oportunidad única</option><option value="normal">Precio normal</option></select></div>
             <div class="field"><label>Precio</label><input type="number" id="dbAPrecio" placeholder="9990" /></div>
           </div>
           <div class="field" id="dbANormalWrap"><label>Precio normal (va debajo)</label><input type="number" id="dbANormal" placeholder="10990" /></div>
@@ -166,7 +166,7 @@
           </div>
           <div class="field"><label>Modelo / SKU <span class="badge-auto">opcional</span></label><input type="text" id="dbBMod" placeholder="MODELO / SKU" /></div>
           <div class="row2">
-            <div class="field"><label>Tipo</label><select id="dbBTipo"><option value="oferta">Precio oferta</option><option value="normal">Precio normal</option></select></div>
+            <div class="field"><label>Tipo</label><select id="dbBTipo"><option value="oferta">Precio oferta</option><option value="ou">Oportunidad única</option><option value="normal">Precio normal</option></select></div>
             <div class="field"><label>Precio</label><input type="number" id="dbBPrecio" placeholder="24990" /></div>
           </div>
           <div class="field" id="dbBNormalWrap"><label>Precio normal (va debajo)</label><input type="number" id="dbBNormal" placeholder="10990" /></div>

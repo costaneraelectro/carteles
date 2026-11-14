@@ -380,15 +380,17 @@
   }
   function dobleBlock(k) {
     const g = (s) => $("db" + k + s).value.trim();
-    const oferta = $("db" + k + "Tipo").value === "oferta";
-    $("db" + k + "NormalWrap").classList.toggle("hidden", !oferta);
+    const tipo = $("db" + k + "Tipo").value, oferta = tipo === "oferta", ou = tipo === "ou";
+    const rojo = (oferta || ou) ? " p-rojo" : "";          // oferta y OU van en rojo, como en los demás carteles
+    $("db" + k + "NormalWrap").classList.toggle("hidden", !(oferta || ou));
     const precio = clp(num("db" + k + "Precio")) || "$0", normal = clp(num("db" + k + "Normal"));
     return '<div class="x-fitw"><span class="db-name" data-fit="56">' + esc(g("Prod") || "PRODUCTO") + '</span></div>' +
       (g("Marca") ? '<div class="db-marca">' + esc(g("Marca")) + '</div>' : '') +
       (g("Mod") ? '<div class="db-mod">' + esc(g("Mod")) + '</div>' : '') +
-      '<div class="db-tag">' + (oferta ? "PRECIO OFERTA" : "PRECIO NORMAL") + '</div>' +
-      '<div class="x-fitw"><span class="db-precio" data-fit="188" data-grp="p">' + precio + '</span></div>' +
-      (oferta && normal ? '<div class="db-normal">PRECIO NORMAL ' + normal + '</div>' : '');
+      (ou ? '<div class="db-badge">' + badgeHTML() + '</div>'
+          : '<div class="db-tag' + rojo + '">' + (oferta ? "PRECIO OFERTA" : "PRECIO NORMAL") + '</div>') +
+      '<div class="x-fitw"><span class="db-precio' + rojo + '" data-fit="188" data-grp="p">' + precio + '</span></div>' +
+      ((oferta || ou) && normal ? '<div class="db-normal">PRECIO NORMAL ' + normal + '</div>' : '');
   }
   function renderDoble() {
     xChrome("db");
@@ -429,8 +431,8 @@
     set("Prod", cat.toUpperCase()); set("Mod", m[0]);
     const v = (d.variants || []).find((x) => x.id === d.primaryVariantId) || (d.variants || [])[0] || {};
     const pr = {}; (v.prices || []).forEach((p) => { pr[p.type] = parseInt(String((p.price && p.price[0]) || "").replace(/\D/g, ""), 10); });
-    const of = !isNaN(pr.cmrPrice) ? pr.cmrPrice : pr.internetPrice;
-    if (!isNaN(of) && !isNaN(pr.normalPrice) && of < pr.normalPrice) { set("Tipo", "oferta"); set("Precio", of); set("Normal", pr.normalPrice); }
+    const esOU = !isNaN(pr.cmrPrice), of = esOU ? pr.cmrPrice : pr.internetPrice;
+    if (!isNaN(of) && !isNaN(pr.normalPrice) && of < pr.normalPrice) { set("Tipo", esOU ? "ou" : "oferta"); set("Precio", of); set("Normal", pr.normalPrice); }
     else { set("Tipo", "normal"); set("Precio", !isNaN(pr.normalPrice) ? pr.normalPrice : (isNaN(of) ? "" : of)); set("Normal", ""); }
     hint.textContent = "Datos cargados — CONFIRMA producto y precios.";
     render();

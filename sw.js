@@ -3,7 +3,7 @@
      cae a caché solo sin conexión (evita servir versiones viejas).
    - Imágenes/fuentes locales: cache-first (rápido y offline).
    - Otros dominios (falabella.com, media.falabella, Firebase): directo a la red. */
-const CACHE = "carteles-v4";
+const CACHE = "carteles-v5";
 const CORE = [
   "./",
   "index.html",

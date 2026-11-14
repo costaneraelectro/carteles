@@ -577,3 +577,8 @@ html[data-theme="dark"] .btn.ghost.active { color: #10240a; }
 /* Carta con foto: bloques más juntos para que la foto tenga más alto */
 .cartel.sis.has-img .c-precios { margin-top: calc(18px * var(--k)); }
 .cartel.sis.has-img .p-block + .p-block, .cartel.sis.has-img .p-cuotas-wrap + .p-block { margin-top: calc(26px * var(--k)); }
+.cartelX .db-badge { display: flex; justify-content: center; margin-top: 8px; }
+.cartelX .db-badge img { height: 62px; display: block; }
+.cartelX .db-badge .ph { border: 2px dashed #ddd; color: #b3b3b3; font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; border-radius: 10px; padding: 8px 14px; }
+.cartelX .db-block + .db-block { padding-top: 18px; }
+.cartelX .db-block + .x-tail { padding-top: 10px; }

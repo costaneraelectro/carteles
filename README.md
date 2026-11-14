@@ -53,8 +53,9 @@ modelos, «4x» y monto gigantes en rojo (se ajustan solos al ancho), precio nor
 (texto libre), nota y vigencia.
 
 **Carta doble (2 productos)** — dos productos en una carta, uno arriba y otro
-abajo. Cada uno con *Buscar por SKU*, y tipo **precio oferta** (con «precio
-normal» debajo) o **precio normal**. Los dos precios quedan del mismo tamaño.
+abajo. Cada uno con *Buscar por SKU* y tipo **precio oferta** (rojo, con «precio
+normal» debajo), **Oportunidad única** (sello + precio rojo, con «precio normal»
+debajo) o **precio normal** (negro). Los dos precios quedan del mismo tamaño.
 
 Flujo para imprimir varias en una hoja carta:
 
