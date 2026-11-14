@@ -3,7 +3,7 @@
      cae a caché solo sin conexión (evita servir versiones viejas).
    - Imágenes/fuentes locales: cache-first (rápido y offline).
    - Otros dominios (falabella.com, media.falabella, Firebase): directo a la red. */
-const CACHE = "carteles-v3";
+const CACHE = "carteles-v4";
 const CORE = [
   "./",
   "index.html",
@@ -13,6 +13,7 @@ const CORE = [
   "js/lib/html2canvas.min.js",
   "js/lib/jspdf.umd.min.js",
   "manifest.webmanifest",
+  "assets/icon/logo.svg",
 ];
 
 self.addEventListener("install", (e) => {

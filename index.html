@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <script>(function(){try{var t=localStorage.getItem("cartel-theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <title>Generador de Carteles · Falabella</title>
-<link rel="icon" type="image/png" sizes="32x32" href="assets/icon/favicon-32.png" />
-<link rel="icon" type="image/png" sizes="192x192" href="assets/icon/icon-192.png" />
-<link rel="apple-touch-icon" href="assets/icon/apple-touch.png" />
+<link rel="icon" type="image/svg+xml" href="assets/icon/logo.svg?v=2" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icon/favicon-32.png?v=2" />
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon/icon-192.png?v=2" />
+<link rel="apple-touch-icon" href="assets/icon/apple-touch.png?v=2" />
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#a6ce39" />
 <link rel="stylesheet" href="css/styles.css" />
@@ -25,7 +26,7 @@
   <section class="panel">
     <div class="panel__head">
       <button class="themebtn" id="themeBtn" title="Modo claro / oscuro" aria-label="Cambiar tema">🌙</button>
-      <h1>Generador de Carteles</h1>
+      <h1><img class="applogo" src="assets/icon/logo.svg?v=2" alt="" width="34" height="34" />Generador de Carteles</h1>
       <p class="sub">Elige el tipo, escribe el SKU y ajusta. El cartel se arma con la estructura de tienda.</p>
     </div>
 
@@ -45,6 +46,7 @@
           <select id="tamano">
             <option value="carta">Carta</option>
             <option value="cartafoto">Carta con foto</option>
+            <option value="s15x21">15 × 21 cm</option>
             <option value="s13x19">13 × 19 cm</option>
             <option value="s9x13">9 × 13 cm</option>
             <option value="s9x7">9 × 7 cm</option>
@@ -52,6 +54,8 @@
             <option value="s12x3">12 × 3 cm (horizontal)</option>
             <option value="s9x13plan">9 × 13 cm · Planes</option>
             <option value="plancarta">Carta gráfica planes</option>
+            <option value="nxcarta">Carta N × monto</option>
+            <option value="doblecarta">Carta doble (2 productos)</option>
           </select>
           <div class="hint" id="tamHint"></div>
         </div>
@@ -71,7 +75,7 @@
         <div class="field check" id="ouTmpWrap"><input type="checkbox" id="ouTmp" checked /><label for="ouTmp" style="margin:0">Mostrar Oferta TMP en Oportunidad única</label></div>
       </fieldset>
 
-      <fieldset>
+      <fieldset id="fsProducto">
         <legend>Producto</legend>
         <div class="field" id="skuField">
           <label>SKU (manual)</label>
@@ -119,6 +123,63 @@
         <div class="field" id="fPrecio"><label>Precio</label><input type="number" id="precio" placeholder="249990" /></div>
         <div class="field" id="fNormal"><label>Precio normal</label><input type="number" id="precioNormal" placeholder="249990" /></div>
         <div class="warn hidden" id="priceWarn"></div>
+      </fieldset>
+
+      <fieldset id="fsNX" class="hidden">
+        <legend>N × monto</legend>
+        <p class="hint" style="margin-top:0">Promoción «lleva N por $ monto». El número y el monto se ajustan solos al ancho.</p>
+        <div class="row2">
+          <div class="field"><label>Producto</label><input type="text" id="nxProd" placeholder="CALCETINES" /></div>
+          <div class="field"><label>Marca</label><input type="text" id="nxMarca" placeholder="BASEMENT" /></div>
+        </div>
+        <div class="field"><label>Línea de modelos <span class="badge-auto">opcional</span></label><input type="text" id="nxMod" placeholder="MODELOS $2.990 Y $3.990" /></div>
+        <div class="row2">
+          <div class="field"><label>Cantidad (N)</label><input type="number" id="nxN" placeholder="4" min="2" /></div>
+          <div class="field"><label>Monto</label><input type="number" id="nxMonto" placeholder="9990" /></div>
+        </div>
+        <div class="field"><label>Precio normal (texto libre)</label><input type="text" id="nxNormal" placeholder="$2.990 Y $3.990" /></div>
+      </fieldset>
+
+      <fieldset id="fsDoble" class="hidden">
+        <legend>Cartel doble (2 productos)</legend>
+        <p class="hint" style="margin-top:0">Dos productos en una carta. Cada uno puede ir con precio oferta o precio normal.</p>
+        <div class="db-form">
+          <div class="db-form__t">Producto arriba</div>
+          <div class="field"><label>SKU (autocompletar)</label><div class="inline-btn"><input type="text" id="dbASku" placeholder="17123831" /><button class="btn sku" id="dbABtn" type="button" style="flex:0 0 auto;padding:9px 12px">Buscar</button></div><div class="hint" id="dbAHint"></div></div>
+          <div class="row2">
+            <div class="field"><label>Producto</label><input type="text" id="dbAProd" placeholder="POLERA" /></div>
+            <div class="field"><label>Marca</label><input type="text" id="dbAMarca" placeholder="BASEMENT" /></div>
+          </div>
+          <div class="field"><label>Modelo / SKU <span class="badge-auto">opcional</span></label><input type="text" id="dbAMod" placeholder="MODELO / SKU" /></div>
+          <div class="row2">
+            <div class="field"><label>Tipo</label><select id="dbATipo"><option value="oferta">Precio oferta</option><option value="normal">Precio normal</option></select></div>
+            <div class="field"><label>Precio</label><input type="number" id="dbAPrecio" placeholder="9990" /></div>
+          </div>
+          <div class="field" id="dbANormalWrap"><label>Precio normal (va debajo)</label><input type="number" id="dbANormal" placeholder="10990" /></div>
+        </div>
+        <div class="db-form">
+          <div class="db-form__t">Producto abajo</div>
+          <div class="field"><label>SKU (autocompletar)</label><div class="inline-btn"><input type="text" id="dbBSku" placeholder="17123831" /><button class="btn sku" id="dbBBtn" type="button" style="flex:0 0 auto;padding:9px 12px">Buscar</button></div><div class="hint" id="dbBHint"></div></div>
+          <div class="row2">
+            <div class="field"><label>Producto</label><input type="text" id="dbBProd" placeholder="JEANS" /></div>
+            <div class="field"><label>Marca</label><input type="text" id="dbBMarca" placeholder="BASEMENT" /></div>
+          </div>
+          <div class="field"><label>Modelo / SKU <span class="badge-auto">opcional</span></label><input type="text" id="dbBMod" placeholder="MODELO / SKU" /></div>
+          <div class="row2">
+            <div class="field"><label>Tipo</label><select id="dbBTipo"><option value="oferta">Precio oferta</option><option value="normal">Precio normal</option></select></div>
+            <div class="field"><label>Precio</label><input type="number" id="dbBPrecio" placeholder="24990" /></div>
+          </div>
+          <div class="field" id="dbBNormalWrap"><label>Precio normal (va debajo)</label><input type="number" id="dbBNormal" placeholder="10990" /></div>
+        </div>
+      </fieldset>
+
+      <fieldset id="fsXPie" class="hidden">
+        <legend>Nota y vigencia</legend>
+        <div class="field"><label>Nota</label><input type="text" id="xNota" value="SÓLO PRODUCTOS ETIQUETADOS" /></div>
+        <div class="row2">
+          <div class="field"><label>Vigencia desde</label><input type="date" id="xVigD" /></div>
+          <div class="field"><label>Hasta</label><input type="date" id="xVigH" /></div>
+        </div>
       </fieldset>
 
       <fieldset id="fsTelco" class="hidden">
@@ -189,7 +250,7 @@
         <div class="hint" style="margin-top:-4px">Auto = 12 cuotas @ 39,93%. Verifica con tu sistema si cambia.</div>
       </fieldset>
 
-      <fieldset>
+      <fieldset id="fsVig">
         <legend>Vigencia</legend>
         <div class="row2">
           <div class="field"><label>Desde</label><input type="date" id="vigDesde" /></div>
@@ -357,6 +418,36 @@
       </article>
 
       <!-- Layout carta gráfica planes (letter) -->
+      <article class="cartelX hidden" id="cartelNX">
+        <div class="x-top"><img id="nxBanner" alt="" /></div>
+        <div class="x-body" id="nxBody">
+          <div class="x-head">
+            <div class="x-fitw"><span class="x-prod" data-fit="84" id="oNxProd"></span></div>
+            <div class="x-marca" id="oNxMarca"></div>
+            <div class="x-mod" id="oNxMod"></div>
+          </div>
+          <div class="nx-promo">
+            <div class="x-fitw"><span class="nx-n" data-fit="235" id="oNxN"></span></div>
+            <div class="x-fitw"><span class="nx-monto" data-fit="205" id="oNxMonto"></span></div>
+          </div>
+          <div class="x-tail">
+            <div class="x-normal" id="oNxNormal"></div>
+            <div class="x-nota" id="oNxNota"></div>
+          </div>
+        </div>
+        <footer class="x-footer"><div class="x-legal"><div class="vig" id="oNxVig"></div><div id="oNxLegal"></div></div><img class="x-logo" id="oNxLogo" alt="" /></footer>
+      </article>
+
+      <article class="cartelX hidden" id="cartelDB">
+        <div class="x-top"><img id="dbBanner" alt="" /></div>
+        <div class="x-body" id="dbBody">
+          <div class="db-block" id="oDbA"></div>
+          <div class="db-block" id="oDbB"></div>
+          <div class="x-tail"><div class="x-nota db" id="oDbNota"></div></div>
+        </div>
+        <footer class="x-footer"><div class="x-legal"><div class="vig" id="oDbVig"></div><div id="oDbLegal"></div></div><img class="x-logo" id="oDbLogo" alt="" /></footer>
+      </article>
+
       <article class="cartelPL hidden" id="cartelPL"></article>
     </div>
 

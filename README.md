@@ -37,11 +37,24 @@ roaming editable; Entel iconos de redes; WOM texto. Los logos **CONNECT**,
 **bandas 2G-5G** e **iconos redes Entel** ya vienen cargados (reemplazables en
 Configuración → avanzado).
 
-Tamaños: **Carta** (solo texto, letra grande; banner/QR, CAE), **Carta con foto**
-(foto arriba y texto abajo; banner/QR, CAE), **13×19** (banner/QR, CAE, sin
-imagen), **9×7** (banner/QR), **9×13** y **6×4** (solo precios) y **12×3**
-(horizontal). Solo Carta y 13×19 llevan CAE; solo Carta, 13×19 y 9×7 llevan
-banner/QR.
+Tamaños: **Carta** (21,5×28 cm, solo texto; banner/QR, CAE), **Carta con foto**
+(foto arriba y texto abajo), **15×21**, **13×19** y **9×13** (banner/QR, CAE),
+**9×7** (banner/QR), **6×4** (solo precios) y **12×3** (horizontal).
+
+**Proporciones del sistema oficial:** Carta, 15×21, 13×19 y 9×13 usan las medidas
+tomadas de los PDF que genera el sistema de carteles de la empresa (mismos tamaños
+de página): banner centrado, marca Bold arriba, categoría y «MODELO / SKU» en
+Regular, precio Bold (≈67 % del ancho en carta, ≈58 % en 13×19), cuotas/CAE en
+Regular y pie con margen inferior. El contenido se reparte en la hoja (no queda
+agrupado al centro).
+
+**Carta N × monto** — promoción «lleva N por $ monto»: producto, marca, línea de
+modelos, «4x» y monto gigantes en rojo (se ajustan solos al ancho), precio normal
+(texto libre), nota y vigencia.
+
+**Carta doble (2 productos)** — dos productos en una carta, uno arriba y otro
+abajo. Cada uno con *Buscar por SKU*, y tipo **precio oferta** (con «precio
+normal» debajo) o **precio normal**. Los dos precios quedan del mismo tamaño.
 
 Flujo para imprimir varias en una hoja carta:
 
@@ -161,9 +174,10 @@ js/app.js           Detección automática, formateo de precios y exportación
 fonts/              Brandon Grotesque (subir) + fonts.css
 assets/banners/     Banners de evento (exclusivo falabella, sneaker corner…)
 assets/logos/       CMR puntos
+assets/icon/        Logo de la app (logo.svg) e iconos (favicon, PWA)
 ```
 
 ## Publicar en GitHub Pages
 
-Settings → Pages → Deploy from branch → `main` / root. Queda en
+Settings → Pages → Deploy from branch → rama por defecto / root. Queda en
 `https://costaneraelectro.github.io/carteles/`.

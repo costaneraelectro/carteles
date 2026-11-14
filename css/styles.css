@@ -491,3 +491,89 @@ html[data-theme="dark"] .btn.ghost.active { color: #10240a; }
 /* ===== PLANES · v5: alto automático, sin recorte (export contain) ===== */
 .cartelPL { overflow: visible; height: auto; }
 .pl-inner { transform: none !important; }
+
+
+/* ========================================================================
+   PROPORCIONES DEL SISTEMA OFICIAL (carta 21,5×28 y 13×19)
+   Medidas tomadas de los PDF que genera carteles.falabella.com:
+   marca Bold ≈5,7 % del alto · categoría y modelo Regular · precio Bold ≈67 % del
+   ancho (carta) / 58 % (13×19) · banner centrado · pie con margen inferior.
+   ======================================================================== */
+.cartel.sis { padding-top: 50px; }
+.cartel.sis .c-top { justify-content: center; }
+.cartel.sis .c-top__banner { flex: 0 1 auto; text-align: center; }
+.cartel.sis .c-top__banner img { max-width: 100%; max-height: 33px; }
+.cartel.sis .c-body { justify-content: flex-start; }
+.cartel.sis .c-info { margin-top: 0; }
+.cartel.sis .c-marca { font-weight: 700; font-size: calc(76px * var(--k)); line-height: .95; letter-spacing: 0; }
+.cartel.sis .c-cat { font-weight: 400; font-size: calc(32px * var(--k)); margin-top: calc(2px * var(--k)); }
+.cartel.sis .c-modelo { font-weight: 400; font-size: calc(27px * var(--k)); margin-top: calc(12px * var(--k)); text-transform: none; color: var(--negro); }
+.cartel.sis .c-badge img { height: calc(92px * var(--k)); }
+.cartel.sis .c-precios { margin-top: 0; }
+.cartel.sis .p-block { margin: 0; }
+.cartel.sis .p-block + .p-block, .cartel.sis .p-cuotas-wrap + .p-block { margin-top: calc(72px * var(--k)); }
+.cartel.sis .p-tag { font-weight: 700; font-size: calc(37px * var(--k)); letter-spacing: 0; margin-bottom: calc(10px * var(--k)); }
+.cartel.sis .p-tag.p-negro { font-weight: 700; font-size: calc(35px * var(--k)); }
+.cartel.sis .p-val { font-weight: 700; letter-spacing: .03em; line-height: .9; }
+.cartel.sis .p-val.xl { font-size: calc(120px * var(--k)); }
+.cartel.sis .p-val.xm { font-size: calc(66px * var(--k)); }
+.cartel.sis .p-val.md { font-size: calc(66px * var(--k)); }
+.cartel.sis .p-cuotas-wrap { margin-top: calc(14px * var(--k)); }
+.cartel.sis .p-cuotas-txt { text-align: center; }
+.cartel.sis .p-cuotas { font-weight: 400; font-size: calc(28px * var(--k)); }
+.cartel.sis .p-cuotas b { font-weight: 400; font-size: 1.3em; }
+.cartel.sis .p-cae { font-weight: 400; font-size: calc(27px * var(--k)); color: var(--negro); line-height: 1.25; }
+.cartel.sis .c-footer { padding-bottom: 42px; }
+/* 13×19: precio algo menor; categoría, modelo y cuotas algo mayores (relativo al ancho) */
+.cartel.sis.s13 .c-marca { font-size: calc(75px * var(--k)); }
+.cartel.sis.s13 .c-cat { font-size: calc(37px * var(--k)); }
+.cartel.sis.s13 .c-modelo { font-size: calc(30px * var(--k)); }
+.cartel.sis.s13 .p-val.xl { font-size: calc(103px * var(--k)); }
+.cartel.sis.s13 .p-tag { font-size: calc(35px * var(--k)); }
+.cartel.sis.s13 .p-tag.p-negro { font-size: calc(31px * var(--k)); }
+.cartel.sis.s13 .p-val.xm, .cartel.sis.s13 .p-val.md { font-size: calc(63px * var(--k)); }
+.cartel.sis.s13 .p-cuotas { font-size: calc(32px * var(--k)); }
+.cartel.sis.s13 .p-cae { font-size: calc(30px * var(--k)); }
+
+/* ===== Logo de la app ===== */
+.panel h1 { display: flex; align-items: center; gap: 10px; }
+.applogo { width: 34px; height: 34px; flex: 0 0 auto; display: block; }
+.db-form { border-top: 1px dashed var(--gris-cl); padding-top: 10px; margin-top: 10px; }
+.db-form__t { font-weight: 700; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .7; margin-bottom: 6px; }
+
+/* ========================================================================
+   CARTELES CARTA NUEVOS: N × MONTO y DOBLE (21,5 × 27,9 cm → 750 × 973 px)
+   ======================================================================== */
+.cartelX {
+  width: 750px; height: 973px; background: var(--papel); color: var(--negro); font-family: var(--font);
+  position: relative; display: flex; flex-direction: column; padding: 50px 46px 0; overflow: hidden; text-align: center;
+}
+.cartelX .x-top { display: flex; justify-content: center; align-items: flex-start; min-height: 33px; }
+.cartelX .x-top img { max-height: 33px; max-width: 100%; }
+.cartelX .x-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 38px 0 4px; overflow: hidden; }
+.cartelX .x-fitw { width: 100%; white-space: nowrap; }
+.cartelX .x-fitw > span { display: inline-block; white-space: nowrap; }
+.cartelX .x-prod { font-weight: 700; font-size: 84px; line-height: .95; text-transform: uppercase; }
+.cartelX .x-marca { font-weight: 400; font-size: 40px; line-height: 1.1; text-transform: uppercase; margin-top: 6px; }
+.cartelX .x-mod { font-weight: 400; font-size: 21px; line-height: 1.2; text-transform: uppercase; margin-top: 8px; }
+.cartelX .nx-promo { color: var(--rojo); }
+.cartelX .nx-n, .cartelX .nx-monto { font-weight: 700; line-height: .86; }
+.cartelX .nx-monto { letter-spacing: -0.01em; }
+.cartelX .x-normal { font-weight: 400; font-size: 27px; line-height: 1.15; text-transform: uppercase; }
+.cartelX .x-nota { font-weight: 400; font-size: 17px; letter-spacing: .22em; text-transform: uppercase; margin-top: 12px; }
+.cartelX .x-nota.db { font-size: 19px; letter-spacing: .03em; margin-top: 0; }
+.cartelX .x-footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; padding: 8px 0 42px; }
+.cartelX .x-legal { font-family: Arial, Helvetica, sans-serif; font-size: 10px; line-height: 1.25; color: #444; text-align: left; text-transform: uppercase; }
+.cartelX .x-legal .vig { font-weight: 700; }
+.cartelX .x-logo { height: 88px; flex: 0 0 auto; }
+/* Doble */
+.cartelX .db-block { display: flex; flex-direction: column; align-items: center; }
+.cartelX .db-name { font-weight: 700; line-height: .95; text-transform: uppercase; }
+.cartelX .db-marca { font-weight: 400; font-size: 25px; line-height: 1.1; text-transform: uppercase; margin-top: 4px; }
+.cartelX .db-mod { font-weight: 400; font-size: 15px; line-height: 1.2; text-transform: uppercase; }
+.cartelX .db-tag { font-weight: 700; font-size: 30px; line-height: 1; margin-top: 10px; }
+.cartelX .db-precio { font-weight: 700; line-height: .82; letter-spacing: -0.01em; }
+.cartelX .db-normal { font-weight: 400; font-size: 25px; line-height: 1.1; margin-top: 2px; }
+/* Carta con foto: bloques más juntos para que la foto tenga más alto */
+.cartel.sis.has-img .c-precios { margin-top: calc(18px * var(--k)); }
+.cartel.sis.has-img .p-block + .p-block, .cartel.sis.has-img .p-cuotas-wrap + .p-block { margin-top: calc(26px * var(--k)); }

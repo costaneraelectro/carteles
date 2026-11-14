@@ -8,15 +8,19 @@
   const SIZES = {
     // Carta (solo texto) y Carta con foto van por separado: cada una con su proporción.
     // fitMax = tope del factor de letra (1 = tamaño base; >1 permite agrandar si sobra espacio).
-    carta:  { w: 19.5, h: 26, layout: "p", img: false, banner: true,  cae: true,  fitMax: 1.22, label: "Carta" },
-    cartafoto: { w: 19.5, h: 26, layout: "p", img: true, banner: true, cae: true, fitMax: 1.2, label: "Carta con foto" },
-    s13x19: { w: 13,   h: 19, layout: "p", img: false, banner: true,  cae: true,  label: "13×19" },
-    s9x13:  { w: 9,    h: 13, layout: "p", img: false, banner: true,  cae: true,  label: "9×13" },
+    // sis = proporciones medidas de los PDF del sistema oficial de carteles (carta 21,5×28; 13×19).
+    carta:  { w: 21.5, h: 27.9, layout: "p", img: false, banner: true,  cae: true,  sis: "carta", label: "Carta" },
+    cartafoto: { w: 21.5, h: 27.9, layout: "p", img: true, banner: true, cae: true, sis: "carta", label: "Carta con foto" },
+    s13x19: { w: 13,   h: 19, layout: "p", img: false, banner: true,  cae: true,  sis: "s13", label: "13×19" },
+    s15x21: { w: 15,   h: 21, layout: "p", img: false, banner: true,  cae: true,  sis: "carta", label: "15×21" },
+    s9x13:  { w: 9,    h: 13, layout: "p", img: false, banner: true,  cae: true,  sis: "s13", label: "9×13" },
     s9x7:   { w: 9,    h: 7,  layout: "p", img: false, banner: true,  cae: false, label: "9×7" },
     s6x4:   { w: 6,    h: 4,  layout: "p", img: false, banner: false, cae: false, label: "6×4" },
     s12x3:  { w: 12,   h: 3,  layout: "h", img: false, banner: false, cae: false, label: "12×3" },
     s9x13plan: { w: 8.4, h: 12, layout: "telco", img: false, banner: false, cae: false, label: "9×13 Planes" },
     plancarta: { w: 21.6, h: 27.9, layout: "planes", img: true, banner: false, cae: false, label: "Carta gráfica planes" },
+    nxcarta:    { w: 21.5, h: 27.9, layout: "nx",    img: false, banner: false, cae: false, label: "Carta N × monto" },
+    doblecarta: { w: 21.5, h: 27.9, layout: "doble", img: false, banner: false, cae: false, label: "Carta doble" },
   };
   const LETTER = { w: 21.59, h: 27.94 }; // carta cm
   const TELCO_QR = "https://rebate-management-prd.eastus2.cloudapp.azure.com/rebate-carteles/download-pdf/insurance/?hash_cartel=T4RXdWu";
@@ -182,13 +186,21 @@
     const horiz = size.layout === "h";
     const telco = size.layout === "telco";
     const planes = size.layout === "planes";
+    const nx = size.layout === "nx", doble = size.layout === "doble", xl = nx || doble;   // carteles carta nuevos
     // capacidades / campos según tamaño
     $("caeWrap").classList.toggle("hidden", !size.cae);
     $("bannerWrap").classList.toggle("hidden", !size.banner);
     $("qrFieldset").classList.toggle("hidden", !size.banner || telco);   // QR fijo en telco
-    $("tipoField").classList.toggle("hidden", telco || planes);
-    $("fsPrecios").classList.toggle("hidden", telco || planes);
-    $("fsElectro").classList.toggle("hidden", telco || planes);
+    $("tipoField").classList.toggle("hidden", telco || planes || xl);
+    $("fsPrecios").classList.toggle("hidden", telco || planes || xl);
+    $("fsElectro").classList.toggle("hidden", telco || planes || xl);
+    $("fsProducto").classList.toggle("hidden", xl);
+    $("fsNX").classList.toggle("hidden", !nx);
+    $("fsDoble").classList.toggle("hidden", !doble);
+    $("fsXPie").classList.toggle("hidden", !xl);
+    if ($("fsVig")) $("fsVig").classList.toggle("hidden", xl);
+    $("fsLote").classList.toggle("hidden", xl || telco || planes);
+    if (xl) $("ouTmpWrap").classList.add("hidden");
     $("fsTelco").classList.toggle("hidden", !telco);
     $("fsPlanes").classList.toggle("hidden", !planes);
     $("fsBorde").classList.toggle("hidden", telco);          // telco ya trae su propio borde
@@ -198,7 +210,9 @@
     $("linkField").classList.toggle("hidden", telco);
     $("catField").classList.toggle("hidden", telco || planes);
     // layout activo
-    $("cartel").classList.toggle("hidden", horiz || telco || planes);
+    $("cartel").classList.toggle("hidden", horiz || telco || planes || xl);
+    $("cartelNX").classList.toggle("hidden", !nx);
+    $("cartelDB").classList.toggle("hidden", !doble);
     $("cartelH").classList.toggle("hidden", !horiz);
     $("cartelP").classList.toggle("hidden", !telco);
     $("cartelPL").classList.toggle("hidden", !planes);
@@ -211,6 +225,8 @@
       const el = $("cartelPL");
       el.style.width = "816px";
       el.style.height = "auto";      // alto según contenido (nada se recorta)
+    } else if (xl) {
+      /* 750 × 973 px fijo por CSS (21,5 × 27,9 cm) */
     } else if (horiz) {
       const HDES = 230, el = $("cartelH");
       el.style.height = HDES + "px";
@@ -226,9 +242,10 @@
     $("fsImg").classList.toggle("hidden", !imgOn);
     $("showImg").parentElement.classList.add("hidden");   // ya no hace falta: el tamaño decide si lleva foto
 
-    if (telco) renderTelco(); else if (planes) renderPlanes(); else if (horiz) renderHorizontal(); else renderPortrait(size);
+    if (telco) renderTelco(); else if (planes) renderPlanes(); else if (nx) renderNX(); else if (doble) renderDoble(); else if (horiz) renderHorizontal(); else renderPortrait(size);
     checkPriceWarn();
-    requestAnimationFrame(() => { fitBody(); if (planes) fitPlanes(); fitStage(); });
+    requestAnimationFrame(() => { fitBody(); if (planes) fitPlanes(); if (xl) fitX(activeEl()); fitStage(); });
+    if (xl && document.fonts && document.fonts.ready) document.fonts.ready.then(() => { const l = curSize().layout; if (l === "nx" || l === "doble") fitX(activeEl()); });
     if (planes && document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (curSize().layout === "planes") { fitPlanes(); fitStage(); } });
   }
 
@@ -288,8 +305,17 @@
     $("oMarca").textContent = $("marca").value.toUpperCase();
     $("oCat").textContent = $("categoria").value.toUpperCase();
     const modelo = $("modelo").value.trim(), sku = $("sku").value.trim();
-    $("oModelo").textContent = modelo ? "MODELO: " + modelo.toUpperCase() : ""; $("oModelo").classList.toggle("hidden", !modelo);
-    $("oSku").textContent = sku ? "SKU: " + sku : ""; $("oSku").classList.toggle("hidden", !sku);
+    const sis = size.sis || "";                 // proporciones del sistema oficial
+    const cl = $("cartel").classList;
+    cl.toggle("sis", !!sis); cl.toggle("s13", sis === "s13");
+    if (sis) {                                  // como el sistema: «MODELO / SKU» en una sola línea
+      const ms = [modelo, sku].filter(Boolean).join(" / ");
+      $("oModelo").textContent = ms; $("oModelo").classList.toggle("hidden", !ms);
+      $("oSku").textContent = ""; $("oSku").classList.add("hidden");
+    } else {
+      $("oModelo").textContent = modelo ? "MODELO: " + modelo.toUpperCase() : ""; $("oModelo").classList.toggle("hidden", !modelo);
+      $("oSku").textContent = sku ? "SKU: " + sku : ""; $("oSku").classList.toggle("hidden", !sku);
+    }
 
     $("badge").classList.toggle("hidden", !t.ou);
     if (t.ou) $("badge").innerHTML = badgeHTML();
@@ -325,6 +351,92 @@
     $("fLegal").textContent = CFG.legal;
     const logo = CFG.slots.fpuntos.src; $("fLogo").style.display = logo ? "" : "none"; if (logo) $("fLogo").src = logo;
   }
+
+  /* ====================================================================
+     CARTELES CARTA NUEVOS: «N × monto» y «Doble» (2 productos)
+     ==================================================================== */
+  const X_LEGAL = "CANJE Y ACUMULACIÓN DE PUNTOS SUJETOS A TÉRMINOS Y CONDICIONES DEL REGLAMENTO DEL PROGRAMA FPUNTOS VIGENTE.";
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  function xChrome(pre) {          // banner superior, nota, vigencia, legal y logo (común a ambos)
+    const ev = CFG.eventos.find((e) => !e.franja && e.src);
+    const b = $(pre + "Banner"); b.style.display = ev ? "" : "none"; if (ev) b.src = ev.src;
+    const o = pre === "nx" ? "oNx" : "oDb";
+    $(o + "Nota").textContent = $("xNota").value.trim();
+    const d = fmtFecha($("xVigD").value), h = fmtFecha($("xVigH").value);
+    $(o + "Vig").textContent = (d || h) ? ("VIGENCIA: " + d + (h ? " AL " + h : "")) : "";
+    $(o + "Legal").textContent = X_LEGAL;
+    const logo = CFG.slots.fpuntos.src, im = $(o + "Logo"); im.style.display = logo ? "" : "none"; if (logo) im.src = logo;
+  }
+  function renderNX() {
+    xChrome("nx");
+    $("oNxProd").textContent = $("nxProd").value.trim() || "PRODUCTO";
+    $("oNxMarca").textContent = $("nxMarca").value.trim();
+    $("oNxMod").textContent = $("nxMod").value.trim();
+    const n = parseInt($("nxN").value, 10);
+    $("oNxN").textContent = (isNaN(n) ? "N" : n) + "x";
+    $("oNxMonto").textContent = clp(num("nxMonto")) || "$0";
+    const pn = $("nxNormal").value.trim();
+    $("oNxNormal").textContent = pn ? "PRECIO NORMAL " + pn : "";
+  }
+  function dobleBlock(k) {
+    const g = (s) => $("db" + k + s).value.trim();
+    const oferta = $("db" + k + "Tipo").value === "oferta";
+    $("db" + k + "NormalWrap").classList.toggle("hidden", !oferta);
+    const precio = clp(num("db" + k + "Precio")) || "$0", normal = clp(num("db" + k + "Normal"));
+    return '<div class="x-fitw"><span class="db-name" data-fit="56">' + esc(g("Prod") || "PRODUCTO") + '</span></div>' +
+      (g("Marca") ? '<div class="db-marca">' + esc(g("Marca")) + '</div>' : '') +
+      (g("Mod") ? '<div class="db-mod">' + esc(g("Mod")) + '</div>' : '') +
+      '<div class="db-tag">' + (oferta ? "PRECIO OFERTA" : "PRECIO NORMAL") + '</div>' +
+      '<div class="x-fitw"><span class="db-precio" data-fit="188" data-grp="p">' + precio + '</span></div>' +
+      (oferta && normal ? '<div class="db-normal">PRECIO NORMAL ' + normal + '</div>' : '');
+  }
+  function renderDoble() {
+    xChrome("db");
+    $("oDbA").innerHTML = dobleBlock("A");
+    $("oDbB").innerHTML = dobleBlock("B");
+  }
+  // Ajuste de letra SIN transform (html2canvas): cada texto [data-fit] baja su font-size en px
+  // hasta caber a lo ancho; si el conjunto no cabe a lo alto, bajan todos. Los de un mismo
+  // grupo (data-grp) quedan del mismo tamaño (los 2 precios del cartel doble).
+  function fitX(root) {
+    const body = root.querySelector(".x-body"); if (!body || !body.clientHeight) return;
+    const els = Array.from(root.querySelectorAll("[data-fit]"));
+    let f = 1;
+    for (let i = 0; i < 7; i++) {
+      const grp = {};
+      els.forEach((el) => {
+        const max = parseFloat(el.dataset.fit) * f; el.style.fontSize = max + "px";
+        const w = el.parentElement.clientWidth, sw = el.offsetWidth;
+        let fs = sw > w ? Math.floor(max * w / sw) : max;
+        el.style.fontSize = fs + "px";
+        if (el.dataset.grp) grp[el.dataset.grp] = Math.min(grp[el.dataset.grp] || 1e9, fs);
+      });
+      els.forEach((el) => { if (el.dataset.grp) el.style.fontSize = grp[el.dataset.grp] + "px"; });
+      if (body.scrollHeight <= body.clientHeight + 1) break;
+      f *= Math.max(0.75, body.clientHeight / body.scrollHeight) * 0.985;
+    }
+  }
+  // Buscar por SKU cada producto del cartel doble
+  async function dbBuscar(k) {
+    const m = $("db" + k + "Sku").value.match(/\d{6,}/); const hint = $("db" + k + "Hint");
+    if (!m) { hint.textContent = "Escribe un SKU (mínimo 6 dígitos)."; return; }
+    hint.textContent = "Buscando en falabella.com…";
+    const res = await fetchProducto(m[0]);
+    if (!res.d) { hint.textContent = "No se pudo traer (" + res.err + "). Rellena manual."; return; }
+    const d = res.d, set = (s, v) => { $("db" + k + s).value = v == null ? "" : v; };
+    set("Marca", (d.brandName || "").toUpperCase());
+    let cat = ""; try { const bc = d.breadCrumb || []; if (bc.length) cat = (bc[bc.length - 1] || {}).label || ""; } catch (e) {}
+    set("Prod", cat.toUpperCase()); set("Mod", m[0]);
+    const v = (d.variants || []).find((x) => x.id === d.primaryVariantId) || (d.variants || [])[0] || {};
+    const pr = {}; (v.prices || []).forEach((p) => { pr[p.type] = parseInt(String((p.price && p.price[0]) || "").replace(/\D/g, ""), 10); });
+    const of = !isNaN(pr.cmrPrice) ? pr.cmrPrice : pr.internetPrice;
+    if (!isNaN(of) && !isNaN(pr.normalPrice) && of < pr.normalPrice) { set("Tipo", "oferta"); set("Precio", of); set("Normal", pr.normalPrice); }
+    else { set("Tipo", "normal"); set("Precio", !isNaN(pr.normalPrice) ? pr.normalPrice : (isNaN(of) ? "" : of)); set("Normal", ""); }
+    hint.textContent = "Datos cargados — CONFIRMA producto y precios.";
+    render();
+  }
+  $("dbABtn").addEventListener("click", () => dbBuscar("A"));
+  $("dbBBtn").addEventListener("click", () => dbBuscar("B"));
 
   function renderHorizontal() {
     const c = calc(), t = c.t;
@@ -572,6 +684,9 @@
     // Busca el MAYOR factor de letra (--k) que cabe: alto <= disponible y nada desborda
     // en ancho (el precio no se parte, así que desborda cuando es demasiado grande).
     // scrollWidth solo crece si algo se sale, por eso se prueba por bisección.
+    // reparto vertical (solo proporciones del sistema, sin foto): se limpia antes de medir
+    const info = fit.querySelector(".c-info"), badge = $("badge"), precios = $("precios");
+    info.style.marginTop = ""; badge.style.marginTop = ""; precios.style.marginTop = "";
     const cabe = (k) => {
       fit.style.setProperty("--k", String(k));
       return fit.scrollHeight <= availH * 0.97 && fit.scrollWidth <= availW + 0.5;
@@ -607,6 +722,14 @@
         im.style.height = Math.round(im.naturalHeight * s) + "px";
       }
     } else { im.style.width = ""; im.style.height = ""; }
+    // Proporciones del sistema: marca arriba, precios al medio y aire antes del pie
+    // (no todo agrupado al centro). Márgenes en px: html2canvas los respeta.
+    if (cartel.classList.contains("sis") && !hasImg) {
+      const libre = Math.max(0, availH - fit.scrollHeight);
+      info.style.marginTop = Math.round(libre * 0.19) + "px";
+      const sig = badge.classList.contains("hidden") ? precios : badge;
+      sig.style.marginTop = Math.round(libre * 0.32) + "px";
+    }
   }
   // al cargar la foto hay que recalcular su tamaño
   $("mediaImg").addEventListener("load", () => fitBody());
@@ -672,7 +795,9 @@
   /* ---------- Toggles ---------- */
   $("showImg").addEventListener("change", () => { $("imgManualWrap").classList.toggle("hidden", !$("showImg").checked); render(); });
   $("showQr").addEventListener("change", () => { $("qrWrap").classList.toggle("hidden", !$("showQr").checked); render(); });
-  const FIELDS = ["tipo","tamano","caeOn","evento","ouTmp","sku","marca","categoria","modelo","qrLink","precio","precioNormal","precioOferta","precioOU","nCuotas","cae","valorCuota","ctc","vigDesde","vigHasta","imgZoom","imgX","imgY","showImg","showQr"];
+  const XFIELDS = ["nxProd","nxMarca","nxMod","nxN","nxMonto","nxNormal","xNota","xVigD","xVigH"]
+    .concat(...["A","B"].map((k) => ["Sku","Prod","Marca","Mod","Tipo","Precio","Normal"].map((s) => "db" + k + s)));
+  const FIELDS = ["tipo","tamano","caeOn","evento","ouTmp","sku","marca","categoria","modelo","qrLink","precio","precioNormal","precioOferta","precioOU","nCuotas","cae","valorCuota","ctc","vigDesde","vigHasta","imgZoom","imgX","imgY","showImg","showQr"].concat(XFIELDS);
   const CHECKS = new Set(["caeOn","ouTmp","showImg","showQr"]);
   FIELDS.filter((id) => !["showImg","showQr"].includes(id))
     .forEach((id) => { $(id).addEventListener("input", render); $(id).addEventListener("change", render); });
@@ -700,6 +825,7 @@
   $("btnLimpiar").addEventListener("click", () => {
     if (!confirm("¿Limpiar el cartel y empezar desde 0?")) return;
     ["sku","marca","categoria","modelo","qrLink","precio","precioNormal","precioOferta","precioOU","valorCuota","ctc","vigDesde","vigHasta","link","loteSkus"].forEach((id) => { if ($(id)) $(id).value = ""; });
+    XFIELDS.forEach((id) => { $(id).value = ""; }); $("xNota").value = "SÓLO PRODUCTOS ETIQUETADOS"; $("dbATipo").value = "oferta"; $("dbBTipo").value = "oferta";
     $("tipo").value = "normal"; $("nCuotas").value = "12"; $("cae").value = "39,93%";
     $("caeOn").checked = false; $("ouTmp").checked = true;
     if ($("showImg")) $("showImg").checked = true; if ($("showQr")) $("showQr").checked = false;
@@ -714,7 +840,7 @@
      HOJA / IMPOSICIÓN
      ==================================================================== */
   let QUEUE = []; // {sizeKey, url, id?}
-  const activeEl = () => { const l = curSize().layout; return l === "h" ? $("cartelH") : l === "telco" ? $("cartelP") : l === "planes" ? $("cartelPL") : $("cartel"); };
+  const activeEl = () => { const l = curSize().layout; return l === "h" ? $("cartelH") : l === "telco" ? $("cartelP") : l === "planes" ? $("cartelPL") : l === "nx" ? $("cartelNX") : l === "doble" ? $("cartelDB") : $("cartel"); };
 
   /* ---------- Firebase opcional (Firestore + TTL 24h) ---------- */
   const FB = { ready: false, db: null, fs: null };
@@ -786,6 +912,7 @@
     const lay = curSize().layout;
     if (lay === "planes") fitPlanes();                 // reajusta con la fuente ya cargada
     else if (lay === "p") fitBody();                   // idem en verticales (Windows carga fuentes más lento)
+    else if (lay === "nx" || lay === "doble") fitX(el);
     const w = el.offsetWidth, h = el.offsetHeight;
     // html2canvas se descoloca (texto encimado) si un ancestro tiene transform:scale
     // (el zoom del preview). Se quita durante la captura y se restaura.
@@ -795,7 +922,13 @@
       return await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff", width: w, height: h });
     } finally { ss.style.transform = prev; }
   }
-  const nombre = () => (($("marca").value || "cartel") + "-" + ($("sku").value || Date.now())).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const nombre = () => {
+    const l = curSize().layout;
+    const base = l === "nx" ? "nx-" + ($("nxProd").value || "cartel") + "-" + ($("nxN").value || "") + "x" + ($("nxMonto").value || "")
+      : l === "doble" ? "doble-" + ($("dbAProd").value || "a") + "-" + ($("dbBProd").value || "b")
+      : ($("marca").value || "cartel") + "-" + ($("sku").value || Date.now());
+    return base.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  };
   const errExport = () => alert("No se pudo exportar. Si la imagen viene del SKU puede bloquear la descarga (CORS): sube la imagen manual.");
 
   // Borde para recortar en descargas individuales (PNG/PDF).
