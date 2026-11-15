@@ -92,9 +92,9 @@
         </div>
         <div class="row2">
           <div class="field"><label>Marca</label><input type="text" id="marca" placeholder="NINJA" /></div>
-          <div class="field" id="catField"><label>Categoría</label><input type="text" id="categoria" placeholder="ELECTRO HOGAR" /></div>
+          <div class="field" id="catField"><label>Producto <span class="badge-auto">singular</span></label><input type="text" id="categoria" placeholder="SMART TV" /></div>
         </div>
-        <div class="field"><label>Modelo <span class="badge-auto">opcional</span></label><input type="text" id="modelo" placeholder="NC300EU" /></div>
+        <div class="field"><label>Modelo <span class="badge-auto">sin marca</span></label><input type="text" id="modelo" placeholder="NC300EU" /></div>
         <div class="field check"><input type="checkbox" id="showImg" /><label for="showImg" style="margin:0">Mostrar imagen del producto (del SKU)</label></div>
         <div class="field hidden" id="imgManualWrap"><label>Imagen manual</label><input type="file" id="imagen" accept="image/*" /></div>
         <div id="fsImg" class="hidden" style="border-top:1px dashed var(--gris-cl);padding-top:10px;margin-top:4px">
@@ -270,6 +270,7 @@
         </div>
       </fieldset>
 
+      <div class="warn hidden" id="vigWarn"></div>
       <div class="actions">
         <button class="btn png" id="btnPng">Descargar PNG</button>
         <button class="btn pdf" id="btnPdf">Descargar PDF</button>
@@ -323,7 +324,7 @@
     <div class="tabpane hidden" id="pane-config">
       <fieldset>
         <legend>Banners</legend>
-        <p class="hint" style="margin-top:0">Sube, edita o borra banners. Marca "franja" para que ocupe todo el ancho; sin marcar va como header (arriba-izquierda). Se guardan en este navegador.</p>
+        <p class="hint" style="margin-top:0">Sube, edita o borra banners. Marca "franja" para que ocupe todo el ancho; sin marcar va como header (arriba a la izquierda). Se guardan en este navegador.</p>
         <div class="bannerlist" id="bannerlist"></div>
         <div class="actions" style="margin-top:12px"><button class="btn ghost" id="addBanner">+ Agregar banner</button></div>
       </fieldset>

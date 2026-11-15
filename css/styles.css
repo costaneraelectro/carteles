@@ -582,3 +582,22 @@ html[data-theme="dark"] .btn.ghost.active { color: #10240a; }
 .cartelX .db-badge .ph { border: 2px dashed #ddd; color: #b3b3b3; font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; border-radius: 10px; padding: 8px 14px; }
 .cartelX .db-block + .db-block { padding-top: 18px; }
 .cartelX .db-block + .x-tail { padding-top: 10px; }
+
+/* ===== Ajustes según carteles del sistema (Oportunidad única P-118) ===== */
+/* banner «tenemos más…» a la IZQUIERDA (el QR va a la derecha) */
+.cartel.sis .c-top { justify-content: flex-start; padding-left: 26px; }
+.cartelX .x-top { justify-content: flex-start; padding-left: 26px; }
+/* modelo en mayúscula */
+.cartel.sis .c-modelo { text-transform: uppercase; }
+/* etiqueta DEBAJO del precio (otro medio de pago / precio normal) */
+.p-tag.p-tag--below { margin-top: calc(4px * var(--k)); }
+.p-tag.p-reg { font-weight: 400; }
+.cartel.sis .p-tag.p-tag--below { margin: calc(12px * var(--k)) 0 0; font-size: calc(30px * var(--k)); font-weight: 500; }
+.cartel.sis .p-tag.p-tag--below.p-reg { font-weight: 400; font-size: calc(28px * var(--k)); }
+/* Oportunidad única: OU y «otro medio de pago» del mismo tamaño (≈53 % del ancho), normal menor */
+.cartel.sis.ou .p-val.xl, .cartel.sis .p-val.xo { font-size: calc(95px * var(--k)); }
+.cartel.sis.s13.ou .p-val.xl, .cartel.sis.s13 .p-val.xo { font-size: calc(84px * var(--k)); }
+.cartel.sis.ou .c-badge { margin-bottom: 0; }
+.cartel.sis.ou .c-badge img { height: calc(84px * var(--k)); }
+.cartel.sis.ou .p-block + .p-block, .cartel.sis.ou .p-cuotas-wrap + .p-block { margin-top: calc(40px * var(--k)); }
+.cartel:not(.sis) .p-val.xo { font-size: calc(76px * var(--k)); }

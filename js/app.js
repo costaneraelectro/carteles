@@ -244,9 +244,25 @@
 
     if (telco) renderTelco(); else if (planes) renderPlanes(); else if (nx) renderNX(); else if (doble) renderDoble(); else if (horiz) renderHorizontal(); else renderPortrait(size);
     checkPriceWarn();
+    checkVigWarn(size, xl, telco);
     requestAnimationFrame(() => { fitBody(); if (planes) fitPlanes(); if (xl) fitX(activeEl()); fitStage(); });
     if (xl && document.fonts && document.fonts.ready) document.fonts.ready.then(() => { const l = curSize().layout; if (l === "nx" || l === "doble") fitX(activeEl()); });
     if (planes && document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (curSize().layout === "planes") { fitPlanes(); fitStage(); } });
+  }
+
+  // aviso si falta la vigencia (el cartel saldría sin fechas)
+  function checkVigWarn(size, xl, telco) {
+    const el = $("vigWarn"); if (!el) return;
+    const usa = !(size.layout === "p" && !size.banner);          // 6×4 no muestra vigencia
+    const d = xl ? $("xVigD").value : $("vigDesde").value, h = xl ? $("xVigH").value : $("vigHasta").value;
+    let msg = "";
+    if (usa) {
+      if (!d && !h) msg = "⚠ Falta la vigencia: el cartel saldrá sin fechas. Anótala antes de imprimir.";
+      else if (!d) msg = "⚠ Vigencia incompleta: falta la fecha «desde».";
+      else if (!h && !telco) msg = "⚠ Vigencia incompleta: falta la fecha «hasta».";
+      else if (d && h && h < d) msg = "⚠ Vigencia al revés: «hasta» es anterior a «desde».";
+    }
+    el.textContent = msg; el.classList.toggle("hidden", !msg);
   }
 
   // 5) aviso si el precio de oferta/OU no es menor al normal
@@ -307,9 +323,9 @@
     const modelo = $("modelo").value.trim(), sku = $("sku").value.trim();
     const sis = size.sis || "";                 // proporciones del sistema oficial
     const cl = $("cartel").classList;
-    cl.toggle("sis", !!sis); cl.toggle("s13", sis === "s13");
+    cl.toggle("sis", !!sis); cl.toggle("s13", sis === "s13"); cl.toggle("ou", t.ou);
     if (sis) {                                  // como el sistema: «MODELO / SKU» en una sola línea
-      const ms = [modelo, sku].filter(Boolean).join(" / ");
+      const ms = [modelo.toUpperCase(), sku].filter(Boolean).join(" / ");
       $("oModelo").textContent = ms; $("oModelo").classList.toggle("hidden", !ms);
       $("oSku").textContent = ""; $("oSku").classList.add("hidden");
     } else {
@@ -327,7 +343,12 @@
     $("ouTmpWrap").classList.toggle("hidden", !t.ou);
     $("fsElectro").classList.toggle("hidden", !t.cae);
 
-    const line = (tag, val, cls, sz) => '<div class="p-block">' + (tag ? '<div class="p-tag ' + sz + ' ' + (cls || '') + '">' + tag + '</div>' : '') + '<div class="p-val ' + sz + ' ' + (cls || 'p-negro') + '">' + (val || '$0') + '</div></div>';
+    // below = la etiqueta va DEBAJO del precio (precios secundarios: otro medio de pago / normal)
+    const line = (tag, val, cls, sz, below) => {
+      const T = tag ? '<div class="p-tag ' + sz + ' ' + (cls || '') + (below ? ' p-tag--below' : '') + '">' + tag + '</div>' : '';
+      const V = '<div class="p-val ' + sz + ' ' + (cls || 'p-negro').replace(" p-reg", "") + '">' + (val || '$0') + '</div>';
+      return '<div class="p-block">' + (below ? V + T : T + V) + '</div>';
+    };
     // Jerarquía: en tamaños chicos el precio principal (OU/oferta) va más grande que el resto
     const small = !size.cae;               // grandes (carta, 13×19) = precios iguales
     const PRIN = small ? "lg" : "xl";       // principal oferta/normal
@@ -337,12 +358,12 @@
     let html = "";
     if (t.ou) {
       html += line("", clp(c.precioOU), "p-rojo", OUsz) + cuotasHTML(c);
-      const ouSec = small ? "sm" : "xm";    // en grandes los secundarios algo menores que el principal
-      if ($("ouTmp").checked && !isNaN(c.precioOferta)) html += line("TODO MEDIO DE PAGO", clp(c.precioOferta), "p-negro", ouSec);
-      if (!isNaN(c.precioNormal)) html += line("PRECIO NORMAL", clp(c.precioNormal), "p-negro", ouSec);
+      // como el sistema: «otro medio de pago» del mismo tamaño que el OU; normal más chico; etiquetas debajo
+      if ($("ouTmp").checked && !isNaN(c.precioOferta)) html += line("OTRO MEDIO DE PAGO", clp(c.precioOferta), "p-negro", small ? "sm" : "xo", true);
+      if (!isNaN(c.precioNormal)) html += line("PRECIO NORMAL", clp(c.precioNormal), "p-negro p-reg", small ? "sm" : "md", true);
     } else if (t.oferta) {
       html += line("TODO MEDIO DE PAGO", clp(c.precioOferta), "p-rojo", PRIN) + cuotasHTML(c);
-      if (!isNaN(c.precioNormal)) html += line("PRECIO NORMAL", clp(c.precioNormal), "p-negro", SEC);
+      if (!isNaN(c.precioNormal)) html += line("PRECIO NORMAL", clp(c.precioNormal), "p-negro p-reg", SEC, true);
     } else { html += line("", clp(c.precio), "p-negro", PRIN) + cuotasHTML(c); }
     $("precios").innerHTML = html;
 
@@ -427,8 +448,8 @@
     if (!res.d) { hint.textContent = "No se pudo traer (" + res.err + "). Rellena manual."; return; }
     const d = res.d, set = (s, v) => { $("db" + k + s).value = v == null ? "" : v; };
     set("Marca", (d.brandName || "").toUpperCase());
-    let cat = ""; try { const bc = d.breadCrumb || []; if (bc.length) cat = (bc[bc.length - 1] || {}).label || ""; } catch (e) {}
-    set("Prod", cat.toUpperCase()); set("Mod", m[0]);
+    let cat = "", mod = ""; try { cat = productoDe(d); mod = modeloDe(d, cat); } catch (e) {}
+    set("Prod", cat); set("Mod", [mod, m[0]].filter(Boolean).join(" / "));
     const v = (d.variants || []).find((x) => x.id === d.primaryVariantId) || (d.variants || [])[0] || {};
     const pr = {}; (v.prices || []).forEach((p) => { pr[p.type] = parseInt(String((p.price && p.price[0]) || "").replace(/\D/g, ""), 10); });
     const esOU = !isNaN(pr.cmrPrice), of = esOU ? pr.cmrPrice : pr.internetPrice;
@@ -769,16 +790,50 @@
     if (!sku) return;
     const hint = $("skuHint"); hint.textContent = "Buscando en falabella.com…";
     const res = await fetchProducto(sku);
-    if (res.d) { aplicarProducto(res.d, sku); hint.textContent = "Datos cargados — CONFIRMA los precios (pueden variar)."; render(); return; }
+    if (res.d) { aplicarProducto(res.d, sku); hint.textContent = "Datos cargados — CONFIRMA producto, modelo y precios (pueden variar)."; render(); return; }
     hint.textContent = "No se pudo traer de falabella.com (" + res.err + "). Publica en GitHub Pages o rellena manual.";
+  }
+  /* «Producto» del cartel (TV, CONSOLA, CÁMARA DEPORTIVA…), en singular, y modelo sin marca.
+     La ficha no trae el dato exacto: se deduce del nombre / categoría más específica. CONFIRMAR. */
+  const sinTildes = (s) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const soloAN = (s) => sinTildes(s).replace(/[^a-z0-9]/g, "");
+  const NO_SING = new Set(["microondas", "gps", "tenis", "jeans", "paraguas", "lentes", "audifonos", "accesorios"]);
+  function singular(w) {
+    const l = sinTildes(w);
+    if (l.length <= 3 || NO_SING.has(l) || !/s$/.test(l) || /[iu]s$/.test(l)) return w;
+    if (/[aeiou][rlndj]es$/.test(l) || /(ch|sh|x)es$/.test(l)) return w.slice(0, -2);   // televisores, relojes, smartwatches
+    return w.slice(0, -1);                                                               // consolas, parlantes, cables
+  }
+  function productoDe(d) {
+    const marca = soloAN(d.brandName), words = String(d.name || "").trim().split(/\s+/);
+    // 1) palabras del nombre antes de la marca: «Máquina de helados Ninja …»
+    const iB = marca ? words.findIndex((w) => soloAN(w) === marca) : -1;
+    if (iB >= 1 && iB <= 4 && !words.slice(0, iB).some((w) => /\d/.test(w))) return words.slice(0, iB).join(" ").toUpperCase();
+    // 2) categoría más específica (la primera), sin la marca y en singular: «Consolas Nintendo» → CONSOLA
+    const bc = d.breadCrumb || []; const cat = (bc[0] && bc[0].label) || "";
+    const mw = new Set(sinTildes(d.brandName).split(/\s+/).filter(Boolean));
+    let stop = false;
+    return cat.split(/\s+/).filter((w) => w && !mw.has(sinTildes(w)))
+      .map((w) => { if (/^(de|del|para|con|y|e|en|a)$/i.test(w)) stop = true; return stop ? w : singular(w); }).join(" ").toUpperCase();
+  }
+  function modeloDe(d, prod) {
+    const specs = (d.attributes && d.attributes.specifications) || [];
+    const m = specs.find((x) => /^modelo$/i.test(String(x.name || "").trim()));
+    const v = m ? String(m.value || "").trim() : "";
+    const marca = soloAN(d.brandName), pw = new Set(sinTildes(prod).split(/\s+/).filter(Boolean));
+    if (v && v.length <= 24 && v.split(/\s+/).length <= 3) {          // modelo de la ficha, sin la marca
+      const sm = v.split(/\s+/).filter((w) => soloAN(w) !== marca).join(" ");
+      if (sm) return sm.toUpperCase();
+    }
+    // sin modelo corto en la ficha: nombre sin la marca ni las palabras del producto
+    return String(d.name || "").split(/\s+/).filter((w) => { const l = soloAN(w); return l && l !== marca && !pw.has(sinTildes(w)); }).join(" ").toUpperCase();
   }
   function aplicarProducto(d, sku) {
     // borra lo anterior antes de rellenar
     ["marca", "categoria", "modelo", "precio", "precioOU", "precioOferta", "precioNormal"].forEach((id) => { $(id).value = ""; });
     if (sku) $("sku").value = sku;
     if (d.brandName) $("marca").value = d.brandName;
-    if (d.name) $("modelo").value = d.name;
-    try { const bc = d.breadCrumb || []; if (bc.length) $("categoria").value = (bc[bc.length - 2] || bc[bc.length - 1]).label || ""; } catch (e) {}
+    try { const prod = productoDe(d); $("categoria").value = prod; $("modelo").value = modeloDe(d, prod); } catch (e) {}
     const v = (d.variants || []).find((x) => x.id === d.primaryVariantId) || d.variants[0] || {};
     const pr = {}; (v.prices || []).forEach((p) => { pr[p.type] = parseInt(String((p.price && p.price[0]) || "").replace(/\D/g, ""), 10); });
     // detecta el tipo automáticamente

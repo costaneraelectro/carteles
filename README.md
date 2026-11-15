@@ -23,7 +23,7 @@ Reproduce la estructura exacta de la cartelería de tienda:
   (solo Carta, 13×19 y 9×7).
 - **CAE / cuotas automáticos** — 12 cuotas @ 39,93%: cuota ≈ precio × 0,101296,
   CTC ≈ precio × 1,22347 (de los carteles reales). Editables.
-- **Datos en el cartel** — MARCA, CATEGORÍA, `MODELO:` (si va) y `SKU:`.
+- **Datos en el cartel** — MARCA, PRODUCTO (singular), y `MODELO / SKU`.
 - **Pie** — vigencia, legal y logo **Fpuntos**.
 - **Exporta** — **PNG** y **PDF** carta vertical.
 
@@ -47,6 +47,17 @@ de página): banner centrado, marca Bold arriba, categoría y «MODELO / SKU» e
 Regular, precio Bold (≈67 % del ancho en carta, ≈58 % en 13×19), cuotas/CAE en
 Regular y pie con margen inferior. El contenido se reparte en la hoja (no queda
 agrupado al centro).
+
+Detalles que siguen al sistema: banner «Tenemos más…» **a la izquierda** (QR a la
+derecha); el campo **Producto** va en singular (TV, CONSOLA, CÁMARA DEPORTIVA) y el
+**modelo en mayúscula y sin la marca**; en precios secundarios la etiqueta va
+**debajo** del precio («OTRO MEDIO DE PAGO», «PRECIO NORMAL»); en Oportunidad única
+el precio OU y «otro medio de pago» van del mismo tamaño. Al buscar por SKU, el
+producto se deduce del nombre o de la categoría más específica (p. ej. «Consolas
+Nintendo» → CONSOLA) y el modelo de la ficha — **confirmar siempre**.
+
+**Aviso de vigencia:** sobre los botones de descarga aparece una advertencia si
+falta la vigencia, está incompleta o las fechas están al revés.
 
 **Carta N × monto** — promoción «lleva N por $ monto»: producto, marca, línea de
 modelos, «4x» y monto gigantes en rojo (se ajustan solos al ancho), precio normal
